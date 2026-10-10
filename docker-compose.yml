@@ -1,0 +1,60 @@
+
+services:
+  order-service:
+    build: ./target_apps/order_service
+    image: kybernaut-order-service:0.1.0
+    container_name: kybernaut-order-service
+    ports:
+      - "8001:8001"
+    restart: unless-stopped
+
+  payment-service:
+    build: ./target_apps/payment_service
+    image: kybernaut-payment-service:0.1.0
+    container_name: kybernaut-payment-service
+    ports:
+      - "8002:8002"
+    restart: unless-stopped
+
+  user-service:
+    build: ./target_apps/user_service
+    image: kybernaut-user-service:0.1.0
+    container_name: kybernaut-user-service
+    ports:
+      - "8003:8003"
+    restart: unless-stopped
+
+  inventory-service:
+    build: ./target_apps/inventory_service
+    image: kybernaut-inventory-service:0.1.0
+    container_name: kybernaut-inventory-service
+    ports:
+      - "8004:8004"
+    restart: unless-stopped
+
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: kybernaut-prometheus
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./monitoring/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+    command:
+      - "--config.file=/etc/prometheus/prometheus.yml"
+    restart: unless-stopped
+
+  grafana:
+    image: grafana/grafana:latest
+    container_name: kybernaut-grafana
+    ports:
+      - "3000:3000"
+    environment:
+      GF_SECURITY_ADMIN_USER: admin
+      GF_SECURITY_ADMIN_PASSWORD: jan05viswa
+    volumes:
+      - grafana-data:/var/lib/grafana
+    restart: unless-stopped
+
+volumes:
+  grafana-data:
+
