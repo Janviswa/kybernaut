@@ -254,7 +254,7 @@ async def _remediate_service_locked(
         write_audit_record(result)
         return result
 
-    except (OSError, asyncio.TimeoutError) as exc:
+    except Exception as exc:
         result = make_record(
             audit_id,
             service,

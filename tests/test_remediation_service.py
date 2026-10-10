@@ -241,3 +241,168 @@ async def test_successful_remediation_is_verified(
     assert result["health_before"] is False
     assert result["health_after"] is True
     assert updated_attempts[0]["status"] == "verified"
+
+
+@pytest.mark.asyncio
+async def test_helper_failure_is_recorded(
+    audit_log, monkeypatch
+):
+    async def fake_incident_id(service):
+        return "current-incident"
+
+    async def fake_health(service):
+        return False
+
+    monkeypatch.setattr(
+        remediation, "get_active_incident_id", fake_incident_id
+    )
+    monkeypatch.setattr(
+        remediation, "check_service_health", fake_health
+    )
+    monkeypatch.setattr(
+        remediation,
+        "reserve_attempt",
+        lambda **kwargs: {"allowed": True, "attempt_count": 1},
+    )
+
+    class FakeProcess:
+        returncode = 1
+
+        async def communicate(self):
+            return b"", b"Simulated helper failure"
+
+    async def fake_subprocess(*args, **kwargs):
+        return FakeProcess()
+
+    updated_attempts = []
+
+    def fake_update_attempt_result(**kwargs):
+        updated_attempts.append(kwargs)
+        return True
+
+    monkeypatch.setattr(
+        remediation.asyncio, "create_subprocess_exec", fake_subprocess
+    )
+    monkeypatch.setattr(
+        remediation, "update_attempt_result", fake_update_attempt_result
+    )
+
+    result = await remediation.remediate_service(
+        service="user-service",
+        approved=True,
+        incident_id="current-incident",
+    )
+
+    assert result["status"] == "failed"
+    assert "Simulated helper failure" in result["message"]
+    assert updated_attempts[0]["status"] == "failed"
+
+
+@pytest.mark.asyncio
+async def test_restart_without_recovery_is_unverified(
+    audit_log, monkeypatch
+):
+    async def fake_incident_id(service):
+        return "current-incident"
+
+    async def fake_health(service):
+        return False
+
+    monkeypatch.setattr(
+        remediation, "get_active_incident_id", fake_incident_id
+    )
+    monkeypatch.setattr(
+        remediation, "check_service_health", fake_health
+    )
+    monkeypatch.setattr(
+        remediation,
+        "reserve_attempt",
+        lambda **kwargs: {"allowed": True, "attempt_count": 1},
+    )
+
+    class FakeProcess:
+        returncode = 0
+
+        async def communicate(self):
+            return b"Simulated restart", b""
+
+    async def fake_subprocess(*args, **kwargs):
+        return FakeProcess()
+
+    async def no_wait(_seconds):
+        return None
+
+    updated_attempts = []
+
+    def fake_update_attempt_result(**kwargs):
+        updated_attempts.append(kwargs)
+        return True
+
+    monkeypatch.setattr(
+        remediation.asyncio, "create_subprocess_exec", fake_subprocess
+    )
+    monkeypatch.setattr(remediation.asyncio, "sleep", no_wait)
+    monkeypatch.setattr(
+        remediation, "update_attempt_result", fake_update_attempt_result
+    )
+
+    result = await remediation.remediate_service(
+        service="user-service",
+        approved=True,
+        incident_id="current-incident",
+    )
+
+    assert result["status"] == "unverified"
+    assert result["health_after"] is False
+    assert updated_attempts[0]["status"] == "unverified"
+
+@pytest.mark.asyncio
+async def test_unexpected_helper_exception_is_recorded(
+    audit_log, monkeypatch
+):
+    async def fake_incident_id(service):
+        return "current-incident"
+
+    async def fake_health(service):
+        return False
+
+    monkeypatch.setattr(
+        remediation, "get_active_incident_id", fake_incident_id
+    )
+    monkeypatch.setattr(
+        remediation, "check_service_health", fake_health
+    )
+    monkeypatch.setattr(
+        remediation,
+        "reserve_attempt",
+        lambda **kwargs: {"allowed": True, "attempt_count": 1},
+    )
+
+    async def unexpected_subprocess(*args, **kwargs):
+        raise RuntimeError("Simulated unexpected helper error")
+
+    updated_attempts = []
+
+    def fake_update_attempt_result(**kwargs):
+        updated_attempts.append(kwargs)
+        return True
+
+    monkeypatch.setattr(
+        remediation.asyncio,
+        "create_subprocess_exec",
+        unexpected_subprocess,
+    )
+    monkeypatch.setattr(
+        remediation, "update_attempt_result", fake_update_attempt_result
+    )
+
+    result = await remediation.remediate_service(
+        service="user-service",
+        approved=True,
+        incident_id="current-incident",
+    )
+
+    assert result["status"] == "failed"
+    assert "Simulated unexpected helper error" in result["message"]
+    assert len(updated_attempts) == 1
+    assert updated_attempts[0]["status"] == "failed"
