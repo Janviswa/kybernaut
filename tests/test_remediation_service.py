@@ -406,3 +406,58 @@ async def test_unexpected_helper_exception_is_recorded(
     assert "Simulated unexpected helper error" in result["message"]
     assert len(updated_attempts) == 1
     assert updated_attempts[0]["status"] == "failed"
+
+@pytest.mark.asyncio
+async def test_outcome_update_failure_is_visible(
+    audit_log, monkeypatch
+):
+    async def fake_incident_id(service):
+        return "current-incident"
+
+    async def fake_health(service):
+        return False
+
+    monkeypatch.setattr(
+        remediation, "get_active_incident_id", fake_incident_id
+    )
+    monkeypatch.setattr(
+        remediation, "check_service_health", fake_health
+    )
+    monkeypatch.setattr(
+        remediation,
+        "reserve_attempt",
+        lambda **kwargs: {"allowed": True, "attempt_count": 1},
+    )
+
+    class FakeProcess:
+        returncode = 0
+
+        async def communicate(self):
+            return b"Simulated restart", b""
+
+    async def fake_subprocess(*args, **kwargs):
+        return FakeProcess()
+
+    async def no_wait(_seconds):
+        return None
+
+    def failed_update(**kwargs):
+        return False
+
+    monkeypatch.setattr(
+        remediation.asyncio, "create_subprocess_exec", fake_subprocess
+    )
+    monkeypatch.setattr(remediation.asyncio, "sleep", no_wait)
+    monkeypatch.setattr(
+        remediation, "update_attempt_result", failed_update
+    )
+
+    result = await remediation.remediate_service(
+        service="user-service",
+        approved=True,
+        incident_id="current-incident",
+    )
+
+    # This assertion defines the desired behavior.
+    assert result["status"] == "failed"
+    assert "database" in result["message"].lower()
