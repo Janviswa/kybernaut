@@ -39,7 +39,7 @@ class MockResponse:
 
 
 class MockAsyncClient:
-    """Mock HTTP client supporting multiple sequential responses."""
+    """Mock HTTP client supporting sequential responses."""
 
     responses = []
     calls = []
@@ -104,26 +104,28 @@ def prometheus_targets_response(services=None):
     }
 
 
-@pytest.mark.asyncio
-async def test_detector_records_down_service(monkeypatch):
-    MockAsyncClient.responses = [
-        MockResponse(
-            prometheus_response("user-service", 0)
-        ),
-        MockResponse(prometheus_targets_response()),
-    ]
-    MockAsyncClient.calls = []
-
+def install_mock(monkeypatch):
     monkeypatch.setattr(
         "app.services.incident_detector.httpx.AsyncClient",
         MockAsyncClient,
     )
+
+
+@pytest.mark.asyncio
+async def test_detector_records_down_service(monkeypatch):
+    MockAsyncClient.responses = [
+        MockResponse(prometheus_response("user-service", 0)),
+        MockResponse(prometheus_targets_response()),
+    ]
+    MockAsyncClient.calls = []
+    install_mock(monkeypatch)
 
     result = await detect_unhealthy_services()
 
     assert result["incident_count"] == 1
     assert result["incidents"][0]["service"] == "user-service"
     assert result["incidents"][0]["severity"] == "critical"
+    assert result["incidents"][0]["type"] == "service_unavailable"
     assert len(list_incidents(status="OPEN")) == 1
 
 
@@ -140,17 +142,11 @@ async def test_detector_resolves_incident_when_service_recovers(
     })
 
     MockAsyncClient.responses = [
-        MockResponse(
-            prometheus_response("user-service", 1)
-        ),
+        MockResponse(prometheus_response("user-service", 1)),
         MockResponse(prometheus_targets_response()),
     ]
     MockAsyncClient.calls = []
-
-    monkeypatch.setattr(
-        "app.services.incident_detector.httpx.AsyncClient",
-        MockAsyncClient,
-    )
+    install_mock(monkeypatch)
 
     result = await detect_unhealthy_services()
 
@@ -160,31 +156,22 @@ async def test_detector_resolves_incident_when_service_recovers(
 
 
 @pytest.mark.asyncio
-async def test_detector_raises_when_prometheus_query_fails(
-    monkeypatch,
-):
+async def test_detector_raises_when_prometheus_query_fails(monkeypatch):
     MockAsyncClient.responses = [
         MockResponse({
             "status": "error",
             "data": {"result": []},
-        })
+        }),
     ]
     MockAsyncClient.calls = []
+    install_mock(monkeypatch)
 
-    monkeypatch.setattr(
-        "app.services.incident_detector.httpx.AsyncClient",
-        MockAsyncClient,
-    )
-
-    with pytest.raises(
-        RuntimeError,
-        match="Prometheus query failed",
-    ):
+    with pytest.raises(RuntimeError, match="Prometheus query failed"):
         await detect_unhealthy_services()
 
 
 @pytest.mark.asyncio
-async def test_detector_does_not_resolve_incident_when_target_is_missing(
+async def test_detector_does_not_resolve_incident_when_query_is_empty(
     monkeypatch,
 ):
     record_incident({
@@ -199,14 +186,10 @@ async def test_detector_does_not_resolve_incident_when_target_is_missing(
         MockResponse({
             "status": "success",
             "data": {"result": []},
-        })
+        }),
     ]
     MockAsyncClient.calls = []
-
-    monkeypatch.setattr(
-        "app.services.incident_detector.httpx.AsyncClient",
-        MockAsyncClient,
-    )
+    install_mock(monkeypatch)
 
     result = await detect_unhealthy_services()
 
@@ -218,9 +201,7 @@ async def test_detector_does_not_resolve_incident_when_target_is_missing(
 @pytest.mark.asyncio
 async def test_detector_records_missing_prometheus_target(monkeypatch):
     MockAsyncClient.responses = [
-        MockResponse(
-            prometheus_response("user-service", 1)
-        ),
+        MockResponse(prometheus_response("user-service", 1)),
         MockResponse(
             prometheus_targets_response(
                 services=[
@@ -232,11 +213,7 @@ async def test_detector_records_missing_prometheus_target(monkeypatch):
         ),
     ]
     MockAsyncClient.calls = []
-
-    monkeypatch.setattr(
-        "app.services.incident_detector.httpx.AsyncClient",
-        MockAsyncClient,
-    )
+    install_mock(monkeypatch)
 
     result = await detect_unhealthy_services()
 
@@ -265,19 +242,11 @@ async def test_detector_preserves_incidents_when_targets_api_fails(
     })
 
     MockAsyncClient.responses = [
-        MockResponse(
-            prometheus_response("user-service", 1)
-        ),
-        MockResponse(
-            {"status": "error", "data": {}}
-        ),
+        MockResponse(prometheus_response("user-service", 1)),
+        MockResponse({"status": "error", "data": {}}),
     ]
     MockAsyncClient.calls = []
-
-    monkeypatch.setattr(
-        "app.services.incident_detector.httpx.AsyncClient",
-        MockAsyncClient,
-    )
+    install_mock(monkeypatch)
 
     with pytest.raises(
         RuntimeError,
@@ -290,51 +259,30 @@ async def test_detector_preserves_incidents_when_targets_api_fails(
 
 
 @pytest.mark.asyncio
-async def test_detector_does_not_mark_unhealthy_target_as_missing(
+async def test_detector_classifies_unhealthy_target_as_scrape_failure(
     monkeypatch,
 ):
+    targets = prometheus_targets_response()
+    for target in targets["data"]["activeTargets"]:
+        if target["labels"]["job"] == "user-service":
+            target["health"] = "down"
+            target["lastError"] = "connection refused"
+
     MockAsyncClient.responses = [
-        MockResponse(
-            prometheus_response("user-service", 0)
-        ),
-        MockResponse({
-            "status": "success",
-            "data": {
-                "activeTargets": [
-                    {
-                        "labels": {"job": "user-service"},
-                        "health": "down",
-                        "scrapeUrl": "http://user-service:8003/metrics",
-                    },
-                    {
-                        "labels": {"job": "order-service"},
-                        "health": "up",
-                        "scrapeUrl": "http://order-service:8001/metrics",
-                    },
-                    {
-                        "labels": {"job": "payment-service"},
-                        "health": "up",
-                        "scrapeUrl": "http://payment-service:8002/metrics",
-                    },
-                    {
-                        "labels": {"job": "inventory-service"},
-                        "health": "up",
-                        "scrapeUrl": "http://inventory-service:8004/metrics",
-                    },
-                ]
-            },
-        }),
+        MockResponse(prometheus_response("user-service", 0)),
+        MockResponse(targets),
     ]
     MockAsyncClient.calls = []
-
-    monkeypatch.setattr(
-        "app.services.incident_detector.httpx.AsyncClient",
-        MockAsyncClient,
-    )
+    install_mock(monkeypatch)
 
     result = await detect_unhealthy_services()
 
     assert any(
+        incident["service"] == "user-service"
+        and incident["type"] == "monitoring_scrape_failed"
+        for incident in result["incidents"]
+    )
+    assert not any(
         incident["service"] == "user-service"
         and incident["type"] == "service_unavailable"
         for incident in result["incidents"]
@@ -344,3 +292,39 @@ async def test_detector_does_not_mark_unhealthy_target_as_missing(
         and incident["type"] == "monitoring_target_missing"
         for incident in result["incidents"]
     )
+
+
+@pytest.mark.asyncio
+async def test_detector_rejects_invalid_prometheus_response(
+    monkeypatch,
+):
+    MockAsyncClient.responses = [
+        MockResponse({
+            "status": "success",
+            "data": {},
+        }),
+    ]
+    MockAsyncClient.calls = []
+    install_mock(monkeypatch)
+
+    with pytest.raises(
+        RuntimeError,
+        match="Prometheus query response is invalid",
+    ):
+        await detect_unhealthy_services()
+
+
+@pytest.mark.asyncio
+async def test_detector_rejects_invalid_metric_value(monkeypatch):
+    MockAsyncClient.responses = [
+        MockResponse(prometheus_response("user-service", "invalid")),
+        MockResponse(prometheus_targets_response()),
+    ]
+    MockAsyncClient.calls = []
+    install_mock(monkeypatch)
+
+    with pytest.raises(
+        RuntimeError,
+        match="Prometheus metric value is invalid",
+    ):
+        await detect_unhealthy_services()

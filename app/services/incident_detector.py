@@ -25,8 +25,24 @@ def make_incident_id(service: str, incident_type: str) -> str:
     return f"inc-{digest}"
 
 
+def build_incident(
+    service: str,
+    incident_type: str,
+    severity: str,
+    message: str,
+) -> dict:
+    """Build a consistently structured incident."""
+    return {
+        "incident_id": make_incident_id(service, incident_type),
+        "service": service,
+        "severity": severity,
+        "type": incident_type,
+        "message": message,
+    }
+
+
 async def detect_unhealthy_services() -> dict:
-    """Detect service outages and missing Prometheus targets."""
+    """Detect outages, failed scrapes, and missing targets."""
     async with httpx.AsyncClient(timeout=10.0) as client:
         query_response = await client.get(
             f"{PROMETHEUS_URL}/api/v1/query",
@@ -35,13 +51,22 @@ async def detect_unhealthy_services() -> dict:
         query_response.raise_for_status()
         query_result = query_response.json()
 
-        if query_result.get("status") != "success":
+        if (
+            not isinstance(query_result, dict)
+            or query_result.get("status") != "success"
+        ):
             raise RuntimeError("Prometheus query failed")
 
-        query_results = query_result.get("data", {}).get("result", [])
+        data = query_result.get("data")
+        if not isinstance(data, dict) or not isinstance(
+            data.get("result"), list
+        ):
+            raise RuntimeError("Prometheus query response is invalid")
 
-        # Empty query results are inconclusive. Do not resolve incidents
-        # or infer missing targets without a valid health response.
+        query_results = data["result"]
+
+        # An empty health query is inconclusive. Do not resolve incidents
+        # or infer missing targets from an empty result.
         if not query_results:
             return {"incident_count": 0, "incidents": []}
 
@@ -51,68 +76,121 @@ async def detect_unhealthy_services() -> dict:
         targets_response.raise_for_status()
         targets_result = targets_response.json()
 
-    if targets_result.get("status") != "success":
+    if (
+        not isinstance(targets_result, dict)
+        or targets_result.get("status") != "success"
+    ):
         raise RuntimeError("Prometheus targets query failed")
 
-    targets_data = targets_result.get("data", {})
-    active_targets = targets_data.get("activeTargets")
+    targets_data = targets_result.get("data")
+    if not isinstance(targets_data, dict):
+        raise RuntimeError("Prometheus target inventory is invalid")
 
+    active_targets = targets_data.get("activeTargets")
     if not isinstance(active_targets, list):
         raise RuntimeError("Prometheus target inventory is invalid")
 
-    # Only consider active targets whose job names are expected.
-    active_jobs = {
-        target.get("labels", {}).get("job")
-        for target in active_targets
-        if isinstance(target, dict)
-    }
+    target_by_service = {}
+
+    for target in active_targets:
+        if not isinstance(target, dict):
+            raise RuntimeError("Prometheus target inventory is invalid")
+
+        labels = target.get("labels")
+        if not isinstance(labels, dict):
+            raise RuntimeError("Prometheus target labels are invalid")
+
+        service = labels.get("job")
+        if service in EXPECTED_SERVICES:
+            target_by_service[service] = target
 
     incidents = []
     observed_services = set()
 
     for item in query_results:
-        metric = item.get("metric", {})
+        if not isinstance(item, dict):
+            raise RuntimeError("Prometheus query result is invalid")
+
+        metric = item.get("metric")
+        value_data = item.get("value")
+
+        if not isinstance(metric, dict):
+            raise RuntimeError("Prometheus metric data is invalid")
+
+        if (
+            not isinstance(value_data, list)
+            or len(value_data) < 2
+        ):
+            raise RuntimeError("Prometheus metric value is invalid")
+
         service = metric.get("job")
 
         if service not in EXPECTED_SERVICES:
             continue
 
         observed_services.add(service)
-        value = float(item["value"][1])
+        target = target_by_service.get(service)
 
-        if value == 0:
-            incident_type = "service_unavailable"
-            incident = {
-                "incident_id": make_incident_id(
-                    service, incident_type
+        try:
+            value = float(value_data[1])
+        except (TypeError, ValueError) as exc:
+            raise RuntimeError(
+                "Prometheus metric value is invalid"
+            ) from exc
+
+        if value not in (0.0, 1.0):
+            raise RuntimeError("Prometheus metric value is invalid")
+
+        # A missing active target is a monitoring warning, even if the
+        # instant query still contains a recent sample for that service.
+        if target is None:
+            continue
+
+        target_health = target.get("health")
+
+        if target_health not in ("up", "down"):
+            raise RuntimeError("Prometheus target health is invalid")
+
+        if target_health == "down":
+            incident = build_incident(
+                service,
+                "monitoring_scrape_failed",
+                "warning",
+                (
+                    f"Prometheus scrape failed for {service}; "
+                    "application health is not confirmed"
                 ),
-                "service": service,
-                "severity": "critical",
-                "type": incident_type,
-                "message": f"{service} is down",
-            }
+            )
+            record_incident(incident)
+            incidents.append(incident)
+            continue
+
+        # Only an active, healthy target with up=0 is classified as a
+        # critical service outage.
+        if value == 0:
+            incident = build_incident(
+                service,
+                "service_unavailable",
+                "critical",
+                f"{service} is down",
+            )
             record_incident(incident)
             incidents.append(incident)
 
         elif value == 1:
             resolve_open_incidents(service)
 
-    # A missing active target is a monitoring warning, not proof that
-    # the application itself is down.
-    for service in sorted(EXPECTED_SERVICES - active_jobs):
-        incident_type = "monitoring_target_missing"
-        incident = {
-            "incident_id": make_incident_id(
-                service, incident_type
-            ),
-            "service": service,
-            "severity": "warning",
-            "type": incident_type,
-            "message": (
+    # Report services absent from the active target inventory.
+    for service in sorted(EXPECTED_SERVICES - set(target_by_service)):
+        incident = build_incident(
+            service,
+            "monitoring_target_missing",
+            "warning",
+            (
                 f"Prometheus has no active target for {service}; "
                 "application health is unknown"
             ),
-        }
+        )
         record_incident(incident)
         incidents.append(incident)
 
