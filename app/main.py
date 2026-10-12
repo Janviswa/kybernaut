@@ -10,7 +10,7 @@ from app.services.incident_detector import detect_unhealthy_services
 from app.services.incident_diagnoser import diagnose_service
 from app.services.decision_engine import decide_action
 from app.services.remediation_service import remediate_service
-
+from app.database import initialize_database
 
 # Load environment variables from the project's .env file.
 load_dotenv()
@@ -31,6 +31,15 @@ ALLOWED_SERVICES = {
 }
 
 
+from contextlib import asynccontextmanager
+
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    initialize_database()
+    yield
+
+
 app = FastAPI(
     title="Kybernaut",
     description=(
@@ -38,8 +47,8 @@ app = FastAPI(
         "and Cost Optimization"
     ),
     version="0.1.0",
+    lifespan=lifespan,
 )
-
 
 class RemediationRequest(BaseModel):
     approved: bool = False

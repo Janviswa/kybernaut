@@ -1,4 +1,3 @@
-
 import sqlite3
 from pathlib import Path
 
@@ -13,7 +12,35 @@ def get_connection() -> sqlite3.Connection:
 
 
 def initialize_database() -> None:
+    """Create database tables and indexes if they do not exist."""
     with get_connection() as connection:
+        connection.execute(
+            """
+            CREATE TABLE IF NOT EXISTS incidents (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                incident_id TEXT NOT NULL,
+                service TEXT NOT NULL,
+                incident_type TEXT NOT NULL,
+                severity TEXT NOT NULL,
+                message TEXT NOT NULL,
+                status TEXT NOT NULL DEFAULT 'OPEN',
+                opened_at TEXT NOT NULL,
+                updated_at TEXT NOT NULL,
+                resolved_at TEXT,
+                remediation_count INTEGER NOT NULL DEFAULT 0,
+                last_remediation_status TEXT,
+                UNIQUE (incident_id, opened_at)
+            )
+            """
+        )
+
+        connection.execute(
+            """
+            CREATE INDEX IF NOT EXISTS idx_incidents_service_status
+            ON incidents (service, status)
+            """
+        )
+
         connection.execute(
             """
             CREATE TABLE IF NOT EXISTS remediation_attempts (

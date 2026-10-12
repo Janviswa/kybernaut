@@ -2,6 +2,8 @@
 from datetime import timedelta
 
 import pytest
+from concurrent.futures import ThreadPoolExecutor
+from threading import Barrier
 
 import app.database as database
 from app.database import get_connection
@@ -127,3 +129,31 @@ def test_unknown_outcome_audit_id_returns_false():
     )
 
     assert result is False
+
+
+def test_concurrent_reservations_respect_cooldown():
+    service = "test-service"
+    incident_id = "test-concurrent-reservations"
+    barrier = Barrier(2)
+
+    def attempt(audit_id):
+        barrier.wait()
+        return reserve_attempt(
+            audit_id=audit_id,
+            incident_id=incident_id,
+            service=service,
+        )
+
+    with ThreadPoolExecutor(max_workers=2) as executor:
+        futures = [
+            executor.submit(attempt, "concurrent-audit-1"),
+            executor.submit(attempt, "concurrent-audit-2"),
+        ]
+        results = [future.result() for future in futures]
+
+    allowed = [result for result in results if result["allowed"]]
+    blocked = [result for result in results if not result["allowed"]]
+
+    assert len(allowed) == 1
+    assert len(blocked) == 1
+    assert "Cooldown active" in blocked[0]["reason"]
