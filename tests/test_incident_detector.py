@@ -287,3 +287,60 @@ async def test_detector_preserves_incidents_when_targets_api_fails(
 
     assert len(list_incidents(status="OPEN")) == 1
     assert list_incidents(status="RESOLVED") == []
+
+
+@pytest.mark.asyncio
+async def test_detector_does_not_mark_unhealthy_target_as_missing(
+    monkeypatch,
+):
+    MockAsyncClient.responses = [
+        MockResponse(
+            prometheus_response("user-service", 0)
+        ),
+        MockResponse({
+            "status": "success",
+            "data": {
+                "activeTargets": [
+                    {
+                        "labels": {"job": "user-service"},
+                        "health": "down",
+                        "scrapeUrl": "http://user-service:8003/metrics",
+                    },
+                    {
+                        "labels": {"job": "order-service"},
+                        "health": "up",
+                        "scrapeUrl": "http://order-service:8001/metrics",
+                    },
+                    {
+                        "labels": {"job": "payment-service"},
+                        "health": "up",
+                        "scrapeUrl": "http://payment-service:8002/metrics",
+                    },
+                    {
+                        "labels": {"job": "inventory-service"},
+                        "health": "up",
+                        "scrapeUrl": "http://inventory-service:8004/metrics",
+                    },
+                ]
+            },
+        }),
+    ]
+    MockAsyncClient.calls = []
+
+    monkeypatch.setattr(
+        "app.services.incident_detector.httpx.AsyncClient",
+        MockAsyncClient,
+    )
+
+    result = await detect_unhealthy_services()
+
+    assert any(
+        incident["service"] == "user-service"
+        and incident["type"] == "service_unavailable"
+        for incident in result["incidents"]
+    )
+    assert not any(
+        incident["service"] == "user-service"
+        and incident["type"] == "monitoring_target_missing"
+        for incident in result["incidents"]
+    )
