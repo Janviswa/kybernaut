@@ -94,21 +94,39 @@ def list_incidents(status: str | None = None) -> list[dict]:
         return [dict(row) for row in rows]
 
 
-def resolve_open_incidents(service: str) -> int:
-    """Resolve open incidents for a service after recovery is confirmed."""
+
+def resolve_open_incidents(
+    service: str,
+    incident_type: str | None = None,
+) -> int:
+    """Resolve incidents for a service, optionally filtered by type."""
     now = utc_now()
 
     with get_connection() as connection:
-        cursor = connection.execute(
-            """
-            UPDATE incidents
-            SET status = 'RESOLVED',
-                updated_at = ?,
-                resolved_at = ?
-            WHERE service = ?
-              AND status IN ('OPEN', 'REMEDIATING')
-            """,
-            (now, now, service),
-        )
+        if incident_type is None:
+            cursor = connection.execute(
+                """
+                UPDATE incidents
+                SET status = 'RESOLVED',
+                    updated_at = ?,
+                    resolved_at = ?
+                WHERE service = ?
+                  AND status IN ('OPEN', 'REMEDIATING')
+                """,
+                (now, now, service),
+            )
+        else:
+            cursor = connection.execute(
+                """
+                UPDATE incidents
+                SET status = 'RESOLVED',
+                    updated_at = ?,
+                    resolved_at = ?
+                WHERE service = ?
+                  AND incident_type = ?
+                  AND status IN ('OPEN', 'REMEDIATING')
+                """,
+                (now, now, service, incident_type),
+            )
 
         return cursor.rowcount

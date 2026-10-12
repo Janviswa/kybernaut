@@ -178,7 +178,7 @@ async def detect_unhealthy_services() -> dict:
             incidents.append(incident)
 
         elif value == 1:
-            resolve_open_incidents(service)
+            resolve_open_incidents(service, "service_unavailable")
 
     # Report services absent from the active target inventory.
     for service in sorted(EXPECTED_SERVICES - set(target_by_service)):

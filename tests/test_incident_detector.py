@@ -155,6 +155,37 @@ async def test_detector_resolves_incident_when_service_recovers(
     assert len(list_incidents(status="RESOLVED")) == 1
 
 
+
+@pytest.mark.asyncio
+async def test_detector_preserves_monitoring_warning_when_service_recovers(
+    monkeypatch,
+):
+    record_incident({
+        "incident_id": "inc-test-user-monitoring",
+        "service": "user-service",
+        "type": "monitoring_scrape_failed",
+        "severity": "warning",
+        "message": "Prometheus scrape failed",
+    })
+
+    MockAsyncClient.responses = [
+        MockResponse(prometheus_response("user-service", 1)),
+        MockResponse(prometheus_targets_response()),
+    ]
+    MockAsyncClient.calls = []
+    install_mock(monkeypatch)
+
+    await detect_unhealthy_services()
+
+    open_incidents = list_incidents(status="OPEN")
+
+    assert any(
+        incident["service"] == "user-service"
+        and incident["incident_type"] == "monitoring_scrape_failed"
+        for incident in open_incidents
+    )
+
+
 @pytest.mark.asyncio
 async def test_detector_raises_when_prometheus_query_fails(monkeypatch):
     MockAsyncClient.responses = [
