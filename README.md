@@ -227,9 +227,19 @@ These controls reduce operational risk but do not replace production security re
 
 ## Current Status
 
-The current implementation includes the FastAPI endpoints, Prometheus-based incident detection, rule-based diagnosis and decisions, SQLite incident persistence, approval-gated remediation, retry guardrails, and remediation auditing.
+The current implementation includes FastAPI endpoints, Prometheus-based incident detection, rule-based diagnosis and decisions, SQLite incident persistence, approval-gated remediation, retry guardrails, and remediation auditing.
 
-The repository includes automated tests for the remediation repository. Additional integration tests and broader end-to-end validation are future improvements.
+### Validation Results
+
+- **Automated tests:** 25 tests passing with `python -m pytest -q`.
+- **Incident detection:** Verified a controlled `user-service` outage was detected as a critical incident.
+- **Recovery detection:** Confirmed the service returned to a healthy state and the incidents endpoint reported zero active incidents.
+- **Approval safeguards:** An invalid approval token was rejected with HTTP 403.
+- **Incident validation:** A request with an invalid incident ID was skipped without restarting a healthy service.
+- **End-to-end remediation:** An approved request for a detected outage restarted `user-service` and returned `status: verified`, with `health_before: false` and `health_after: true`.
+- **Audit persistence:** The successful remediation outcome was verified in both SQLite and the JSONL audit log.
+
+These results validate the tested workflow in the current development environment. Broader failure-injection, concurrency, deployment, and production security testing remain necessary.
 
 ## Roadmap
 
