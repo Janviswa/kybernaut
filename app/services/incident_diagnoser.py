@@ -5,6 +5,7 @@ PROMETHEUS_URL = "http://localhost:9090"
 
 
 async def query_prometheus(query: str) -> list:
+    """Query Prometheus and return the instant-query results."""
     async with httpx.AsyncClient(timeout=10.0) as client:
         response = await client.get(
             f"{PROMETHEUS_URL}/api/v1/query",
@@ -13,13 +14,21 @@ async def query_prometheus(query: str) -> list:
         response.raise_for_status()
         result = response.json()
 
-    if result.get("status") != "success":
+    if not isinstance(result, dict) or result.get("status") != "success":
         raise RuntimeError("Prometheus query failed")
 
-    return result["data"]["result"]
+    data = result.get("data")
+    if not isinstance(data, dict) or not isinstance(
+        data.get("result"), list
+    ):
+        raise RuntimeError("Prometheus query response is invalid")
+
+    return data["result"]
 
 
 async def diagnose_service(service: str) -> dict:
+    """Diagnose availability, HTTP 5xx errors, and P95 latency."""
+
     # 1. Check service availability.
     availability = await query_prometheus(
         f'up{{job="{service}"}}'
@@ -37,31 +46,80 @@ async def diagnose_service(service: str) -> dict:
         f'{{job="{service}"}}[5m])))'
     )
 
-    is_up = bool(availability) and float(
-        availability[0]["value"][1]
-    ) == 1.0
+    # Distinguish a confirmed outage from missing availability data.
+    is_up = None
 
-    error_rate = (
-        float(errors[0]["value"][1])
-        if errors and errors[0]["value"][1] != ""
-        else 0.0
-    )
+    if availability:
+        try:
+            availability_value = float(availability[0]["value"][1])
+        except (KeyError, IndexError, TypeError, ValueError) as exc:
+            raise RuntimeError(
+                "Prometheus availability metric is invalid"
+            ) from exc
 
-    p95_latency = (
-        float(latency[0]["value"][1])
-        if latency and latency[0]["value"][1] != ""
-        else None
-    )
+        if availability_value == 1.0:
+            is_up = True
+        elif availability_value == 0.0:
+            is_up = False
+        else:
+            raise RuntimeError(
+                "Prometheus availability metric is invalid"
+            )
+
+    # Parse the HTTP 5xx rate.
+    error_rate = 0.0
+
+    if errors and errors[0].get("value", [None, ""])[1] != "":
+        try:
+            error_rate = float(errors[0]["value"][1])
+        except (KeyError, IndexError, TypeError, ValueError) as exc:
+            raise RuntimeError(
+                "Prometheus HTTP 5xx metric is invalid"
+            ) from exc
+
+        if not (0.0 <= error_rate < float("inf")):
+            raise RuntimeError(
+                "Prometheus HTTP 5xx metric is invalid"
+            )
+
+    # Parse P95 latency. Missing latency data remains unknown.
+    p95_latency = None
+
+    if latency and latency[0].get("value", [None, ""])[1] != "":
+        try:
+            p95_latency = float(latency[0]["value"][1])
+        except (KeyError, IndexError, TypeError, ValueError) as exc:
+            raise RuntimeError(
+                "Prometheus latency metric is invalid"
+            ) from exc
+
+        if not (0.0 <= p95_latency < float("inf")):
+            raise RuntimeError(
+                "Prometheus latency metric is invalid"
+            )
 
     findings = []
 
-    if not is_up:
+    if is_up is False:
         findings.append({
             "type": "service_unavailable",
             "severity": "critical",
             "evidence": "Prometheus reports the service as DOWN.",
             "recommendation": (
                 "Inspect container status and application logs."
+            ),
+        })
+
+    elif is_up is None:
+        findings.append({
+            "type": "monitoring_data_unavailable",
+            "severity": "warning",
+            "evidence": (
+                "Prometheus returned no availability sample; "
+                "service status cannot be confirmed."
+            ),
+            "recommendation": (
+                "Check Prometheus target health and metric collection."
             ),
         })
 
@@ -99,14 +157,16 @@ async def diagnose_service(service: str) -> dict:
                 "No outage, active 5xx rate, or P95 latency "
                 "above one second was detected by these checks."
             ),
-            "recommendation": (
-                "Continue monitoring the service."
-            ),
+            "recommendation": "Continue monitoring the service.",
         })
 
     return {
         "service": service,
-        "status": "up" if is_up else "down",
+        "status": (
+            "up" if is_up is True
+            else "down" if is_up is False
+            else "unknown"
+        ),
         "evidence": {
             "http_5xx_rate_per_second": round(error_rate, 6),
             "p95_latency_seconds": (

@@ -116,3 +116,42 @@ async def test_high_latency_triggers_investigation(
 
     assert decision["decision"]["action"] == "investigate_latency"
     assert decision["decision"]["automatic_execution"] is False
+
+
+@pytest.mark.asyncio
+async def test_missing_availability_metric_is_not_classified_as_down(
+    monkeypatch,
+):
+    MockAsyncClient.responses = [
+        MockResponse([]),          # No availability sample
+        MockResponse(metric(0)),   # No observed 5xx errors
+        MockResponse(metric(0.1)), # Normal latency
+    ]
+
+    monkeypatch.setattr(
+        incident_diagnoser.httpx,
+        "AsyncClient",
+        MockAsyncClient,
+    )
+
+    result = await incident_diagnoser.diagnose_service("user-service")
+
+    assert result["status"] != "down"
+    assert not any(
+        finding["type"] == "service_unavailable"
+        for finding in result["findings"]
+    )
+
+
+@pytest.mark.asyncio
+async def test_unknown_availability_investigates_monitoring(
+    monkeypatch, mock_prometheus
+):
+    mock_prometheus(is_up=1)
+    MockAsyncClient.responses[0] = MockResponse([])
+
+    decision = await decision_engine.decide_action("user-service")
+
+    assert decision["diagnosis"]["status"] == "unknown"
+    assert decision["decision"]["action"] == "investigate_monitoring"
+    assert decision["decision"]["automatic_execution"] is False

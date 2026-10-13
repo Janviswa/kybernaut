@@ -7,8 +7,25 @@ async def decide_action(service: str) -> dict:
 
     findings = diagnosis["findings"]
     finding_types = {item["type"] for item in findings}
+    service_status = diagnosis["status"]
 
-    if "service_unavailable" in finding_types:
+    if service_status == "unknown":
+        decision = {
+            "priority": "medium",
+            "action": "investigate_monitoring",
+            "reason": (
+                f"Availability of {service} could not be confirmed "
+                "because Prometheus returned no availability sample."
+            ),
+            "proposed_steps": [
+                "Check the Prometheus target state",
+                "Verify metric collection and scrape configuration",
+                "Confirm application health before considering recovery",
+            ],
+            "automatic_execution": False,
+        }
+
+    elif "service_unavailable" in finding_types:
         decision = {
             "priority": "critical",
             "action": "request_approval",
