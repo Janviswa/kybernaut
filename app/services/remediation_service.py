@@ -188,6 +188,7 @@ async def _remediate_service_locked(
         audit_id=audit_id,
         incident_id=incident_id,
         service=service,
+	operator_id=operator_id,
     )
 
     if not reservation["allowed"]:

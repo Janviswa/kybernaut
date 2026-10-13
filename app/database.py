@@ -50,10 +50,24 @@ def initialize_database() -> None:
                 service TEXT NOT NULL,
                 attempted_at TEXT NOT NULL,
                 status TEXT NOT NULL,
-                message TEXT NOT NULL
+                message TEXT NOT NULL,
+                operator_id TEXT
             )
             """
         )
+
+        # Safely add operator attribution to existing databases.
+        columns = {
+            row["name"]
+            for row in connection.execute(
+                "PRAGMA table_info(remediation_attempts)"
+            ).fetchall()
+        }
+
+        if "operator_id" not in columns:
+            connection.execute(
+                "ALTER TABLE remediation_attempts ADD COLUMN operator_id TEXT"
+            )
 
         connection.execute(
             """

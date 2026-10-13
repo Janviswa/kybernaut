@@ -5,6 +5,7 @@ import pytest
 from concurrent.futures import ThreadPoolExecutor
 from threading import Barrier
 
+import sqlite3
 import app.database as database
 from app.database import get_connection
 from app.services.remediation_repository import (
@@ -157,3 +158,87 @@ def test_concurrent_reservations_respect_cooldown():
     assert len(allowed) == 1
     assert len(blocked) == 1
     assert "Cooldown active" in blocked[0]["reason"]
+
+def test_reservation_persists_operator_id():
+    audit_id = "test-operator-audit"
+    incident_id = "test-operator-incident"
+    operator_id = "test-operator-123"
+
+    result = reserve_attempt(
+        audit_id=audit_id,
+        incident_id=incident_id,
+        service="user-service",
+        operator_id=operator_id,
+    )
+
+    assert result["allowed"] is True
+
+    with get_connection() as connection:
+        row = connection.execute(
+            """
+            SELECT operator_id
+            FROM remediation_attempts
+            WHERE audit_id = ?
+            """,
+            (audit_id,),
+        ).fetchone()
+
+    assert row is not None
+    assert row["operator_id"] == operator_id
+
+def test_database_migration_preserves_existing_remediation_attempts(
+    tmp_path,
+    monkeypatch,
+):
+    legacy_db = tmp_path / "legacy_incidents.db"
+
+    # Simulate a database created before operator_id was introduced.
+    with sqlite3.connect(legacy_db) as connection:
+        connection.execute(
+            """
+            CREATE TABLE remediation_attempts (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                audit_id TEXT NOT NULL UNIQUE,
+                incident_id TEXT NOT NULL,
+                service TEXT NOT NULL,
+                attempted_at TEXT NOT NULL,
+                status TEXT NOT NULL,
+                message TEXT NOT NULL
+            )
+            """
+        )
+        connection.execute(
+            """
+            INSERT INTO remediation_attempts (
+                audit_id, incident_id, service,
+                attempted_at, status, message
+            )
+            VALUES (?, ?, ?, ?, ?, ?)
+            """,
+            (
+                "legacy-audit-1",
+                "legacy-incident-1",
+                "user-service",
+                "2026-10-01T10:00:00+00:00",
+                "verified",
+                "Existing legacy record",
+            ),
+        )
+
+    monkeypatch.setattr(database, "DATABASE_PATH", legacy_db)
+
+    database.initialize_database()
+
+    with get_connection() as connection:
+        row = connection.execute(
+            """
+            SELECT audit_id, message, operator_id
+            FROM remediation_attempts
+            WHERE audit_id = ?
+            """,
+            ("legacy-audit-1",),
+        ).fetchone()
+
+    assert row is not None
+    assert row["message"] == "Existing legacy record"
+    assert row["operator_id"] is None

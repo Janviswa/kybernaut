@@ -1,4 +1,3 @@
-
 from datetime import datetime, timedelta, timezone
 
 from app.database import get_connection
@@ -18,16 +17,17 @@ def record_attempt(
     service: str,
     status: str,
     message: str,
+    operator_id: str | None = None,
 ) -> None:
-    """Persist a remediation attempt and its outcome."""
+    """Persist a remediation attempt, outcome, and operator attribution."""
     with get_connection() as connection:
         connection.execute(
             """
             INSERT INTO remediation_attempts (
                 audit_id, incident_id, service,
-                attempted_at, status, message
+                attempted_at, status, message, operator_id
             )
-            VALUES (?, ?, ?, ?, ?, ?)
+            VALUES (?, ?, ?, ?, ?, ?, ?)
             """,
             (
                 audit_id,
@@ -36,6 +36,7 @@ def record_attempt(
                 utc_now().isoformat(),
                 status,
                 message,
+                operator_id,
             ),
         )
 
@@ -123,8 +124,9 @@ def reserve_attempt(
     audit_id: str,
     incident_id: str,
     service: str,
+    operator_id: str | None = None,
 ) -> dict:
-    """Atomically check guardrails and reserve an attempt in SQLite."""
+    """Atomically check guardrails and reserve an attributed attempt."""
     now = utc_now()
 
     cutoff = (
@@ -175,9 +177,9 @@ def reserve_attempt(
             """
             INSERT INTO remediation_attempts (
                 audit_id, incident_id, service,
-                attempted_at, status, message
+                attempted_at, status, message, operator_id
             )
-            VALUES (?, ?, ?, ?, ?, ?)
+            VALUES (?, ?, ?, ?, ?, ?, ?)
             """,
             (
                 audit_id,
@@ -186,6 +188,7 @@ def reserve_attempt(
                 now.isoformat(),
                 "attempted",
                 "Approved remediation attempt reserved.",
+                operator_id,
             ),
         )
 
@@ -201,7 +204,7 @@ def update_attempt_result(
     status: str,
     message: str,
 ) -> bool:
-    """Update the final outcome of a previously reserved attempt."""
+    """Update the outcome without overwriting operator attribution."""
     with get_connection() as connection:
         cursor = connection.execute(
             """
