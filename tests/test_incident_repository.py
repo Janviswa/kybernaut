@@ -85,3 +85,26 @@ def test_recurring_incident_creates_new_occurrence():
 
     assert len(resolved) == 1
     assert len(open_incidents) == 1
+
+
+def test_record_incident_refreshes_existing_remediating_incident():
+    first = record_incident(sample_incident())
+
+    # Simulate an incident currently undergoing remediation.
+    import app.database as database
+
+    with database.get_connection() as connection:
+        connection.execute(
+            "UPDATE incidents SET status = 'REMEDIATING' WHERE id = ?",
+            (first["id"],),
+        )
+
+    updated_data = sample_incident()
+    updated_data["message"] = "user-service remediation is in progress"
+
+    second = record_incident(updated_data)
+
+    assert second["id"] == first["id"]
+    assert second["status"] == "REMEDIATING"
+    assert second["message"] == "user-service remediation is in progress"
+    assert len(list_incidents()) == 1
