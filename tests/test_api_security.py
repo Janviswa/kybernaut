@@ -1,6 +1,4 @@
-
 import importlib
-import secrets
 
 import pytest
 from fastapi.testclient import TestClient
@@ -24,6 +22,7 @@ def api_client(monkeypatch):
             "status": "test-approved",
             "service": kwargs["service"],
             "incident_id": kwargs["incident_id"],
+            "operator_id": kwargs["operator_id"],
         }
 
     monkeypatch.setattr(
@@ -52,7 +51,10 @@ def test_remediation_rejects_missing_approval_token(api_client):
 def test_remediation_rejects_invalid_approval_token(api_client):
     response = api_client.post(
         "/remediate/user-service",
-        headers={"X-Approval-Token": "incorrect-token"},
+        headers={
+            "X-Approval-Token": "incorrect-token",
+            "X-Operator-ID": "test-operator",
+        },
         json={
             "approved": True,
             "incident_id": "inc-test-123",
@@ -67,6 +69,7 @@ def test_remediation_accepts_valid_token(api_client):
         "/remediate/user-service",
         headers={
             "X-Approval-Token": "test-only-approval-token",
+            "X-Operator-ID": "test-operator",
         },
         json={
             "approved": True,
@@ -76,11 +79,14 @@ def test_remediation_accepts_valid_token(api_client):
 
     assert response.status_code == 200
     assert response.json()["status"] == "test-approved"
+    assert response.json()["service"] == "user-service"
+    assert response.json()["incident_id"] == "inc-test-123"
+    assert response.json()["operator_id"] == "test-operator"
 
 
-def test_remediation_rejects_unknown_service(api_client):
+def test_remediation_rejects_missing_operator_id(api_client):
     response = api_client.post(
-        "/remediate/unknown-service",
+        "/remediate/user-service",
         headers={
             "X-Approval-Token": "test-only-approval-token",
         },
@@ -90,4 +96,22 @@ def test_remediation_rejects_unknown_service(api_client):
         },
     )
 
+    assert response.status_code == 400
+    assert response.json()["detail"] == "Operator identity required"
+
+
+def test_remediation_rejects_unknown_service(api_client):
+    response = api_client.post(
+        "/remediate/unknown-service",
+        headers={
+            "X-Approval-Token": "test-only-approval-token",
+            "X-Operator-ID": "test-operator",
+        },
+        json={
+            "approved": True,
+            "incident_id": "inc-test-123",
+        },
+    )
+
     assert response.status_code == 404
+    assert response.json()["detail"] == "Unknown service"

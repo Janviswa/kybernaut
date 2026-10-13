@@ -26,7 +26,7 @@ ALLOWED_SERVICES = {
     "inventory-service": {"port": 8004},
 }
 
-# Serialize remediation requests per service within this Python process.
+# Serialize remediation requests per service within this process.
 SERVICE_LOCKS = {
     service: asyncio.Lock()
     for service in ALLOWED_SERVICES
@@ -66,6 +66,7 @@ def make_record(
     incident_id: str,
     status: str,
     message: str,
+    operator_id: str | None = None,
     **extra,
 ) -> dict:
     """Create a structured remediation audit record."""
@@ -74,6 +75,7 @@ def make_record(
         "timestamp": datetime.now(timezone.utc).isoformat(),
         "service": service,
         "incident_id": incident_id,
+        "operator_id": operator_id,
         "action": "restart",
         "status": status,
         "message": message,
@@ -123,6 +125,7 @@ async def get_active_incident_id(service: str) -> str | None:
         KeyError,
         ValueError,
         IndexError,
+        TypeError,
     ):
         return None
 
@@ -131,6 +134,7 @@ async def _remediate_service_locked(
     service: str,
     approved: bool,
     incident_id: str,
+    operator_id: str | None = None,
 ) -> dict:
     """Validate, reserve and execute remediation while holding the service lock."""
     audit_id = str(uuid.uuid4())
@@ -148,6 +152,7 @@ async def _remediate_service_locked(
             incident_id,
             "rejected",
             "Explicit approval is required.",
+            operator_id=operator_id,
         )
         write_audit_record(result)
         return result
@@ -170,6 +175,7 @@ async def _remediate_service_locked(
                 "Restart skipped: the incident ID does not match the active "
                 "incident, or the service is already healthy."
             ),
+            operator_id=operator_id,
             outage_confirmed=outage_confirmed,
             incident_matches=incident_matches,
             health_before=healthy_before,
@@ -191,6 +197,7 @@ async def _remediate_service_locked(
             incident_id,
             "blocked",
             reservation["reason"],
+            operator_id=operator_id,
             attempt_count=reservation["attempt_count"],
         )
         write_audit_record(result)
@@ -221,6 +228,7 @@ async def _remediate_service_locked(
                 "failed",
                 stderr.decode(errors="replace").strip()
                 or "Restricted helper returned an error.",
+                operator_id=operator_id,
                 outage_confirmed=outage_confirmed,
                 health_before=healthy_before,
                 attempt_count=attempt_count,
@@ -255,6 +263,7 @@ async def _remediate_service_locked(
             incident_id,
             final_status,
             final_message,
+            operator_id=operator_id,
             outage_confirmed=outage_confirmed,
             health_before=healthy_before,
             health_after=healthy_after,
@@ -277,8 +286,6 @@ async def _remediate_service_locked(
             audit_id,
         )
 
-        # Do not claim the operation was successfully recorded if persistence
-        # itself failed. Attempt the database update and audit write separately.
         failure_message = (
             f"Remediation or outcome persistence failed: "
             f"{type(exc).__name__}: {exc}"
@@ -290,6 +297,7 @@ async def _remediate_service_locked(
             incident_id,
             "failed",
             failure_message,
+            operator_id=operator_id,
             outage_confirmed=outage_confirmed,
             health_before=healthy_before,
             attempt_count=attempt_count,
@@ -322,6 +330,7 @@ async def remediate_service(
     service: str,
     approved: bool,
     incident_id: str,
+    operator_id: str | None = None,
 ) -> dict:
     """Serialize remediation requests per service within this process."""
     if service not in SERVICE_LOCKS:
@@ -332,4 +341,5 @@ async def remediate_service(
             service=service,
             approved=approved,
             incident_id=incident_id,
+            operator_id=operator_id,
         )

@@ -1,16 +1,18 @@
 
 import os
 import secrets
+from contextlib import asynccontextmanager
 
 from dotenv import load_dotenv
 from fastapi import FastAPI, Header, HTTPException
 from pydantic import BaseModel
 
+from app.database import initialize_database
+from app.services.decision_engine import decide_action
 from app.services.incident_detector import detect_unhealthy_services
 from app.services.incident_diagnoser import diagnose_service
-from app.services.decision_engine import decide_action
 from app.services.remediation_service import remediate_service
-from app.database import initialize_database
+
 
 # Load environment variables from the project's .env file.
 load_dotenv()
@@ -31,9 +33,6 @@ ALLOWED_SERVICES = {
 }
 
 
-from contextlib import asynccontextmanager
-
-
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     initialize_database()
@@ -50,9 +49,11 @@ app = FastAPI(
     lifespan=lifespan,
 )
 
+
 class RemediationRequest(BaseModel):
     approved: bool = False
     incident_id: str
+
 
 @app.get("/health")
 def health_check():
@@ -114,15 +115,19 @@ async def post_remediation(
         default=None,
         alias="X-Approval-Token",
     ),
+    operator_id: str | None = Header(
+        default=None,
+        alias="X-Operator-ID",
+    ),
 ):
-    # Validate the requested target before taking any action.
+    # 1. Validate the requested target before taking any action.
     if service not in ALLOWED_SERVICES:
         raise HTTPException(
             status_code=404,
             detail="Unknown service",
         )
 
-    # Require the configured approval token.
+    # 2. Validate the configured approval token.
     if (
         not approval_token
         or not secrets.compare_digest(
@@ -135,11 +140,17 @@ async def post_remediation(
             detail="Valid approval token required",
         )
 
-    # The remediation service enforces the approval flag,
-    # checks health, invokes the restricted helper if allowed,
-    # and records the result in the audit log.
+    # 3. Require an operator identifier for audit attribution.
+    if not operator_id or not operator_id.strip():
+        raise HTTPException(
+            status_code=400,
+            detail="Operator identity required",
+        )
+
+    # 4. Delegate to the remediation service.
     return await remediate_service(
         service=service,
         approved=request.approved,
-	incident_id=request.incident_id,
+        incident_id=request.incident_id,
+        operator_id=operator_id.strip(),
     )
