@@ -350,3 +350,33 @@ def test_remediation_never_runs_when_jwt_is_invalid(
 
     assert response.status_code == 401
     assert calls == []
+
+def test_diagnosis_handles_prometheus_failure(api_client, monkeypatch):
+    import app.main as main
+
+    async def failing_diagnosis(service: str):
+        raise RuntimeError("Prometheus query failed")
+
+    monkeypatch.setattr(main, "diagnose_service", failing_diagnosis)
+
+    response = api_client.get("/diagnose/user-service")
+
+    assert response.status_code == 503
+    assert response.json()["detail"] == (
+        "Monitoring data is temporarily unavailable"
+    )
+
+def test_decision_handles_prometheus_failure(api_client, monkeypatch):
+    import app.main as main
+
+    async def failing_decision(service: str):
+        raise RuntimeError("Prometheus query failed")
+
+    monkeypatch.setattr(main, "decide_action", failing_decision)
+
+    response = api_client.get("/decide/user-service")
+
+    assert response.status_code == 503
+    assert response.json()["detail"] == (
+        "Monitoring data is temporarily unavailable"
+    )

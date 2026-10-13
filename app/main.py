@@ -79,7 +79,6 @@ def root():
         ],
     }
 
-
 @app.get("/incidents")
 async def get_incidents():
     return await detect_unhealthy_services()
@@ -93,7 +92,19 @@ async def get_diagnosis(service: str):
             detail="Unknown service",
         )
 
-    return await diagnose_service(service)
+    try:
+        return await diagnose_service(service)
+    except Exception as exc:
+        import logging
+
+        logging.getLogger(__name__).exception(
+            "Diagnosis failed for service %s",
+            service,
+        )
+        raise HTTPException(
+            status_code=503,
+            detail="Monitoring data is temporarily unavailable",
+        ) from exc
 
 
 @app.get("/decide/{service}")
@@ -104,8 +115,19 @@ async def get_decision(service: str):
             detail="Unknown service",
         )
 
-    return await decide_action(service)
+    try:
+        return await decide_action(service)
+    except Exception as exc:
+        import logging
 
+        logging.getLogger(__name__).exception(
+            "Decision failed for service %s",
+            service,
+        )
+        raise HTTPException(
+            status_code=503,
+            detail="Monitoring data is temporarily unavailable",
+        ) from exc
 
 
 @app.post("/remediate/{service}")
