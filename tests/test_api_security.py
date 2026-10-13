@@ -318,3 +318,33 @@ def test_remediation_rejects_jwt_with_wrong_audience(api_client):
     )
 
     assert response.status_code == 401
+
+def test_remediation_never_runs_when_jwt_is_invalid(
+    api_client,
+    monkeypatch,
+):
+    import app.main as main
+
+    calls = []
+
+    async def track_remediation(**kwargs):
+        calls.append(kwargs)
+        return {"status": "unexpected"}
+
+    monkeypatch.setattr(
+        main,
+        "remediate_service",
+        track_remediation,
+    )
+
+    response = api_client.post(
+        "/remediate/user-service",
+        headers=remediation_headers(token="invalid-token"),
+        json={
+            "approved": True,
+            "incident_id": "inc-test-123",
+        },
+    )
+
+    assert response.status_code == 401
+    assert calls == []

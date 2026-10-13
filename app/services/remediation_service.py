@@ -1,4 +1,4 @@
-
+import os
 import asyncio
 import json
 import logging
@@ -17,7 +17,12 @@ logger = logging.getLogger(__name__)
 
 HELPER_PATH = "/usr/local/bin/kybernaut-remediate"
 PROMETHEUS_URL = "http://localhost:9090"
-AUDIT_PATH = Path.home() / "kybernaut" / "remediation_audit.jsonl"
+AUDIT_PATH = Path(
+    os.getenv(
+        "KYBERNAUT_AUDIT_PATH",
+        str(Path.home() / "kybernaut" / "remediation_audit.jsonl"),
+    )
+)
 
 ALLOWED_SERVICES = {
     "order-service": {"port": 8001},

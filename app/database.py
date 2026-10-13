@@ -1,8 +1,13 @@
+import os
 import sqlite3
 from pathlib import Path
 
-PROJECT_ROOT = Path(__file__).resolve().parent.parent
-DATABASE_PATH = PROJECT_ROOT / "incidents.db"
+DATABASE_PATH = Path(
+    os.getenv(
+        "KYBERNAUT_DATABASE_PATH",
+        str(Path(__file__).resolve().parent.parent / "incidents.db"),
+    )
+)
 
 
 def get_connection() -> sqlite3.Connection:
