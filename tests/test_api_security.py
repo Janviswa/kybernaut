@@ -237,3 +237,84 @@ def test_remediation_rejects_unknown_service(api_client):
 
     assert response.status_code == 404
     assert response.json()["detail"] == "Unknown service"
+
+
+def test_remediation_rejects_jwt_signed_with_wrong_secret(api_client):
+    token = create_operator_token(
+        secret="incorrect-signing-secret-for-tests-only",
+    )
+
+    response = api_client.post(
+        "/remediate/user-service",
+        headers=remediation_headers(token=token),
+        json={
+            "approved": True,
+            "incident_id": "inc-test-123",
+        },
+    )
+
+    assert response.status_code == 401
+
+
+def test_remediation_rejects_jwt_with_wrong_issuer(api_client):
+    token = create_operator_token()
+    payload = jwt.decode(
+        token,
+        TEST_JWT_SECRET,
+        algorithms=["HS256"],
+        audience=TEST_JWT_AUDIENCE,
+    )
+    payload["iss"] = "untrusted-issuer"
+
+    now = datetime.now(timezone.utc)
+    payload["iat"] = now
+    payload["exp"] = now + timedelta(minutes=5)
+
+    wrong_issuer_token = jwt.encode(
+        payload,
+        TEST_JWT_SECRET,
+        algorithm="HS256",
+    )
+
+    response = api_client.post(
+        "/remediate/user-service",
+        headers=remediation_headers(token=wrong_issuer_token),
+        json={
+            "approved": True,
+            "incident_id": "inc-test-123",
+        },
+    )
+
+    assert response.status_code == 401
+
+
+def test_remediation_rejects_jwt_with_wrong_audience(api_client):
+    token = create_operator_token()
+    payload = jwt.decode(
+        token,
+        TEST_JWT_SECRET,
+        algorithms=["HS256"],
+        audience=TEST_JWT_AUDIENCE,
+    )
+    payload["aud"] = "untrusted-api"
+
+    now = datetime.now(timezone.utc)
+    payload["iat"] = now
+    payload["exp"] = now + timedelta(minutes=5)
+
+    wrong_audience_token = jwt.encode(
+        payload,
+        TEST_JWT_SECRET,
+        algorithm="HS256",
+    )
+
+    response = api_client.post(
+        "/remediate/user-service",
+        headers=remediation_headers(token=wrong_audience_token),
+        json={
+            "approved": True,
+            "incident_id": "inc-test-123",
+        },
+    )
+
+    assert response.status_code == 401
