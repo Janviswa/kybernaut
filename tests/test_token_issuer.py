@@ -24,6 +24,8 @@ def run_issuer(*args, secret=TEST_SECRET, operators=None):
 
     config_dir = PROJECT_ROOT / "config"
     operators_file = config_dir / "operators.json"
+    config_dir.mkdir(parents=True, exist_ok=True)
+
     original_content = (
         operators_file.read_text(encoding="utf-8")
         if operators_file.exists()
