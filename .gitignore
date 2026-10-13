@@ -2,6 +2,7 @@
 # Secrets
 .env
 .env.*
+config/operators.json
 
 # Python
 .venv/
