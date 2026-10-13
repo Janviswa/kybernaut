@@ -1,16 +1,55 @@
-import importlib
 
+import importlib
+from datetime import datetime, timedelta, timezone
+
+import jwt
 import pytest
 from fastapi.testclient import TestClient
 
 
+TEST_JWT_SECRET = "test-only-jwt-secret-do-not-use-in-production"
+TEST_JWT_ISSUER = "kybernaut-test"
+TEST_JWT_AUDIENCE = "kybernaut-api-test"
+TEST_APPROVAL_TOKEN = "test-only-approval-token"
+
+
+def create_operator_token(
+    *,
+    operator_id="test-operator",
+    permissions=None,
+    expires_delta=timedelta(minutes=5),
+    secret=TEST_JWT_SECRET,
+):
+    now = datetime.now(timezone.utc)
+
+    payload = {
+        "sub": operator_id,
+        "iss": TEST_JWT_ISSUER,
+        "aud": TEST_JWT_AUDIENCE,
+        "iat": now,
+        "exp": now + expires_delta,
+        "permissions": (
+            ["remediation"] if permissions is None else permissions
+        ),
+    }
+
+    return jwt.encode(payload, secret, algorithm="HS256")
+
+
 @pytest.fixture
 def api_client(monkeypatch):
-    # Configure a test-only token before importing the application.
     monkeypatch.setenv(
         "KYBERNAUT_REMEDIATION_TOKEN",
-        "test-only-approval-token",
+        TEST_APPROVAL_TOKEN,
     )
+    monkeypatch.setenv("KYBERNAUT_JWT_SECRET", TEST_JWT_SECRET)
+    monkeypatch.setenv("KYBERNAUT_JWT_ISSUER", TEST_JWT_ISSUER)
+    monkeypatch.setenv("KYBERNAUT_JWT_AUDIENCE", TEST_JWT_AUDIENCE)
+
+    # Reload authentication settings before importing the API.
+    import app.core.jwt_auth as jwt_auth
+
+    importlib.reload(jwt_auth)
 
     import app.main as main
 
@@ -35,9 +74,89 @@ def api_client(monkeypatch):
         yield client
 
 
-def test_remediation_rejects_missing_approval_token(api_client):
+def remediation_headers(*, token=None, approval=TEST_APPROVAL_TOKEN):
+    headers = {}
+
+    if token is not None:
+        headers["Authorization"] = f"Bearer {token}"
+
+    if approval is not None:
+        headers["X-Approval-Token"] = approval
+
+    return headers
+
+
+def test_remediation_rejects_missing_jwt(api_client):
     response = api_client.post(
         "/remediate/user-service",
+        headers={
+            "X-Approval-Token": TEST_APPROVAL_TOKEN,
+            "X-Operator-ID": "spoofed-operator",
+        },
+        json={
+            "approved": True,
+            "incident_id": "inc-test-123",
+        },
+    )
+
+    assert response.status_code == 401
+    assert response.headers["www-authenticate"] == "Bearer"
+
+
+def test_remediation_rejects_invalid_jwt(api_client):
+    response = api_client.post(
+        "/remediate/user-service",
+        headers=remediation_headers(token="not-a-valid-jwt"),
+        json={
+            "approved": True,
+            "incident_id": "inc-test-123",
+        },
+    )
+
+    assert response.status_code == 401
+
+
+def test_remediation_rejects_expired_jwt(api_client):
+    expired_token = create_operator_token(
+        expires_delta=timedelta(seconds=-10),
+    )
+
+    response = api_client.post(
+        "/remediate/user-service",
+        headers=remediation_headers(token=expired_token),
+        json={
+            "approved": True,
+            "incident_id": "inc-test-123",
+        },
+    )
+
+    assert response.status_code == 401
+
+
+def test_remediation_rejects_operator_without_permission(api_client):
+    token = create_operator_token(permissions=["read"])
+
+    response = api_client.post(
+        "/remediate/user-service",
+        headers=remediation_headers(token=token),
+        json={
+            "approved": True,
+            "incident_id": "inc-test-123",
+        },
+    )
+
+    assert response.status_code == 403
+    assert response.json()["detail"] == (
+        "Operator lacks remediation permission"
+    )
+
+
+def test_remediation_rejects_missing_approval_token(api_client):
+    token = create_operator_token()
+
+    response = api_client.post(
+        "/remediate/user-service",
+        headers=remediation_headers(token=token, approval=None),
         json={
             "approved": True,
             "incident_id": "inc-test-123",
@@ -49,12 +168,14 @@ def test_remediation_rejects_missing_approval_token(api_client):
 
 
 def test_remediation_rejects_invalid_approval_token(api_client):
+    token = create_operator_token()
+
     response = api_client.post(
         "/remediate/user-service",
-        headers={
-            "X-Approval-Token": "incorrect-token",
-            "X-Operator-ID": "test-operator",
-        },
+        headers=remediation_headers(
+            token=token,
+            approval="incorrect-token",
+        ),
         json={
             "approved": True,
             "incident_id": "inc-test-123",
@@ -64,13 +185,12 @@ def test_remediation_rejects_invalid_approval_token(api_client):
     assert response.status_code == 403
 
 
-def test_remediation_accepts_valid_token(api_client):
+def test_remediation_accepts_valid_jwt_and_approval(api_client):
+    token = create_operator_token(operator_id="authenticated-operator")
+
     response = api_client.post(
         "/remediate/user-service",
-        headers={
-            "X-Approval-Token": "test-only-approval-token",
-            "X-Operator-ID": "test-operator",
-        },
+        headers=remediation_headers(token=token),
         json={
             "approved": True,
             "incident_id": "inc-test-123",
@@ -81,32 +201,34 @@ def test_remediation_accepts_valid_token(api_client):
     assert response.json()["status"] == "test-approved"
     assert response.json()["service"] == "user-service"
     assert response.json()["incident_id"] == "inc-test-123"
-    assert response.json()["operator_id"] == "test-operator"
+    assert response.json()["operator_id"] == "authenticated-operator"
 
 
-def test_remediation_rejects_missing_operator_id(api_client):
+def test_remediation_ignores_spoofed_operator_id_header(api_client):
+    token = create_operator_token(operator_id="verified-operator")
+
+    headers = remediation_headers(token=token)
+    headers["X-Operator-ID"] = "spoofed-operator"
+
     response = api_client.post(
         "/remediate/user-service",
-        headers={
-            "X-Approval-Token": "test-only-approval-token",
-        },
+        headers=headers,
         json={
             "approved": True,
             "incident_id": "inc-test-123",
         },
     )
 
-    assert response.status_code == 400
-    assert response.json()["detail"] == "Operator identity required"
+    assert response.status_code == 200
+    assert response.json()["operator_id"] == "verified-operator"
 
 
 def test_remediation_rejects_unknown_service(api_client):
+    token = create_operator_token()
+
     response = api_client.post(
         "/remediate/unknown-service",
-        headers={
-            "X-Approval-Token": "test-only-approval-token",
-            "X-Operator-ID": "test-operator",
-        },
+        headers=remediation_headers(token=token),
         json={
             "approved": True,
             "incident_id": "inc-test-123",

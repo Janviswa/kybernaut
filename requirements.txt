@@ -3,3 +3,4 @@ uvicorn[standard]
 pydantic-settings
 httpx
 python-dotenv
+PyJWT>=2.10,<3

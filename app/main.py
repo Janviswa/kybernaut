@@ -12,7 +12,7 @@ from app.services.decision_engine import decide_action
 from app.services.incident_detector import detect_unhealthy_services
 from app.services.incident_diagnoser import diagnose_service
 from app.services.remediation_service import remediate_service
-
+from app.core.jwt_auth import verify_operator_token
 
 # Load environment variables from the project's .env file.
 load_dotenv()
@@ -107,6 +107,7 @@ async def get_decision(service: str):
     return await decide_action(service)
 
 
+
 @app.post("/remediate/{service}")
 async def post_remediation(
     service: str,
@@ -115,42 +116,42 @@ async def post_remediation(
         default=None,
         alias="X-Approval-Token",
     ),
-    operator_id: str | None = Header(
+    authorization: str | None = Header(
         default=None,
-        alias="X-Operator-ID",
+        alias="Authorization",
     ),
 ):
-    # 1. Validate the requested target before taking any action.
     if service not in ALLOWED_SERVICES:
+        raise HTTPException(status_code=404, detail="Unknown service")
+
+    if not authorization or not authorization.startswith("Bearer "):
         raise HTTPException(
-            status_code=404,
-            detail="Unknown service",
+            status_code=401,
+            detail="Bearer token required",
+            headers={"WWW-Authenticate": "Bearer"},
         )
 
-    # 2. Validate the configured approval token.
-    if (
-        not approval_token
-        or not secrets.compare_digest(
-            approval_token,
-            REMEDIATION_TOKEN,
+    token = authorization[len("Bearer "):].strip()
+    if not token:
+        raise HTTPException(
+            status_code=401,
+            detail="Bearer token required",
+            headers={"WWW-Authenticate": "Bearer"},
         )
+
+    operator = verify_operator_token(token)
+
+    if not approval_token or not secrets.compare_digest(
+        approval_token, REMEDIATION_TOKEN
     ):
         raise HTTPException(
             status_code=403,
             detail="Valid approval token required",
         )
 
-    # 3. Require an operator identifier for audit attribution.
-    if not operator_id or not operator_id.strip():
-        raise HTTPException(
-            status_code=400,
-            detail="Operator identity required",
-        )
-
-    # 4. Delegate to the remediation service.
     return await remediate_service(
         service=service,
         approved=request.approved,
         incident_id=request.incident_id,
-        operator_id=operator_id.strip(),
+        operator_id=operator.operator_id,
     )
