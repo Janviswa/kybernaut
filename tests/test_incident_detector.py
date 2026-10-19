@@ -390,3 +390,44 @@ async def test_detector_does_not_duplicate_repeated_outage(
     assert second_result["incident_count"] == 1
     assert len(list_incidents(status="OPEN")) == 1
     assert list_incidents(status="RESOLVED") == []
+
+
+@pytest.mark.asyncio
+async def test_resolved_incident_stays_resolved_on_healthy_passes(
+    monkeypatch,
+):
+    record_incident({
+        "incident_id": "inc-test-recovery-persistence",
+        "service": "user-service",
+        "type": "service_unavailable",
+        "severity": "critical",
+        "message": "user-service is down",
+    })
+
+    install_mock(monkeypatch)
+
+    # First pass: the service has recovered.
+    MockAsyncClient.responses = [
+        MockResponse(prometheus_response("user-service", 1)),
+        MockResponse(prometheus_targets_response()),
+    ]
+    MockAsyncClient.calls = []
+
+    first_result = await detect_unhealthy_services()
+
+    assert first_result["incident_count"] == 0
+    assert len(list_incidents(status="RESOLVED")) == 1
+    assert list_incidents(status="OPEN") == []
+
+    # Second pass: the service remains healthy.
+    MockAsyncClient.responses = [
+        MockResponse(prometheus_response("user-service", 1)),
+        MockResponse(prometheus_targets_response()),
+    ]
+    MockAsyncClient.calls = []
+
+    second_result = await detect_unhealthy_services()
+
+    assert second_result["incident_count"] == 0
+    assert len(list_incidents(status="RESOLVED")) == 1
+    assert list_incidents(status="OPEN") == []
