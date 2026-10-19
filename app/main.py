@@ -10,6 +10,7 @@ from pydantic import BaseModel
 from app.database import initialize_database
 from app.services.decision_engine import decide_action
 from app.services.incident_detector import detect_unhealthy_services
+from app.services.incident_repository import list_incidents
 from app.services.incident_diagnoser import diagnose_service
 from app.services.remediation_service import remediate_service
 from app.core.jwt_auth import verify_operator_token
@@ -83,6 +84,31 @@ def root():
 async def get_incidents():
     return await detect_unhealthy_services()
 
+@app.get("/incidents/history")
+def get_incident_history(
+    status: str | None = None,
+):
+    allowed_statuses = {
+        "OPEN",
+        "REMEDIATING",
+        "RESOLVED",
+    }
+
+    if status is not None:
+        status = status.upper()
+
+        if status not in allowed_statuses:
+            raise HTTPException(
+                status_code=400,
+                detail=(
+                    "Invalid status. Use OPEN, "
+                    "REMEDIATING, or RESOLVED."
+                ),
+            )
+
+    return {
+        "incidents": list_incidents(status=status),
+    }
 
 @app.get("/diagnose/{service}")
 async def get_diagnosis(service: str):

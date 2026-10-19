@@ -406,3 +406,62 @@ def test_incidents_endpoint_returns_detector_result(
 
     assert response.status_code == 200
     assert response.json() == expected
+
+
+def test_incident_history_returns_stored_incidents(
+    api_client,
+    monkeypatch,
+):
+    import app.main as main
+
+    expected = [
+        {
+            "incident_id": "inc-history-1",
+            "service": "user-service",
+            "incident_type": "service_unavailable",
+            "status": "RESOLVED",
+        }
+    ]
+
+    monkeypatch.setattr(
+        main,
+        "list_incidents",
+        lambda status=None: expected,
+    )
+
+    response = api_client.get("/incidents/history")
+
+    assert response.status_code == 200
+    assert response.json() == {"incidents": expected}
+
+
+def test_incident_history_filters_by_status(
+    api_client,
+    monkeypatch,
+):
+    import app.main as main
+
+    calls = []
+
+    def fake_list_incidents(status=None):
+        calls.append(status)
+        return []
+
+    monkeypatch.setattr(main, "list_incidents", fake_list_incidents)
+
+    response = api_client.get(
+        "/incidents/history?status=resolved"
+    )
+
+    assert response.status_code == 200
+    assert response.json() == {"incidents": []}
+    assert calls == ["RESOLVED"]
+
+
+def test_incident_history_rejects_invalid_status(api_client):
+    response = api_client.get(
+        "/incidents/history?status=UNKNOWN"
+    )
+
+    assert response.status_code == 400
+    assert response.json()["detail"].startswith("Invalid status")
