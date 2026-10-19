@@ -380,3 +380,29 @@ def test_decision_handles_prometheus_failure(api_client, monkeypatch):
     assert response.json()["detail"] == (
         "Monitoring data is temporarily unavailable"
     )
+
+
+def test_incidents_endpoint_returns_detector_result(
+    api_client,
+    monkeypatch,
+):
+    import app.main as main
+
+    expected = {
+        "incident_count": 0,
+        "incidents": [],
+    }
+
+    async def fake_detect_unhealthy_services():
+        return expected
+
+    monkeypatch.setattr(
+        main,
+        "detect_unhealthy_services",
+        fake_detect_unhealthy_services,
+    )
+
+    response = api_client.get("/incidents")
+
+    assert response.status_code == 200
+    assert response.json() == expected
