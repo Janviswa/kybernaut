@@ -429,7 +429,11 @@ def test_incident_history_returns_stored_incidents(
         lambda status=None: expected,
     )
 
-    response = api_client.get("/incidents/history")
+    token = create_operator_token(permissions=["read"])
+    response = api_client.get(
+        "/incidents/history",
+        headers=remediation_headers(token=token),
+    )
 
     assert response.status_code == 200
     assert response.json() == {"incidents": expected}
@@ -449,8 +453,10 @@ def test_incident_history_filters_by_status(
 
     monkeypatch.setattr(main, "list_incidents", fake_list_incidents)
 
+    token = create_operator_token(permissions=["read"])
     response = api_client.get(
-        "/incidents/history?status=resolved"
+        "/incidents/history?status=resolved",
+        headers=remediation_headers(token=token),
     )
 
     assert response.status_code == 200
@@ -459,8 +465,10 @@ def test_incident_history_filters_by_status(
 
 
 def test_incident_history_rejects_invalid_status(api_client):
+    token = create_operator_token(permissions=["read"])
     response = api_client.get(
-        "/incidents/history?status=UNKNOWN"
+        "/incidents/history?status=UNKNOWN",
+        headers=remediation_headers(token=token),
     )
 
     assert response.status_code == 400

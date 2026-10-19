@@ -64,13 +64,18 @@ def verify_operator_token(token: str) -> AuthenticatedOperator:
             headers={"WWW-Authenticate": "Bearer"},
         )
 
-    if "remediation" not in permissions:
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="Operator lacks remediation permission",
-        )
-
     return AuthenticatedOperator(
         operator_id=operator_id.strip(),
         permissions=tuple(permissions),
     )
+
+def require_permission(
+    operator: AuthenticatedOperator,
+    permission: str,
+) -> None:
+    """Raise 403 when an authenticated operator lacks a permission."""
+    if permission not in operator.permissions:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail=f"Operator lacks {permission} permission",
+        )

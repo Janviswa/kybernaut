@@ -13,7 +13,10 @@ from app.services.incident_detector import detect_unhealthy_services
 from app.services.incident_repository import list_incidents
 from app.services.incident_diagnoser import diagnose_service
 from app.services.remediation_service import remediate_service
-from app.core.jwt_auth import verify_operator_token
+from app.core.jwt_auth import (
+    require_permission,
+    verify_operator_token,
+)
 
 # Load environment variables from the project's .env file.
 load_dotenv()
@@ -87,7 +90,29 @@ async def get_incidents():
 @app.get("/incidents/history")
 def get_incident_history(
     status: str | None = None,
+    authorization: str | None = Header(
+        default=None,
+        alias="Authorization",
+    ),
 ):
+    if not authorization or not authorization.startswith("Bearer "):
+        raise HTTPException(
+            status_code=401,
+            detail="Bearer token required",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+
+    token = authorization[len("Bearer "):].strip()
+    if not token:
+        raise HTTPException(
+            status_code=401,
+            detail="Bearer token required",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+
+    operator = verify_operator_token(token)
+    require_permission(operator, "read")
+
     allowed_statuses = {
         "OPEN",
         "REMEDIATING",
@@ -109,6 +134,7 @@ def get_incident_history(
     return {
         "incidents": list_incidents(status=status),
     }
+
 
 @app.get("/diagnose/{service}")
 async def get_diagnosis(service: str):
@@ -188,6 +214,7 @@ async def post_remediation(
         )
 
     operator = verify_operator_token(token)
+    require_permission(operator, "remediation")
 
     if not approval_token or not secrets.compare_digest(
         approval_token, REMEDIATION_TOKEN
