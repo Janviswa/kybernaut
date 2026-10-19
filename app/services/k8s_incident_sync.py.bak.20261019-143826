@@ -1,0 +1,82 @@
+"""Persist successful Kubernetes observations in the incident repository."""
+
+import hashlib
+
+from app.services.incident_repository import (
+    list_incidents,
+    record_incident,
+    resolve_incident_fingerprint,
+)
+
+KUBERNETES_SERVICE = "kubernetes-lab"
+FINGERPRINT_PREFIX = "k8s:"
+
+
+def build_fingerprint(incident: dict, namespace: str) -> str:
+    """Build a stable identity for a Kubernetes resource incident."""
+    incident_type = incident["type"]
+    resource = incident["resource"]
+
+    resource_kind = incident.get("resource_kind")
+    if not resource_kind:
+        if incident_type in {"pod_container_failure", "pod_failed"}:
+            resource_kind = "Pod"
+        elif incident_type == "deployment_unavailable_replicas":
+            resource_kind = "Deployment"
+        else:
+            resource_kind = "Unknown"
+
+    return (
+        f"{FINGERPRINT_PREFIX}{namespace}:"
+        f"{resource_kind}:{resource}:{incident_type}"
+    )
+
+
+def persist_observation(observation: dict) -> dict:
+    """Persist a complete successful observation and resolve stale records.
+
+    Call this only after observe_namespace() returns successfully.
+    """
+    namespace = observation["namespace"]
+    observed_incidents = observation["incidents"]
+    active_fingerprints = set()
+    persisted = []
+
+    for incident in observed_incidents:
+        fingerprint = build_fingerprint(incident, namespace)
+        active_fingerprints.add(fingerprint)
+
+        digest = hashlib.sha256(fingerprint.encode("utf-8")).hexdigest()[:12]
+        evidence = incident.get("evidence", [])
+        message = "; ".join(evidence) or incident.get(
+            "recommendation", "Kubernetes incident detected"
+        )
+
+        record = record_incident({
+            "incident_id": f"inc-k8s-{digest}",
+            "service": KUBERNETES_SERVICE,
+            "type": incident["type"],
+            "severity": incident["severity"],
+            "message": message,
+            "fingerprint": fingerprint,
+        })
+        persisted.append(record)
+
+    # Only resolve previously active Kubernetes records that are absent from
+    # this successfully completed observation. Other services are untouched.
+    for record in list_incidents():
+        fingerprint = record.get("fingerprint")
+
+        if (
+            record.get("service") == KUBERNETES_SERVICE
+            and record.get("status") in {"OPEN", "REMEDIATING"}
+            and fingerprint
+            and fingerprint.startswith(FINGERPRINT_PREFIX)
+            and fingerprint not in active_fingerprints
+        ):
+            resolve_incident_fingerprint(fingerprint)
+
+    return {
+        "persisted_count": len(persisted),
+        "active_fingerprints": sorted(active_fingerprints),
+    }

@@ -7,9 +7,13 @@ from dotenv import load_dotenv
 from fastapi import FastAPI, Header, HTTPException
 from pydantic import BaseModel
 
+import asyncio
+import logging
+
 from app.database import initialize_database
 from app.services.decision_engine import decide_action
 from app.services.incident_detector import detect_unhealthy_services
+from app.services.incident_metrics import calculate_incident_metrics
 from app.services.incident_repository import list_incidents
 from app.services.incident_diagnoser import diagnose_service
 from app.services.remediation_service import remediate_service
@@ -136,6 +140,37 @@ def get_incident_history(
     }
 
 
+
+
+@app.get("/metrics/incidents")
+def get_incident_metrics(
+    authorization: str | None = Header(
+        default=None,
+        alias="Authorization",
+    ),
+):
+    """Return read-only reliability metrics for authorized operators."""
+    if not authorization or not authorization.startswith("Bearer "):
+        raise HTTPException(
+            status_code=401,
+            detail="Bearer token required",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+
+    token = authorization[len("Bearer "):].strip()
+    if not token:
+        raise HTTPException(
+            status_code=401,
+            detail="Bearer token required",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+
+    operator = verify_operator_token(token)
+    require_permission(operator, "read")
+
+    return calculate_incident_metrics()
+
+
 @app.get("/diagnose/{service}")
 async def get_diagnosis(service: str):
     if service not in ALLOWED_SERVICES:
@@ -230,3 +265,95 @@ async def post_remediation(
         incident_id=request.incident_id,
         operator_id=operator.operator_id,
     )
+
+
+# LangGraph advisory incident workflow.
+from app.services.incident_workflow import run_incident_workflow
+
+
+@app.get("/workflow/{service}")
+async def incident_workflow_endpoint(
+    service: str,
+    authorization: str | None = Header(default=None),
+):
+    """Run advisory diagnosis, RCA, and policy evaluation."""
+    if not authorization or not authorization.lower().startswith("bearer "):
+        raise HTTPException(
+            status_code=401,
+            detail="Bearer operator token required",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+
+    token = authorization.split(None, 1)[1].strip()
+    if not token:
+        raise HTTPException(
+            status_code=401,
+            detail="Bearer operator token required",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+
+    operator = verify_operator_token(token)
+    require_permission(operator, "read")
+
+    try:
+        return await run_incident_workflow(service)
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+    except HTTPException:
+        raise
+    except Exception as exc:
+        # Do not expose internal errors or credentials to API clients.
+        raise HTTPException(
+            status_code=503,
+            detail="Incident workflow is temporarily unavailable.",
+        ) from exc
+
+
+# Read-only Kubernetes incident observer and incident persistence.
+from app.services.k8s_observer import observe_namespace
+from app.services.k8s_incident_sync import persist_observation
+
+
+@app.get("/kubernetes/incidents")
+async def kubernetes_incidents_endpoint(
+    authorization: str | None = Header(default=None),
+):
+    """Return read-only Kubernetes observations for authorized operators."""
+    if not authorization or not authorization.lower().startswith("bearer "):
+        raise HTTPException(
+            status_code=401,
+            detail="Bearer operator token required",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+
+    token = authorization.split(None, 1)[1].strip()
+    if not token:
+        raise HTTPException(
+            status_code=401,
+            detail="Bearer operator token required",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+
+    operator = verify_operator_token(token)
+    require_permission(operator, "read")
+
+    try:
+        observation = await asyncio.to_thread(observe_namespace)
+
+        # Persist only after the entire observation succeeds.
+        persistence = await asyncio.to_thread(
+            persist_observation, observation
+        )
+
+        return {
+            **observation,
+            "persistence": persistence,
+        }
+    except Exception as exc:
+        logging.getLogger(__name__).exception(
+            "Kubernetes incident observation or persistence failed"
+        )
+        raise HTTPException(
+            status_code=503,
+            detail="Kubernetes observations are temporarily unavailable.",
+        ) from exc

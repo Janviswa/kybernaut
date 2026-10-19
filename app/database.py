@@ -39,10 +39,35 @@ def initialize_database() -> None:
             """
         )
 
+        # Add lifecycle identity fields safely to existing databases.
+        incident_columns = {
+            row["name"]
+            for row in connection.execute(
+                "PRAGMA table_info(incidents)"
+            ).fetchall()
+        }
+
+        if "fingerprint" not in incident_columns:
+            connection.execute(
+                "ALTER TABLE incidents ADD COLUMN fingerprint TEXT"
+            )
+
+        if "last_seen_at" not in incident_columns:
+            connection.execute(
+                "ALTER TABLE incidents ADD COLUMN last_seen_at TEXT"
+            )
+
         connection.execute(
             """
             CREATE INDEX IF NOT EXISTS idx_incidents_service_status
             ON incidents (service, status)
+            """
+        )
+
+        connection.execute(
+            """
+            CREATE INDEX IF NOT EXISTS idx_incidents_fingerprint_status
+            ON incidents (fingerprint, status)
             """
         )
 

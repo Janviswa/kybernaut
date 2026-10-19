@@ -1,0 +1,149 @@
+"""LangGraph orchestration for safe, advisory incident response."""
+
+from typing import Any, TypedDict
+
+from langgraph.graph import END, START, StateGraph
+
+from app.services.incident_diagnoser import diagnose_service
+from app.services.k8s_observer import observe_namespace
+from app.services.rca_agent import generate_rca
+
+
+ALLOWED_SERVICES = {
+    "order-service",
+    "payment-service",
+    "user-service",
+    "inventory-service",
+}
+
+
+class IncidentState(TypedDict, total=False):
+    service: str
+    diagnosis: dict[str, Any]
+    kubernetes: dict[str, Any]
+    kubernetes_status: str
+    rca: dict[str, Any] | None
+    rca_status: str
+    policy: dict[str, Any]
+    error: str
+
+
+async def detect_and_diagnose(state: IncidentState) -> dict:
+    """Collect service and Kubernetes evidence."""
+    diagnosis = await diagnose_service(state["service"])
+
+    try:
+        kubernetes = await __import__("asyncio").to_thread(
+            observe_namespace
+        )
+        kubernetes_status = "completed"
+    except Exception:
+        # Preserve service diagnosis if Kubernetes is temporarily unavailable.
+        kubernetes = None
+        kubernetes_status = "unavailable"
+
+    return {
+        "diagnosis": diagnosis,
+        "kubernetes": kubernetes,
+        "kubernetes_status": kubernetes_status,
+    }
+
+
+async def analyze_root_cause(state: IncidentState) -> dict:
+    """Use the LLM when configured; retain safe operation without it."""
+    try:
+        evidence = {
+            "service_diagnosis": state["diagnosis"],
+            "kubernetes_observations": state.get("kubernetes"),
+        }
+        rca = await generate_rca(evidence)
+        return {"rca": rca, "rca_status": "completed"}
+    except RuntimeError as exc:
+        if "GROQ_API_KEY is not configured" not in str(exc):
+            raise
+
+        return {
+            "rca": None,
+            "rca_status": "unavailable",
+        }
+
+
+def enforce_policy(state: IncidentState) -> dict:
+    """Make deterministic policy decisions; never execute remediation."""
+    diagnosis = state["diagnosis"]
+    findings = {
+        item.get("type") for item in diagnosis.get("findings", [])
+    }
+
+    kubernetes = state.get("kubernetes") or {}
+    k8s_incidents = kubernetes.get("incidents", [])
+
+    if diagnosis.get("status") == "unknown":
+        action = "investigate_monitoring"
+        priority = "medium"
+    elif (
+        "service_unavailable" in findings
+        or any(item.get("severity") == "high" for item in k8s_incidents)
+    ):
+        action = "request_approval"
+        priority = "critical"
+    elif "http_5xx_errors" in findings:
+        action = "investigate_errors"
+        priority = "high"
+    elif "high_latency" in findings:
+        action = "investigate_latency"
+        priority = "medium"
+    else:
+        action = "continue_monitoring"
+        priority = "low"
+
+    rca = state.get("rca")
+    if rca and rca.get("requires_human_approval"):
+        action = "request_approval"
+
+    return {
+        "policy": {
+            "priority": priority,
+            "action": action,
+            "requires_human_approval": action == "request_approval",
+            "automatic_execution": False,
+            "remediation_executed": False,
+        }
+    }
+
+
+def build_incident_graph():
+    """Build and compile the incident-response state graph."""
+    graph = StateGraph(IncidentState)
+
+    graph.add_node("diagnose", detect_and_diagnose)
+    graph.add_node("root_cause_analysis", analyze_root_cause)
+    graph.add_node("policy", enforce_policy)
+
+    graph.add_edge(START, "diagnose")
+    graph.add_edge("diagnose", "root_cause_analysis")
+    graph.add_edge("root_cause_analysis", "policy")
+    graph.add_edge("policy", END)
+
+    return graph.compile()
+
+
+incident_graph = build_incident_graph()
+
+
+async def run_incident_workflow(service: str) -> dict:
+    """Run the advisory workflow for an allowlisted service."""
+    if service not in ALLOWED_SERVICES:
+        raise ValueError("Unsupported service")
+
+    result = await incident_graph.ainvoke({"service": service})
+
+    return {
+        "service": service,
+        "diagnosis": result["diagnosis"],
+        "kubernetes": result.get("kubernetes"),
+        "kubernetes_status": result.get("kubernetes_status", "unavailable"),
+        "rca": result.get("rca"),
+        "rca_status": result.get("rca_status", "unavailable"),
+        "policy": result["policy"],
+    }

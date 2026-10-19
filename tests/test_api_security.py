@@ -416,10 +416,22 @@ def test_incident_history_returns_stored_incidents(
 
     expected = [
         {
-            "incident_id": "inc-history-1",
-            "service": "user-service",
-            "incident_type": "service_unavailable",
+            "incident_id": "inc-k8s-test123",
+            "service": "kubernetes-lab",
+            "incident_type": "pod_container_failure",
+            "severity": "high",
+            "message": "ImagePullBackOff detected",
             "status": "RESOLVED",
+            "fingerprint": (
+                "k8s:kybernaut-lab:Pod:demo-web-test-pod:"
+                "pod_container_failure"
+            ),
+            "opened_at": "2026-10-19T14:42:18+00:00",
+            "updated_at": "2026-10-19T14:42:29+00:00",
+            "resolved_at": "2026-10-19T14:42:29+00:00",
+            "last_seen_at": "2026-10-19T14:42:18+00:00",
+            "remediation_count": 0,
+            "last_remediation_status": None,
         }
     ]
 
@@ -473,3 +485,113 @@ def test_incident_history_rejects_invalid_status(api_client):
 
     assert response.status_code == 400
     assert response.json()["detail"].startswith("Invalid status")
+
+
+def test_kubernetes_incidents_rejects_missing_token(api_client):
+    response = api_client.get("/kubernetes/incidents")
+
+    assert response.status_code == 401
+    assert response.headers["www-authenticate"] == "Bearer"
+
+
+def test_kubernetes_incidents_rejects_operator_without_read_permission(
+    api_client,
+):
+    token = create_operator_token(permissions=["remediation"])
+
+    response = api_client.get(
+        "/kubernetes/incidents",
+        headers={"Authorization": f"Bearer {token}"},
+    )
+
+    assert response.status_code == 403
+    assert response.json()["detail"] == "Operator lacks read permission"
+
+
+def test_kubernetes_incidents_returns_observations(
+    api_client,
+    monkeypatch,
+):
+    import app.main as main
+
+    expected = {
+        "namespace": "kybernaut-lab",
+        "incident_count": 0,
+        "incidents": [],
+        "deployments": [
+            {
+                "name": "demo-web",
+                "desired_replicas": 2,
+                "available_replicas": 2,
+                "ready_replicas": 2,
+            }
+        ],
+    }
+
+    expected_persistence = {
+        "persisted_count": 0,
+        "active_fingerprints": [],
+    }
+    persistence_calls = []
+
+    monkeypatch.setattr(
+        main,
+        "observe_namespace",
+        lambda: expected,
+    )
+    monkeypatch.setattr(
+        main,
+        "persist_observation",
+        lambda observation: (
+            persistence_calls.append(observation)
+            or expected_persistence
+        ),
+    )
+
+    token = create_operator_token(permissions=["read"])
+
+    response = api_client.get(
+        "/kubernetes/incidents",
+        headers={"Authorization": f"Bearer {token}"},
+    )
+
+    assert response.status_code == 200
+    body = response.json()
+    assert body["namespace"] == "kybernaut-lab"
+    assert body["incident_count"] == 0
+    assert body["deployments"][0]["available_replicas"] == 2
+    assert body["persistence"] == expected_persistence
+    assert persistence_calls == [expected]
+
+
+def test_kubernetes_incidents_hides_observer_errors(
+    api_client,
+    monkeypatch,
+):
+    import app.main as main
+
+    def fail_observer():
+        raise RuntimeError("internal Kubernetes details")
+
+    persistence_calls = []
+
+    monkeypatch.setattr(main, "observe_namespace", fail_observer)
+    monkeypatch.setattr(
+        main,
+        "persist_observation",
+        lambda observation: persistence_calls.append(observation),
+    )
+
+    token = create_operator_token(permissions=["read"])
+
+    response = api_client.get(
+        "/kubernetes/incidents",
+        headers={"Authorization": f"Bearer {token}"},
+    )
+
+    assert response.status_code == 503
+    assert response.json()["detail"] == (
+        "Kubernetes observations are temporarily unavailable."
+    )
+    assert "internal Kubernetes details" not in response.text
+    assert persistence_calls == []

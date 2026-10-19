@@ -1,0 +1,204 @@
+"""Read-only Kubernetes incident observer for the Kybernaut lab."""
+
+import json
+import subprocess
+from datetime import datetime, timezone
+
+LAB_NAMESPACE = "kybernaut-lab"
+LAB_DEPLOYMENT = "demo-web"
+
+POD_FAILURE_REASONS = {
+    "CrashLoopBackOff",
+    "ImagePullBackOff",
+    "ErrImagePull",
+    "CreateContainerConfigError",
+}
+
+
+def _kubectl_json(resource: str) -> dict:
+    """Read JSON from a fixed Kubernetes resource in the lab namespace."""
+    if resource not in {"pods", "events", "deployments"}:
+        raise ValueError("Unsupported Kubernetes resource")
+
+    result = subprocess.run(
+        [
+            "kubectl", "get", resource,
+            "-n", LAB_NAMESPACE,
+            "-o", "json",
+        ],
+        capture_output=True,
+        text=True,
+        timeout=20,
+        check=True,
+    )
+    return json.loads(result.stdout)
+
+
+def observe_namespace() -> dict:
+    """Return structured incidents from pod states and Warning events."""
+    pods_data = _kubectl_json("pods")
+    events_data = _kubectl_json("events")
+    deployments_data = _kubectl_json("deployments")
+
+    incidents_by_key = {}
+    severity_rank = {"low": 1, "medium": 2, "high": 3}
+
+    def add_incident(
+        incident_type, severity, resource, evidence, recommendation
+    ):
+        key = (incident_type, resource)
+        incident = incidents_by_key.get(key)
+
+        if incident is None:
+            incident = {
+                "source": "kubernetes",
+                "namespace": LAB_NAMESPACE,
+                "type": incident_type,
+                "severity": severity,
+                "resource": resource,
+                "evidence": [],
+                "recommendation": recommendation,
+            }
+            incidents_by_key[key] = incident
+        elif severity_rank.get(severity, 0) > severity_rank.get(
+            incident["severity"], 0
+        ):
+            incident["severity"] = severity
+
+        if evidence not in incident["evidence"]:
+            incident["evidence"].append(evidence)
+
+    for pod in pods_data.get("items", []):
+        metadata = pod.get("metadata", {})
+        status = pod.get("status", {})
+        pod_name = metadata.get("name", "unknown-pod")
+
+        for container in status.get("containerStatuses", []):
+            waiting = (
+                container.get("state", {})
+                .get("waiting", {})
+            )
+            reason = waiting.get("reason")
+
+            if reason in POD_FAILURE_REASONS:
+                add_incident(
+                    "pod_container_failure",
+                    "high",
+                    pod_name,
+                    f"Container {container.get('name', 'unknown')} "
+                    f"is waiting with reason {reason}: "
+                    f"{waiting.get('message', 'No message provided')}",
+                    "Inspect pod events and container image/configuration.",
+                )
+
+        if status.get("phase") == "Failed":
+            add_incident(
+                "pod_failed",
+                "high",
+                pod_name,
+                f"Pod phase is Failed; reason: "
+                f"{status.get('reason', 'not specified')}",
+                "Inspect pod status, events, and previous container logs.",
+            )
+
+    # Ignore events whose referenced Pod or Deployment no longer exists.
+    # Pod UIDs prevent a stale event from matching a replacement Pod.
+    live_pods = {
+        (
+            pod.get("metadata", {}).get("name"),
+            pod.get("metadata", {}).get("uid"),
+        )
+        for pod in pods_data.get("items", [])
+    }
+    live_deployments = {
+        deployment.get("metadata", {}).get("name")
+        for deployment in deployments_data.get("items", [])
+    }
+
+    for event in events_data.get("items", []):
+        if event.get("type") != "Warning":
+            continue
+
+        involved = event.get("involvedObject", {})
+        kind = involved.get("kind")
+        resource = involved.get("name", "unknown-resource")
+
+        if kind == "Pod":
+            event_uid = involved.get("uid")
+            if not any(
+                name == resource and (not event_uid or uid == event_uid)
+                for name, uid in live_pods
+            ):
+                continue
+        elif kind == "Deployment" and resource not in live_deployments:
+            continue
+
+        reason = event.get("reason", "UnknownWarning")
+        message = event.get("message", "No event message provided")
+
+        severity = (
+            "high" if reason in {"Failed", "BackOff", "FailedScheduling"}
+            else "medium"
+        )
+        evidence = f"{reason}: {message}"
+        recommendation = (
+            "Inspect the Kubernetes event and affected resource before remediation."
+        )
+
+        # Attach Pod warning events to an existing failure incident for that pod.
+        # Keep unrelated warnings and Deployment events as separate incidents.
+        existing_pod_failure = None
+        if kind == "Pod":
+            existing_pod_failure = incidents_by_key.get(
+                ("pod_container_failure", resource)
+            ) or incidents_by_key.get(("pod_failed", resource))
+
+        if existing_pod_failure is not None:
+            if severity_rank.get(severity, 0) > severity_rank.get(
+                existing_pod_failure["severity"], 0
+            ):
+                existing_pod_failure["severity"] = severity
+            if evidence not in existing_pod_failure["evidence"]:
+                existing_pod_failure["evidence"].append(evidence)
+        else:
+            add_incident(
+                "kubernetes_warning_event",
+                severity,
+                resource,
+                evidence,
+                recommendation,
+            )
+
+    deployment_summaries = []
+    for deployment in deployments_data.get("items", []):
+        metadata = deployment.get("metadata", {})
+        status = deployment.get("status", {})
+        spec = deployment.get("spec", {})
+        deployment_summaries.append({
+            "name": metadata.get("name"),
+            "desired_replicas": spec.get("replicas", 1),
+            "available_replicas": status.get("availableReplicas", 0),
+            "ready_replicas": status.get("readyReplicas", 0),
+        })
+
+        desired = spec.get("replicas", 1)
+        available = status.get("availableReplicas", 0)
+
+        if available < desired:
+            add_incident(
+                "deployment_unavailable_replicas",
+                "high",
+                metadata.get("name", "unknown-deployment"),
+                f"Deployment has {available}/{desired} available replicas.",
+                "Inspect rollout status, pod conditions, and recent events.",
+            )
+
+    incidents = list(incidents_by_key.values())
+
+    return {
+        "observed_at": datetime.now(timezone.utc).isoformat(),
+        "namespace": LAB_NAMESPACE,
+        "incident_count": len(incidents),
+        "incidents": incidents,
+        "deployments": deployment_summaries,
+    }
