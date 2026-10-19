@@ -359,3 +359,34 @@ async def test_detector_rejects_invalid_metric_value(monkeypatch):
         match="Prometheus metric value is invalid",
     ):
         await detect_unhealthy_services()
+
+@pytest.mark.asyncio
+async def test_detector_does_not_duplicate_repeated_outage(
+    monkeypatch,
+):
+    install_mock(monkeypatch)
+
+    # First monitoring pass: user-service is down.
+    MockAsyncClient.responses = [
+        MockResponse(prometheus_response("user-service", 0)),
+        MockResponse(prometheus_targets_response()),
+    ]
+    MockAsyncClient.calls = []
+
+    first_result = await detect_unhealthy_services()
+
+    assert first_result["incident_count"] == 1
+    assert len(list_incidents(status="OPEN")) == 1
+
+    # Second monitoring pass: the same service remains down.
+    MockAsyncClient.responses = [
+        MockResponse(prometheus_response("user-service", 0)),
+        MockResponse(prometheus_targets_response()),
+    ]
+    MockAsyncClient.calls = []
+
+    second_result = await detect_unhealthy_services()
+
+    assert second_result["incident_count"] == 1
+    assert len(list_incidents(status="OPEN")) == 1
+    assert list_incidents(status="RESOLVED") == []
