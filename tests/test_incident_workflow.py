@@ -547,3 +547,23 @@ async def test_diagnosis_failure_continues_with_unknown_status(monkeypatch):
     assert result["policy"]["action"] == "investigate_monitoring"
     assert result["policy"]["automatic_execution"] is False
     assert result["policy"]["remediation_executed"] is False
+
+def test_malformed_diagnosis_findings_do_not_crash_policy():
+    result = workflow.enforce_policy({
+        "diagnosis": {
+            "status": "unknown",
+            "findings": None,
+        },
+        "kubernetes": {"incidents": []},
+        "telemetry_anomaly": {
+            "status": "unavailable",
+            "reason": "test",
+        },
+        "rca": None,
+    })
+
+    policy = result["policy"]
+    assert policy["action"] == "investigate_monitoring"
+    assert policy["priority"] == "medium"
+    assert policy["automatic_execution"] is False
+    assert policy["remediation_executed"] is False

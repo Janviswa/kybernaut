@@ -146,8 +146,14 @@ async def analyze_root_cause(state: IncidentState) -> dict:
 def enforce_policy(state: IncidentState) -> dict:
     """Make deterministic policy decisions; never execute remediation."""
     diagnosis = state["diagnosis"]
+    raw_findings = diagnosis.get("findings")
+    if not isinstance(raw_findings, list):
+        raw_findings = []
+
     findings = {
-        item.get("type") for item in diagnosis.get("findings", [])
+        item.get("type")
+        for item in raw_findings
+        if isinstance(item, dict)
     }
 
     kubernetes = state.get("kubernetes") or {}
