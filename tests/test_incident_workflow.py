@@ -493,3 +493,15 @@ async def test_graph_executes_nodes_in_order(monkeypatch):
     ]
     assert result["policy"]["automatic_execution"] is False
     assert result["policy"]["remediation_executed"] is False
+
+@pytest.mark.asyncio
+async def test_graph_propagates_unexpected_diagnosis_failure(monkeypatch):
+    async def failed_diagnosis(service):
+        raise RuntimeError("Simulated diagnosis failure")
+
+    monkeypatch.setattr(workflow, "diagnose_service", failed_diagnosis)
+
+    graph = workflow.build_incident_graph()
+
+    with pytest.raises(RuntimeError, match="Simulated diagnosis failure"):
+        await graph.ainvoke({"service": "order-service"})
