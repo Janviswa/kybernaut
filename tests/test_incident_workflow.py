@@ -438,3 +438,58 @@ def test_statistical_latency_below_operational_threshold_does_not_escalate():
     assert policy["priority"] == "low"
     assert policy["automatic_execution"] is False
     assert policy["remediation_executed"] is False
+
+@pytest.mark.asyncio
+async def test_graph_executes_nodes_in_order(monkeypatch):
+    execution_order = []
+
+    async def fake_diagnosis(service):
+        execution_order.append("diagnose")
+        return {
+            "service": service,
+            "status": "up",
+            "findings": [{"type": "no_detected_anomaly"}],
+        }
+
+    async def fake_anomaly(service):
+        return {"status": "unavailable", "reason": "test"}
+
+    def fake_observer():
+        return {"incidents": [], "deployments": []}
+
+    def fake_runbooks(query, top_k):
+        return []
+
+    async def fake_rca(evidence):
+        execution_order.append("root_cause_analysis")
+        return {
+            "root_cause": "No confirmed failure",
+            "confidence": 0.8,
+            "evidence": ["Service is healthy"],
+            "recommended_action": "continue_monitoring",
+            "requires_human_approval": False,
+        }
+
+    original_policy = workflow.enforce_policy
+
+    def tracked_policy(state):
+        execution_order.append("policy")
+        return original_policy(state)
+
+    monkeypatch.setattr(workflow, "diagnose_service", fake_diagnosis)
+    monkeypatch.setattr(workflow, "evaluate_service_anomaly", fake_anomaly)
+    monkeypatch.setattr(workflow, "observe_namespace", fake_observer)
+    monkeypatch.setattr(workflow, "retrieve_runbooks", fake_runbooks)
+    monkeypatch.setattr(workflow, "generate_rca", fake_rca)
+    monkeypatch.setattr(workflow, "enforce_policy", tracked_policy)
+
+    graph = workflow.build_incident_graph()
+    result = await graph.ainvoke({"service": "order-service"})
+
+    assert execution_order == [
+        "diagnose",
+        "root_cause_analysis",
+        "policy",
+    ]
+    assert result["policy"]["automatic_execution"] is False
+    assert result["policy"]["remediation_executed"] is False
