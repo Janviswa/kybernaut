@@ -17,3 +17,16 @@ remediation_audit.jsonl
 
 # Local development
 .vscode/
+
+# Local backups and temporary copies
+backups/
+*.latency-backup
+*.py.bak
+
+# Experimental telemetry datasets (review before committing)
+data/telemetry_baseline.csv
+data/telemetry_baseline_v2.csv
+data/telemetry_baseline_v2_failed.csv
+data/telemetry_baseline_v3.csv
+data/telemetry_baseline_v4.csv
+data/telemetry_baseline_v5.csv

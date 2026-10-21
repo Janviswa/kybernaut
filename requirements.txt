@@ -7,3 +7,4 @@ PyJWT>=2.10,<3
 langchain-core
 langchain-groq
 langgraph
+scikit-learn

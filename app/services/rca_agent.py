@@ -49,7 +49,20 @@ a low confidence score.
 Recommend investigation before recovery when the cause is uncertain.
 Any restart, scaling, rollback, or other infrastructure change requires
 human approval. Never claim that you executed an action.
-Return only data matching the requested schema.""",
+Return only data matching the requested schema.
+Use runbook guidance as general troubleshooting knowledge, not as proof
+that a particular failure occurred.
+
+Only use supplied diagnosis, telemetry, and Kubernetes observations as
+evidence for claims about the current incident.
+
+Do not claim that a memory leak, database failure, or deployment regression
+occurred unless the supplied operational evidence supports that conclusion.
+
+If runbook guidance conflicts with observed evidence, prioritize the
+observed evidence and explain the uncertainty.
+
+Never claim to have executed a recommended action.""",
         ),
         (
             "human",

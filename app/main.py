@@ -10,6 +10,7 @@ from pydantic import BaseModel
 import asyncio
 import logging
 
+from app.services.anomaly_runtime import initialize_anomaly_policies
 from app.database import initialize_database
 from app.services.decision_engine import decide_action
 from app.services.incident_detector import detect_unhealthy_services
@@ -40,12 +41,11 @@ ALLOWED_SERVICES = {
     "inventory-service",
 }
 
-
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     initialize_database()
+    initialize_anomaly_policies()
     yield
-
 
 app = FastAPI(
     title="Kybernaut",

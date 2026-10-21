@@ -5,7 +5,28 @@ from prometheus_fastapi_instrumentator import Instrumentator
 
 app = FastAPI(title="Kybernaut Target - Inventory Service")
 
-Instrumentator().instrument(app).expose(app, endpoint="/metrics")
+
+Instrumentator(
+    should_round_latency_decimals=False,
+).instrument(
+    app,
+    latency_lowr_buckets=(
+        0.001,
+        0.0025,
+        0.005,
+        0.0075,
+        0.01,
+        0.015,
+        0.025,
+        0.05,
+        0.075,
+        0.1,
+        0.15,
+        0.25,
+        0.5,
+        1.0,
+    ),
+).expose(app, endpoint="/metrics")
 
 inventory = {
     "Laptop": 10,

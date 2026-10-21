@@ -1,5 +1,6 @@
 """LangGraph orchestration for safe, advisory incident response."""
 
+import asyncio
 import logging
 from typing import Any, TypedDict
 
@@ -8,7 +9,8 @@ from langgraph.graph import END, START, StateGraph
 from app.services.incident_diagnoser import diagnose_service
 from app.services.k8s_observer import observe_namespace
 from app.services.rca_agent import generate_rca
-
+from app.services.anomaly_runtime import evaluate_service_anomaly
+from app.services.runbook_retriever import retrieve_runbooks
 
 ALLOWED_SERVICES = {
     "order-service",
@@ -17,15 +19,15 @@ ALLOWED_SERVICES = {
     "inventory-service",
 }
 
-
 logger = logging.getLogger(__name__)
 
 
 class IncidentState(TypedDict, total=False):
     service: str
     diagnosis: dict[str, Any]
-    kubernetes: dict[str, Any]
+    kubernetes: dict[str, Any] | None
     kubernetes_status: str
+    telemetry_anomaly: dict[str, Any]
     rca: dict[str, Any] | None
     rca_status: str
     policy: dict[str, Any]
@@ -34,33 +36,82 @@ class IncidentState(TypedDict, total=False):
 
 
 async def detect_and_diagnose(state: IncidentState) -> dict:
-    """Collect service and Kubernetes evidence."""
-    diagnosis = await diagnose_service(state["service"])
+    """Collect service, telemetry-anomaly, and Kubernetes evidence."""
+    service = state["service"]
+    diagnosis = await diagnose_service(service)
 
+    # Anomaly evaluation is advisory and must not block diagnosis.
     try:
-        kubernetes = await __import__("asyncio").to_thread(
-            observe_namespace
+        telemetry_anomaly = await evaluate_service_anomaly(service)
+    except Exception as exc:
+        logger.warning(
+            "Unexpected anomaly evaluation failure for %s (%s)",
+            service,
+            type(exc).__name__,
         )
+        telemetry_anomaly = {
+            "status": "unavailable",
+            "reason": "evaluation_failed",
+        }
+
+    # Preserve service diagnosis if Kubernetes is temporarily unavailable.
+    try:
+        kubernetes = await asyncio.to_thread(observe_namespace)
         kubernetes_status = "completed"
-    except Exception:
-        # Preserve service diagnosis if Kubernetes is temporarily unavailable.
+    except Exception as exc:
+        logger.warning(
+            "Kubernetes observation unavailable (%s)",
+            type(exc).__name__,
+        )
         kubernetes = None
         kubernetes_status = "unavailable"
 
     return {
         "diagnosis": diagnosis,
+        "telemetry_anomaly": telemetry_anomaly,
         "kubernetes": kubernetes,
         "kubernetes_status": kubernetes_status,
     }
 
 
+
 async def analyze_root_cause(state: IncidentState) -> dict:
-    """Run advisory RCA without allowing provider failures to stop policy."""
+    """Run advisory RCA using evidence and optional runbook guidance."""
     evidence = {
         "service_diagnosis": state["diagnosis"],
         "kubernetes_observations": state.get("kubernetes"),
+        "telemetry_anomaly": state.get("telemetry_anomaly"),
     }
 
+    retrieval_query = str({
+        "diagnosis": state["diagnosis"],
+        "telemetry_anomaly": state.get("telemetry_anomaly"),
+        "kubernetes": state.get("kubernetes"),
+    })
+
+    # Retrieval is helpful, but RCA can continue without it.
+    try:
+        runbooks = await asyncio.to_thread(
+            retrieve_runbooks,
+            retrieval_query,
+            2,
+        )
+        evidence["runbook_guidance"] = [
+            {
+                "source": item["source"],
+                "content": item["content"],
+                "matched_terms": item["matched_terms"],
+            }
+            for item in runbooks
+        ]
+    except Exception as exc:
+        logger.warning(
+            "Runbook retrieval unavailable (%s); continuing without guidance",
+            type(exc).__name__,
+        )
+        evidence["runbook_guidance"] = []
+
+    # Keep LLM failure handling separate from retrieval failure handling.
     try:
         rca = await generate_rca(evidence)
         return {
@@ -69,7 +120,6 @@ async def analyze_root_cause(state: IncidentState) -> dict:
             "rca_error": "",
         }
     except Exception as exc:
-        # Preserve the workflow and let deterministic policy evaluate evidence.
         logger.warning(
             "RCA unavailable; continuing with evidence-based policy (%s)",
             type(exc).__name__,
@@ -95,15 +145,29 @@ def enforce_policy(state: IncidentState) -> dict:
         item.get("severity") == "high" for item in k8s_incidents
     )
 
+    telemetry = state.get("telemetry_anomaly") or {}
+    operational_findings = telemetry.get("operational_findings", [])
+
     if "service_unavailable" in findings or high_severity_k8s:
         action = "request_approval"
         priority = "critical"
-    elif diagnosis.get("status") == "unknown":
-        action = "investigate_monitoring"
-        priority = "medium"
     elif "http_5xx_errors" in findings:
         action = "investigate_errors"
         priority = "high"
+    elif (
+        telemetry.get("status") == "evaluated"
+        and isinstance(operational_findings, list)
+        and any(
+            item.get("type") == "high_latency"
+            for item in operational_findings
+            if isinstance(item, dict)
+        )
+    ):
+        action = "investigate_latency"
+        priority = "medium"
+    elif diagnosis.get("status") == "unknown":
+        action = "investigate_monitoring"
+        priority = "medium"
     elif "high_latency" in findings:
         action = "investigate_latency"
         priority = "medium"
@@ -155,8 +219,17 @@ async def run_incident_workflow(service: str) -> dict:
     return {
         "service": service,
         "diagnosis": result["diagnosis"],
+        "telemetry_anomaly": result.get(
+            "telemetry_anomaly",
+            {
+                "status": "unavailable",
+                "reason": "not_evaluated",
+            },
+        ),
         "kubernetes": result.get("kubernetes"),
-        "kubernetes_status": result.get("kubernetes_status", "unavailable"),
+        "kubernetes_status": result.get(
+            "kubernetes_status", "unavailable"
+        ),
         "rca": result.get("rca"),
         "rca_status": result.get("rca_status", "unavailable"),
         "rca_error": result.get("rca_error", ""),
