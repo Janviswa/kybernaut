@@ -408,3 +408,33 @@ def test_operational_latency_finding_triggers_investigation():
     assert policy["priority"] == "medium"
     assert policy["automatic_execution"] is False
     assert policy["remediation_executed"] is False
+
+def test_statistical_latency_below_operational_threshold_does_not_escalate():
+    result = workflow.enforce_policy({
+        "diagnosis": {
+            "status": "up",
+            "findings": [{"type": "no_detected_anomaly"}],
+        },
+        "telemetry_anomaly": {
+            "status": "evaluated",
+            "actionable_candidates": ["p95_latency_seconds"],
+            "informational_deviations": [],
+            "operational_findings": [],
+            "features": {
+                "p95_latency_seconds": {
+                    "value": 0.975,
+                    "baseline_median": 0.0024193609,
+                    "direction": "HIGH",
+                    "deviation_score": 352515.37,
+                    "classification": "actionable_candidate",
+                }
+            },
+        },
+        "rca": None,
+    })
+
+    policy = result["policy"]
+    assert policy["action"] == "continue_monitoring"
+    assert policy["priority"] == "low"
+    assert policy["automatic_execution"] is False
+    assert policy["remediation_executed"] is False

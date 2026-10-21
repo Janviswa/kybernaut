@@ -127,3 +127,44 @@ def test_small_latency_increase_preserves_statistical_evidence():
 
     assert result["operational_findings"] == []
     assert result["features"]["p95_latency_seconds"]["direction"] == "HIGH"
+
+def test_constant_baseline_uses_standard_deviation_fallback():
+    baseline = [
+        [0.5, 0.0024, 49_000_000, 0.0045]
+        for _ in range(30)
+    ]
+
+    policy = DirectionAwareAnomalyPolicy(threshold=5.0)
+    policy.fit(baseline)
+
+    assert np.all(np.isfinite(policy._scale))
+    assert np.all(policy._scale > 0)
+
+    result = policy.evaluate(baseline[:1])[0]
+
+    assert result["actionable_candidates"] == []
+    assert result["informational_deviations"] == []
+
+
+def test_near_constant_baseline_keeps_finite_positive_scale():
+    baseline = [
+        [
+            0.5,
+            0.0024 + (i % 3) * 1e-13,
+            49_000_000,
+            0.0045,
+        ]
+        for i in range(30)
+    ]
+
+    policy = DirectionAwareAnomalyPolicy(threshold=5.0)
+    policy.fit(baseline)
+
+    assert np.all(np.isfinite(policy._scale))
+    assert np.all(policy._scale > 0)
+
+    result = policy.evaluate([baseline[-1]])[0]
+
+    assert result["features"]["p95_latency_seconds"][
+        "deviation_score"
+    ] >= 0
