@@ -567,3 +567,25 @@ def test_malformed_diagnosis_findings_do_not_crash_policy():
     assert policy["priority"] == "medium"
     assert policy["automatic_execution"] is False
     assert policy["remediation_executed"] is False
+
+def test_malformed_kubernetes_incidents_do_not_crash_policy():
+    result = workflow.enforce_policy({
+        "diagnosis": {
+            "status": "up",
+            "findings": [{"type": "no_detected_anomaly"}],
+        },
+        "kubernetes": {
+            "incidents": [None, "invalid-incident"],
+        },
+        "telemetry_anomaly": {
+            "status": "unavailable",
+            "reason": "test",
+        },
+        "rca": None,
+    })
+
+    policy = result["policy"]
+    assert policy["action"] == "continue_monitoring"
+    assert policy["priority"] == "low"
+    assert policy["automatic_execution"] is False
+    assert policy["remediation_executed"] is False

@@ -156,13 +156,19 @@ def enforce_policy(state: IncidentState) -> dict:
         if isinstance(item, dict)
     }
 
-    kubernetes = state.get("kubernetes") or {}
-    k8s_incidents = kubernetes.get("incidents", [])
+    kubernetes = state.get("kubernetes")
+    if not isinstance(kubernetes, dict):
+        kubernetes = {}
+
+    k8s_incidents = kubernetes.get("incidents")
+    if not isinstance(k8s_incidents, list):
+        k8s_incidents = []
 
     high_severity_k8s = any(
-        item.get("severity") == "high" for item in k8s_incidents
+        item.get("severity") == "high"
+        for item in k8s_incidents
+        if isinstance(item, dict)
     )
-
     telemetry = state.get("telemetry_anomaly") or {}
     operational_findings = telemetry.get("operational_findings", [])
 
