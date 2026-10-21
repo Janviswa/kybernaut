@@ -38,8 +38,20 @@ class IncidentState(TypedDict, total=False):
 async def detect_and_diagnose(state: IncidentState) -> dict:
     """Collect service, telemetry-anomaly, and Kubernetes evidence."""
     service = state["service"]
-    diagnosis = await diagnose_service(service)
-
+    try:
+        diagnosis = await diagnose_service(service)
+    except Exception as exc:
+        logger.warning(
+            "Service diagnosis failed for %s: %s",
+            service,
+            type(exc).__name__,
+        )
+        diagnosis = {
+            "service": service,
+            "status": "unknown",
+            "findings": [],
+            "reason": "diagnosis_failed",
+        }
     # Anomaly evaluation is advisory and must not block diagnosis.
     try:
         telemetry_anomaly = await evaluate_service_anomaly(service)

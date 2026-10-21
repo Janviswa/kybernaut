@@ -495,13 +495,55 @@ async def test_graph_executes_nodes_in_order(monkeypatch):
     assert result["policy"]["remediation_executed"] is False
 
 @pytest.mark.asyncio
-async def test_graph_propagates_unexpected_diagnosis_failure(monkeypatch):
+async def test_graph_handles_unexpected_diagnosis_failure(monkeypatch):
     async def failed_diagnosis(service):
         raise RuntimeError("Simulated diagnosis failure")
 
     monkeypatch.setattr(workflow, "diagnose_service", failed_diagnosis)
 
     graph = workflow.build_incident_graph()
+    result = await graph.ainvoke({"service": "order-service"})
 
-    with pytest.raises(RuntimeError, match="Simulated diagnosis failure"):
-        await graph.ainvoke({"service": "order-service"})
+    assert result["diagnosis"]["status"] == "unknown"
+    assert result["policy"]["action"] == "investigate_monitoring"
+    assert result["policy"]["automatic_execution"] is False
+    assert result["policy"]["remediation_executed"] is False
+
+@pytest.mark.asyncio
+async def test_diagnosis_failure_continues_with_unknown_status(monkeypatch):
+    async def failed_diagnosis(service):
+        raise RuntimeError("Simulated Prometheus failure")
+
+    async def fake_anomaly(service):
+        return {"status": "unavailable", "reason": "test"}
+
+    def fake_observer():
+        return {"incidents": [], "deployments": []}
+
+    def fake_runbooks(query, top_k):
+        return []
+
+    async def fake_rca(evidence):
+        assert evidence["service_diagnosis"]["status"] == "unknown"
+        return {
+            "root_cause": "Diagnosis unavailable",
+            "confidence": 0.2,
+            "evidence": ["Prometheus diagnosis failed"],
+            "recommended_action": "investigate_monitoring",
+            "requires_human_approval": False,
+        }
+
+    monkeypatch.setattr(workflow, "diagnose_service", failed_diagnosis)
+    monkeypatch.setattr(workflow, "evaluate_service_anomaly", fake_anomaly)
+    monkeypatch.setattr(workflow, "observe_namespace", fake_observer)
+    monkeypatch.setattr(workflow, "retrieve_runbooks", fake_runbooks)
+    monkeypatch.setattr(workflow, "generate_rca", fake_rca)
+
+    result = await workflow.run_incident_workflow("order-service")
+
+    assert result["diagnosis"]["status"] == "unknown"
+    assert result["kubernetes_status"] == "completed"
+    assert result["rca_status"] == "completed"
+    assert result["policy"]["action"] == "investigate_monitoring"
+    assert result["policy"]["automatic_execution"] is False
+    assert result["policy"]["remediation_executed"] is False
