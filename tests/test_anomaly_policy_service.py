@@ -168,3 +168,19 @@ def test_near_constant_baseline_keeps_finite_positive_scale():
     assert result["features"]["p95_latency_seconds"][
         "deviation_score"
     ] >= 0
+
+
+def test_latency_exactly_at_operational_threshold_is_not_flagged():
+    baseline = [
+        [0.5, 0.0024, 49_000_000, 0.0045]
+        for _ in range(30)
+    ]
+
+    policy = DirectionAwareAnomalyPolicy(threshold=5.0)
+    policy.fit(baseline)
+
+    observation = [[0.5, 1.0, 49_000_000, 0.0045]]
+    result = policy.evaluate(observation)[0]
+
+    assert result["operational_findings"] == []
+    assert "p95_latency_seconds" in result["actionable_candidates"]
