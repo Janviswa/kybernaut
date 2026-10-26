@@ -1,0 +1,57 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: requirements.txt
+      - name: Install dependencies
+        run: python -m pip install -r requirements.txt
+      - name: Unit tests (no live infrastructure required)
+        env:
+          KYBERNAUT_REMEDIATION_TOKEN: ci-only-token
+          KYBERNAUT_JWT_SECRET: ci-only-secret
+          JUNIT_REPORT: ${{ github.workspace }}/.ci-artifacts/junit/results.xml
+        run: |
+          mkdir -p "$(dirname "$JUNIT_REPORT")"
+          python -m pytest -q --junitxml="$JUNIT_REPORT"
+      - name: Validate JUnit report redaction
+        id: validate-junit
+        if: always()
+        env:
+          JUNIT_REPORT: ${{ github.workspace }}/.ci-artifacts/junit/results.xml
+          KYBERNAUT_REMEDIATION_TOKEN: ci-only-token
+          KYBERNAUT_JWT_SECRET: ci-only-secret
+        run: python scripts/validate_junit_report.py "$JUNIT_REPORT"
+      - name: Upload JUnit report
+        if: ${{ always() && steps.validate-junit.outcome == 'success' && hashFiles('.ci-artifacts/junit/results.xml') != '' }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: junit-test-results
+          path: .ci-artifacts/junit/results.xml
+          if-no-files-found: error
+          retention-days: 7
+      - name: Validate YAML configs and manifests
+        run: |
+          python - <<'PY'
+          import glob, yaml
+          files = glob.glob("k8s/**/*.yaml", recursive=True) + \
+                  glob.glob("monitoring/**/*.yml", recursive=True) + \
+                  glob.glob("docker-compose*.yml") + \
+                  glob.glob(".github/workflows/*.yml")
+          for f in files:
+              list(yaml.safe_load_all(open(f)))
+              print("ok", f)
+          PY
+      - name: Benchmark matrix sanity (20 cases, 4 per type)
+        run: python -m pytest -q tests/test_benchmark_metrics.py
