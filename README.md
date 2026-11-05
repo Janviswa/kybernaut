@@ -1,4 +1,4 @@
-# Kybernaut
+ <h1 align="center">Kybernaut</h1>
 
 <p align="center">
   <strong>Agentic AIOps for Infrastructure Reliability & Cost Optimization</strong>
@@ -132,6 +132,7 @@ Kybernaut uses a controlled incident-response workflow:
 7. Record execution and verification status in the audit trail.
 
 **Safety controls**
+
 - JWT-based operator authentication and permissions.
 - Requester/approver separation where applicable.
 - Persisted approval and idempotency controls.
