@@ -1,0 +1,15 @@
+fastapi
+uvicorn[standard]
+pydantic-settings
+httpx
+python-dotenv
+PyJWT>=2.10,<3
+argon2-cffi>=23.1,<26
+langchain-core
+langchain-groq
+langgraph
+scikit-learn
+pytest
+pytest-asyncio
+pyyaml
+jsonschema>=4.19,<5

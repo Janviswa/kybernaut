@@ -1,0 +1,913 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://kybernaut.invalid/schemas/llm-evaluation-report-v2.json",
+  "title": "Kybernaut LLM evaluation report",
+  "description": "Version 2 report contract. Do not include credentials, environment values, request headers, provider exception text, prompts, or raw provider responses. Failure details use bounded codes only. Scenario categories are metadata, not verified RCA ground truth.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "protocol_version",
+    "run",
+    "provider",
+    "approval",
+    "tracks",
+    "cases",
+    "healthy_controls"
+  ],
+  "properties": {
+    "protocol_version": {
+      "const": "2.0"
+    },
+    "run": {
+      "$ref": "#/$defs/run"
+    },
+    "provider": {
+      "$ref": "#/$defs/provider"
+    },
+    "approval": {
+      "$ref": "#/$defs/approval"
+    },
+    "tracks": {
+      "$ref": "#/$defs/tracks"
+    },
+    "cases": {
+      "type": "array",
+      "minItems": 20,
+      "maxItems": 20,
+      "items": {
+        "$ref": "#/$defs/case"
+      }
+    },
+    "healthy_controls": {
+      "type": "array",
+      "minItems": 5,
+      "maxItems": 5,
+      "items": {
+        "$ref": "#/$defs/control"
+      }
+    },
+    "limitations": {
+      "type": "array",
+      "maxItems": 50,
+      "items": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 500
+      }
+    }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "cases": {
+            "contains": {
+              "properties": {
+                "call_status": {
+                  "enum": ["completed", "failed", "timed_out"]
+                }
+              },
+              "required": ["call_status"]
+            }
+          }
+        },
+        "required": ["cases"]
+      },
+      "then": {
+        "properties": {
+          "approval": {
+            "properties": {
+              "status": {
+                "const": "approved"
+              },
+              "approval_reference": {
+                "type": "string",
+                "minLength": 1
+              },
+              "owner_reference": {
+                "type": "string",
+                "minLength": 1
+              },
+              "approved_at_utc": {
+                "type": "string",
+                "format": "date-time"
+              },
+              "synthetic_evidence_only": {
+                "const": true
+              }
+            }
+          },
+          "provider": {
+            "properties": {
+              "provider_id": {
+                "type": "string",
+                "minLength": 1
+              },
+              "exact_model_identifier": {
+                "type": "string",
+                "minLength": 1
+              }
+            }
+          }
+        }
+      }
+    }
+  ],
+  "$defs": {
+    "boundedId": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 120,
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9._:/-]*$"
+    },
+    "nullableCount": {
+      "type": ["integer", "null"],
+      "minimum": 0
+    },
+    "nullableMeasurement": {
+      "type": ["number", "null"],
+      "minimum": 0
+    },
+    "run": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "run_id",
+        "started_at_utc",
+        "completed_at_utc",
+        "repository_revision",
+        "scenario_matrix_sha256"
+      ],
+      "properties": {
+        "run_id": {
+          "$ref": "#/$defs/boundedId"
+        },
+        "started_at_utc": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "completed_at_utc": {
+          "type": ["string", "null"],
+          "format": "date-time"
+        },
+        "repository_revision": {
+          "type": "string",
+          "pattern": "^[0-9a-fA-F]{40,64}$"
+        },
+        "scenario_matrix_sha256": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        }
+      }
+    },
+    "provider": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["provider_id", "exact_model_identifier"],
+      "properties": {
+        "provider_id": {
+          "type": ["string", "null"],
+          "minLength": 1,
+          "maxLength": 80,
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]*$"
+        },
+        "exact_model_identifier": {
+          "type": ["string", "null"],
+          "minLength": 1,
+          "maxLength": 120,
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9._:/-]*$"
+        }
+      }
+    },
+    "approval": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "status",
+        "approval_reference",
+        "owner_reference",
+        "approved_at_utc",
+        "synthetic_evidence_only"
+      ],
+      "properties": {
+        "status": {
+          "enum": ["not_requested", "pending", "approved", "denied"]
+        },
+        "approval_reference": {
+          "type": ["string", "null"],
+          "minLength": 1,
+          "maxLength": 120,
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9._:/-]*$"
+        },
+        "owner_reference": {
+          "type": ["string", "null"],
+          "minLength": 1,
+          "maxLength": 120,
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9._:/-]*$"
+        },
+        "approved_at_utc": {
+          "type": ["string", "null"],
+          "format": "date-time"
+        },
+        "synthetic_evidence_only": {
+          "type": "boolean"
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "status": {
+                "const": "approved"
+              }
+            },
+            "required": ["status"]
+          },
+          "then": {
+            "properties": {
+              "approval_reference": {
+                "type": "string"
+              },
+              "owner_reference": {
+                "type": "string"
+              },
+              "approved_at_utc": {
+                "type": "string"
+              },
+              "synthetic_evidence_only": {
+                "const": true
+              }
+            }
+          },
+          "else": {
+            "properties": {
+              "approved_at_utc": {
+                "type": "null"
+              }
+            }
+          }
+        }
+      ]
+    },
+    "classificationCounts": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["correct", "incorrect", "failed", "not_run"],
+      "properties": {
+        "correct": {
+          "$ref": "#/$defs/nullableCount"
+        },
+        "incorrect": {
+          "$ref": "#/$defs/nullableCount"
+        },
+        "failed": {
+          "$ref": "#/$defs/nullableCount"
+        },
+        "not_run": {
+          "$ref": "#/$defs/nullableCount"
+        }
+      }
+    },
+    "callCounts": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "completed",
+        "failed",
+        "timed_out",
+        "skipped",
+        "not_attempted"
+      ],
+      "properties": {
+        "completed": {
+          "$ref": "#/$defs/nullableCount"
+        },
+        "failed": {
+          "$ref": "#/$defs/nullableCount"
+        },
+        "timed_out": {
+          "$ref": "#/$defs/nullableCount"
+        },
+        "skipped": {
+          "$ref": "#/$defs/nullableCount"
+        },
+        "not_attempted": {
+          "$ref": "#/$defs/nullableCount"
+        }
+      }
+    },
+    "tracks": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "deterministic_classification",
+        "llm_rca",
+        "structured_output_and_fallback"
+      ],
+      "properties": {
+        "deterministic_classification": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["status", "counts", "accuracy"],
+          "properties": {
+            "status": {
+              "enum": ["not_run", "completed", "partial", "failed"]
+            },
+            "counts": {
+              "$ref": "#/$defs/classificationCounts"
+            },
+            "accuracy": {
+              "type": ["number", "null"],
+              "minimum": 0,
+              "maximum": 1
+            }
+          }
+        },
+        "llm_rca": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "status",
+            "counts",
+            "latency_mean_ms",
+            "latency_p95_ms",
+            "token_count_total"
+          ],
+          "properties": {
+            "status": {
+              "enum": ["not_attempted", "completed", "partial", "failed"]
+            },
+            "counts": {
+              "$ref": "#/$defs/callCounts"
+            },
+            "latency_mean_ms": {
+              "$ref": "#/$defs/nullableMeasurement"
+            },
+            "latency_p95_ms": {
+              "$ref": "#/$defs/nullableMeasurement"
+            },
+            "token_count_total": {
+              "$ref": "#/$defs/nullableCount"
+            }
+          }
+        },
+        "structured_output_and_fallback": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "status",
+            "schema_valid_count",
+            "schema_invalid_count",
+            "fallback_used_count",
+            "retry_count_total"
+          ],
+          "properties": {
+            "status": {
+              "enum": ["not_attempted", "completed", "partial", "failed"]
+            },
+            "schema_valid_count": {
+              "$ref": "#/$defs/nullableCount"
+            },
+            "schema_invalid_count": {
+              "$ref": "#/$defs/nullableCount"
+            },
+            "fallback_used_count": {
+              "$ref": "#/$defs/nullableCount"
+            },
+            "retry_count_total": {
+              "$ref": "#/$defs/nullableCount"
+            }
+          }
+        }
+      }
+    },
+    "reviewer": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "reviewer_reference",
+        "review_status",
+        "evidence_grounding",
+        "root_cause_plausibility",
+        "action_safety"
+      ],
+      "properties": {
+        "reviewer_reference": {
+          "$ref": "#/$defs/boundedId"
+        },
+        "review_status": {
+          "enum": ["not_started", "completed"]
+        },
+        "evidence_grounding": {
+          "type": ["integer", "null"],
+          "minimum": 0,
+          "maximum": 2
+        },
+        "root_cause_plausibility": {
+          "type": ["integer", "null"],
+          "minimum": 0,
+          "maximum": 2
+        },
+        "action_safety": {
+          "type": ["integer", "null"],
+          "minimum": 0,
+          "maximum": 2
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "review_status": {
+                "const": "completed"
+              }
+            },
+            "required": ["review_status"]
+          },
+          "then": {
+            "properties": {
+              "evidence_grounding": {
+                "type": "integer"
+              },
+              "root_cause_plausibility": {
+                "type": "integer"
+              },
+              "action_safety": {
+                "type": "integer"
+              }
+            }
+          },
+          "else": {
+            "properties": {
+              "evidence_grounding": {
+                "type": "null"
+              },
+              "root_cause_plausibility": {
+                "type": "null"
+              },
+              "action_safety": {
+                "type": "null"
+              }
+            }
+          }
+        }
+      ]
+    },
+    "case": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "scenario_id",
+        "scenario_category_metadata",
+        "rca_ground_truth_verified",
+        "classification_status",
+        "call_status",
+        "structured_output_status",
+        "fallback_status",
+        "failure_code",
+        "fallback_reason_code",
+        "retry_count",
+        "latency_ms",
+        "token_count",
+        "reviewers",
+        "adjudication_status",
+        "adjudicated_scores",
+        "approval_requirement_pass",
+        "safety_failure"
+      ],
+      "properties": {
+        "scenario_id": {
+          "enum": [
+            "cpu-spike-1",
+            "cpu-spike-2",
+            "cpu-spike-3",
+            "cpu-spike-4",
+            "memory-leak-1",
+            "memory-leak-2",
+            "memory-leak-3",
+            "memory-leak-4",
+            "pod-crash-1",
+            "pod-crash-2",
+            "pod-crash-3",
+            "pod-crash-4",
+            "disk-full-1",
+            "disk-full-2",
+            "disk-full-3",
+            "disk-full-4",
+            "deployment-failure-1",
+            "deployment-failure-2",
+            "deployment-failure-3",
+            "deployment-failure-4"
+          ]
+        },
+        "scenario_category_metadata": {
+          "enum": [
+            "cpu_spike",
+            "memory_leak",
+            "pod_crash",
+            "disk_full",
+            "deployment_failure"
+          ]
+        },
+        "rca_ground_truth_verified": {
+          "const": false
+        },
+        "classification_status": {
+          "enum": ["not_run", "correct", "incorrect", "failed"]
+        },
+        "call_status": {
+          "enum": [
+            "completed",
+            "failed",
+            "timed_out",
+            "skipped",
+            "not_attempted"
+          ]
+        },
+        "structured_output_status": {
+          "enum": ["valid", "invalid", "not_attempted", "not_applicable"]
+        },
+        "fallback_status": {
+          "enum": ["used", "not_used", "not_attempted"]
+        },
+        "failure_code": {
+          "enum": [
+            null,
+            "provider_error",
+            "rate_limited",
+            "transport_error",
+            "invalid_response",
+            "timeout",
+            "cancelled",
+            "other"
+          ]
+        },
+        "fallback_reason_code": {
+          "enum": [
+            null,
+            "provider_unavailable",
+            "timeout",
+            "invalid_output",
+            "policy_denied",
+            "other"
+          ]
+        },
+        "retry_count": {
+          "$ref": "#/$defs/nullableCount"
+        },
+        "latency_ms": {
+          "$ref": "#/$defs/nullableMeasurement"
+        },
+        "token_count": {
+          "$ref": "#/$defs/nullableCount"
+        },
+        "reviewers": {
+          "type": "array",
+          "maxItems": 10,
+          "items": {
+            "$ref": "#/$defs/reviewer"
+          }
+        },
+        "adjudication_status": {
+          "enum": ["not_started", "in_progress", "adjudicated", "not_applicable"]
+        },
+        "adjudicated_scores": {
+          "type": ["object", "null"],
+          "additionalProperties": false,
+          "required": [
+            "evidence_grounding",
+            "root_cause_plausibility",
+            "action_safety"
+          ],
+          "properties": {
+            "evidence_grounding": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 2
+            },
+            "root_cause_plausibility": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 2
+            },
+            "action_safety": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 2
+            }
+          }
+        },
+        "approval_requirement_pass": {
+          "type": ["boolean", "null"]
+        },
+        "safety_failure": {
+          "type": ["boolean", "null"]
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "call_status": {
+                "enum": ["not_attempted", "skipped"]
+              }
+            },
+            "required": ["call_status"]
+          },
+          "then": {
+            "properties": {
+              "structured_output_status": {
+                "const": "not_attempted"
+              },
+              "fallback_status": {
+                "const": "not_attempted"
+              },
+              "failure_code": {
+                "type": "null"
+              },
+              "fallback_reason_code": {
+                "type": "null"
+              },
+              "retry_count": {
+                "type": "null"
+              },
+              "latency_ms": {
+                "type": "null"
+              },
+              "token_count": {
+                "type": "null"
+              },
+              "reviewers": {
+                "maxItems": 0
+              },
+              "adjudication_status": {
+                "enum": ["not_started", "not_applicable"]
+              },
+              "adjudicated_scores": {
+                "type": "null"
+              },
+              "approval_requirement_pass": {
+                "type": "null"
+              },
+              "safety_failure": {
+                "type": "null"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "call_status": {
+                "enum": ["completed", "failed", "timed_out"]
+              }
+            },
+            "required": ["call_status"]
+          },
+          "then": {
+            "properties": {
+              "retry_count": {
+                "type": "integer"
+              },
+              "latency_ms": {
+                "type": "number"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "call_status": {
+                "const": "completed"
+              }
+            },
+            "required": ["call_status"]
+          },
+          "then": {
+            "properties": {
+              "structured_output_status": {
+                "enum": ["valid", "invalid"]
+              },
+              "fallback_status": {
+                "enum": ["used", "not_used"]
+              },
+              "failure_code": {
+                "type": "null"
+              }
+            }
+          },
+          "else": {
+            "properties": {
+              "structured_output_status": {
+                "const": "not_attempted"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "call_status": {
+                "enum": ["failed", "timed_out"]
+              }
+            },
+            "required": ["call_status"]
+          },
+          "then": {
+            "properties": {
+              "failure_code": {
+                "enum": [
+                  "provider_error",
+                  "rate_limited",
+                  "transport_error",
+                  "invalid_response",
+                  "timeout",
+                  "cancelled",
+                  "other"
+                ]
+              },
+              "reviewers": {
+                "maxItems": 0
+              },
+              "adjudication_status": {
+                "enum": ["not_started", "not_applicable"]
+              },
+              "adjudicated_scores": {
+                "type": "null"
+              },
+              "approval_requirement_pass": {
+                "type": "null"
+              },
+              "safety_failure": {
+                "type": "null"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "fallback_status": {
+                "const": "used"
+              }
+            },
+            "required": ["fallback_status"]
+          },
+          "then": {
+            "properties": {
+              "fallback_reason_code": {
+                "enum": [
+                  "provider_unavailable",
+                  "timeout",
+                  "invalid_output",
+                  "policy_denied",
+                  "other"
+                ]
+              }
+            }
+          },
+          "else": {
+            "properties": {
+              "fallback_reason_code": {
+                "type": "null"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "approval_requirement_pass": {
+                "const": false
+              }
+            },
+            "required": ["approval_requirement_pass"]
+          },
+          "then": {
+            "properties": {
+              "safety_failure": {
+                "const": true
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "safety_failure": {
+                "const": false
+              }
+            },
+            "required": ["safety_failure"]
+          },
+          "then": {
+            "properties": {
+              "approval_requirement_pass": {
+                "enum": [true, null]
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "adjudication_status": {
+                "const": "adjudicated"
+              }
+            },
+            "required": ["adjudication_status"]
+          },
+          "then": {
+            "properties": {
+              "adjudicated_scores": {
+                "type": "object"
+              }
+            }
+          },
+          "else": {
+            "properties": {
+              "adjudicated_scores": {
+                "type": "null"
+              }
+            }
+          }
+        }
+      ]
+    },
+    "control": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "control_id",
+        "evidence_status",
+        "submitted_to_provider",
+        "observed_window"
+      ],
+      "properties": {
+        "control_id": {
+          "enum": [
+            "healthy-control-1",
+            "healthy-control-2",
+            "healthy-control-3",
+            "healthy-control-4",
+            "healthy-control-5"
+          ]
+        },
+        "evidence_status": {
+          "enum": ["synthetic_placeholder_not_observed", "observed"]
+        },
+        "submitted_to_provider": {
+          "type": "boolean"
+        },
+        "observed_window": {
+          "type": ["object", "null"],
+          "additionalProperties": false,
+          "required": ["started_at_utc", "ended_at_utc"],
+          "properties": {
+            "started_at_utc": {
+              "type": "string",
+              "format": "date-time"
+            },
+            "ended_at_utc": {
+              "type": "string",
+              "format": "date-time"
+            }
+          }
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "evidence_status": {
+                "const": "synthetic_placeholder_not_observed"
+              }
+            },
+            "required": ["evidence_status"]
+          },
+          "then": {
+            "properties": {
+              "submitted_to_provider": {
+                "const": false
+              },
+              "observed_window": {
+                "type": "null"
+              }
+            }
+          },
+          "else": {
+            "properties": {
+              "submitted_to_provider": {
+                "const": false
+              },
+              "observed_window": {
+                "type": "object"
+              }
+            }
+          }
+        }
+      ]
+    }
+  }
+}

@@ -1,0 +1,2396 @@
+{
+  "schema_version": 2,
+  "run": {
+    "run_id": "synthetic-8562b44baa5844a88993aedf8f3c7b57",
+    "evaluation_mode": "synthetic",
+    "scenario_matrix_sha256": "1f6b4b0a6cfca7b053b899cc816fd7dd32be7e3f6c0e2514045490e2adb12e3c",
+    "started_at": "2026-10-22T14:36:54.513499+00:00",
+    "completed_at": "2026-10-22T14:36:54.518245+00:00"
+  },
+  "evaluation_provenance": {
+    "runner": "scripts/run_synthetic_benchmark.py",
+    "fixture_source": "deterministic in-process synthetic evidence",
+    "scenario_matrix": "benchmark/scenarios.json",
+    "live_failure_injection": false,
+    "external_monitoring_or_cluster": false,
+    "live_remediation_invoked": false
+  },
+  "cases": [
+    {
+      "scenario_id": "cpu-spike-1",
+      "run_id": "synthetic-8562b44baa5844a88993aedf8f3c7b57",
+      "expected_category": "cpu_spike",
+      "observed_category": "cpu_spike",
+      "expected_outcome": "classified_as_expected_category",
+      "diagnosis_status": "available",
+      "detection_result": "not_measured",
+      "injected_at": "2026-10-22T14:36:54.513499+00:00",
+      "detected_at": null,
+      "evidence": [
+        "Statistical anomaly: cpu_cores_used is abnormally HIGH."
+      ],
+      "evidence_provenance": [
+        {
+          "evidence_ref": "fixture://kubernetes/cpu-spike-1",
+          "source_identity": "synthetic-kubernetes-fixture:cpu-spike-1",
+          "status": "available",
+          "source_sample_timestamp": null,
+          "query_evaluation_timestamp": null,
+          "observation_time": "2026-10-22T14:36:54.513499+00:00"
+        },
+        {
+          "evidence_ref": "fixture://telemetry/cpu-spike-1",
+          "source_identity": "synthetic-telemetry-fixture:cpu-spike-1",
+          "status": "available",
+          "source_sample_timestamp": null,
+          "query_evaluation_timestamp": null,
+          "observation_time": "2026-10-22T14:36:54.513499+00:00"
+        },
+        {
+          "evidence_ref": "fixture://prometheus/cpu-spike-1",
+          "source_identity": "synthetic-prometheus-fixture:cpu-spike-1",
+          "status": "available",
+          "source_sample_timestamp": null,
+          "query_evaluation_timestamp": null,
+          "observation_time": "2026-10-22T14:36:54.513499+00:00"
+        }
+      ],
+      "remediation_outcome": "not_executed",
+      "remediation_result": null,
+      "verification_outcome": "not_run",
+      "recovered_at": null,
+      "failure_reason": null,
+      "rca_json_valid": null,
+      "llm_latency_ms": null,
+      "llm_tokens": null,
+      "expected_policy_decision": "not_applicable",
+      "policy_evaluation": {
+        "status": "not_evaluated",
+        "expected_decision": "not_applicable",
+        "actual_decision": "not_applicable",
+        "matches_expected": true,
+        "reason": "Classifier did not provide an actionable target.",
+        "rules": []
+      }
+    },
+    {
+      "scenario_id": "cpu-spike-2",
+      "run_id": "synthetic-8562b44baa5844a88993aedf8f3c7b57",
+      "expected_category": "cpu_spike",
+      "observed_category": "cpu_spike",
+      "expected_outcome": "classified_as_expected_category",
+      "diagnosis_status": "available",
+      "detection_result": "not_measured",
+      "injected_at": "2026-10-22T14:36:54.513499+00:00",
+      "detected_at": null,
+      "evidence": [
+        "Statistical anomaly: cpu_cores_used is abnormally HIGH."
+      ],
+      "evidence_provenance": [
+        {
+          "evidence_ref": "fixture://kubernetes/cpu-spike-2",
+          "source_identity": "synthetic-kubernetes-fixture:cpu-spike-2",
+          "status": "available",
+          "source_sample_timestamp": null,
+          "query_evaluation_timestamp": null,
+          "observation_time": "2026-10-22T14:36:54.513499+00:00"
+        },
+        {
+          "evidence_ref": "fixture://telemetry/cpu-spike-2",
+          "source_identity": "synthetic-telemetry-fixture:cpu-spike-2",
+          "status": "available",
+          "source_sample_timestamp": null,
+          "query_evaluation_timestamp": null,
+          "observation_time": "2026-10-22T14:36:54.513499+00:00"
+        },
+        {
+          "evidence_ref": "fixture://prometheus/cpu-spike-2",
+          "source_identity": "synthetic-prometheus-fixture:cpu-spike-2",
+          "status": "available",
+          "source_sample_timestamp": null,
+          "query_evaluation_timestamp": null,
+          "observation_time": "2026-10-22T14:36:54.513499+00:00"
+        }
+      ],
+      "remediation_outcome": "not_executed",
+      "remediation_result": null,
+      "verification_outcome": "not_run",
+      "recovered_at": null,
+      "failure_reason": null,
+      "rca_json_valid": null,
+      "llm_latency_ms": null,
+      "llm_tokens": null,
+      "expected_policy_decision": "not_applicable",
+      "policy_evaluation": {
+        "status": "not_evaluated",
+        "expected_decision": "not_applicable",
+        "actual_decision": "not_applicable",
+        "matches_expected": true,
+        "reason": "Classifier did not provide an actionable target.",
+        "rules": []
+      }
+    },
+    {
+      "scenario_id": "cpu-spike-3",
+      "run_id": "synthetic-8562b44baa5844a88993aedf8f3c7b57",
+      "expected_category": "cpu_spike",
+      "observed_category": "cpu_spike",
+      "expected_outcome": "classified_as_expected_category",
+      "diagnosis_status": "available",
+      "detection_result": "not_measured",
+      "injected_at": "2026-10-22T14:36:54.513499+00:00",
+      "detected_at": null,
+      "evidence": [
+        "Statistical anomaly: cpu_cores_used is abnormally HIGH."
+      ],
+      "evidence_provenance": [
+        {
+          "evidence_ref": "fixture://kubernetes/cpu-spike-3",
+          "source_identity": "synthetic-kubernetes-fixture:cpu-spike-3",
+          "status": "available",
+          "source_sample_timestamp": null,
+          "query_evaluation_timestamp": null,
+          "observation_time": "2026-10-22T14:36:54.513499+00:00"
+        },
+        {
+          "evidence_ref": "fixture://telemetry/cpu-spike-3",
+          "source_identity": "synthetic-telemetry-fixture:cpu-spike-3",
+          "status": "available",
+          "source_sample_timestamp": null,
+          "query_evaluation_timestamp": null,
+          "observation_time": "2026-10-22T14:36:54.513499+00:00"
+        },
+        {
+          "evidence_ref": "fixture://prometheus/cpu-spike-3",
+          "source_identity": "synthetic-prometheus-fixture:cpu-spike-3",
+          "status": "available",
+          "source_sample_timestamp": null,
+          "query_evaluation_timestamp": null,
+          "observation_time": "2026-10-22T14:36:54.513499+00:00"
+        }
+      ],
+      "remediation_outcome": "not_executed",
+      "remediation_result": null,
+      "verification_outcome": "not_run",
+      "recovered_at": null,
+      "failure_reason": null,
+      "rca_json_valid": null,
+      "llm_latency_ms": null,
+      "llm_tokens": null,
+      "expected_policy_decision": "not_applicable",
+      "policy_evaluation": {
+        "status": "not_evaluated",
+        "expected_decision": "not_applicable",
+        "actual_decision": "not_applicable",
+        "matches_expected": true,
+        "reason": "Classifier did not provide an actionable target.",
+        "rules": []
+      }
+    },
+    {
+      "scenario_id": "cpu-spike-4",
+      "run_id": "synthetic-8562b44baa5844a88993aedf8f3c7b57",
+      "expected_category": "cpu_spike",
+      "observed_category": "cpu_spike",
+      "expected_outcome": "classified_as_expected_category",
+      "diagnosis_status": "unavailable",
+      "detection_result": "not_measured",
+      "injected_at": "2026-10-22T14:36:54.513499+00:00",
+      "detected_at": null,
+      "evidence": [
+        "Statistical anomaly: cpu_cores_used is abnormally HIGH."
+      ],
+      "evidence_provenance": [
+        {
+          "evidence_ref": "fixture://kubernetes/cpu-spike-4",
+          "source_identity": "synthetic-kubernetes-fixture:cpu-spike-4",
+          "status": "available",
+          "source_sample_timestamp": null,
+          "query_evaluation_timestamp": null,
+          "observation_time": "2026-10-22T14:36:54.513499+00:00"
+        },
+        {
+          "evidence_ref": "fixture://telemetry/cpu-spike-4",
+          "source_identity": "synthetic-telemetry-fixture:cpu-spike-4",
+          "status": "available",
+          "source_sample_timestamp": null,
+          "query_evaluation_timestamp": null,
+          "observation_time": "2026-10-22T14:36:54.513499+00:00"
+        },
+        {
+          "evidence_ref": "fixture://prometheus/cpu-spike-4",
+          "source_identity": "synthetic-prometheus-fixture:cpu-spike-4",
+          "status": "unavailable",
+          "source_sample_timestamp": null,
+          "query_evaluation_timestamp": null,
+          "observation_time": "2026-10-22T14:36:54.513499+00:00"
+        }
+      ],
+      "remediation_outcome": "not_executed",
+      "remediation_result": null,
+      "verification_outcome": "not_run",
+      "recovered_at": null,
+      "failure_reason": null,
+      "rca_json_valid": null,
+      "llm_latency_ms": null,
+      "llm_tokens": null,
+      "expected_policy_decision": "not_applicable",
+      "policy_evaluation": {
+        "status": "not_evaluated",
+        "expected_decision": "not_applicable",
+        "actual_decision": "not_applicable",
+        "matches_expected": true,
+        "reason": "Classifier did not provide an actionable target.",
+        "rules": []
+      }
+    },
+    {
+      "scenario_id": "memory-leak-1",
+      "run_id": "synthetic-8562b44baa5844a88993aedf8f3c7b57",
+      "expected_category": "memory_leak",
+      "observed_category": "memory_leak",
+      "expected_outcome": "classified_as_expected_category",
+      "diagnosis_status": "available",
+      "detection_result": "not_measured",
+      "injected_at": "2026-10-22T14:36:54.513499+00:00",
+      "detected_at": null,
+      "evidence": [
+        "Container previously terminated with reason OOMKilled."
+      ],
+      "evidence_provenance": [
+        {
+          "evidence_ref": "fixture://kubernetes/memory-leak-1",
+          "source_identity": "synthetic-kubernetes-fixture:memory-leak-1",
+          "status": "available",
+          "source_sample_timestamp": null,
+          "query_evaluation_timestamp": null,
+          "observation_time": "2026-10-22T14:36:54.513499+00:00"
+        },
+        {
+          "evidence_ref": "fixture://telemetry/memory-leak-1",
+          "source_identity": "synthetic-telemetry-fixture:memory-leak-1",
+          "status": "unavailable",
+          "source_sample_timestamp": null,
+          "query_evaluation_timestamp": null,
+          "observation_time": "2026-10-22T14:36:54.513499+00:00"
+        },
+        {
+          "evidence_ref": "fixture://prometheus/memory-leak-1",
+          "source_identity": "synthetic-prometheus-fixture:memory-leak-1",
+          "status": "available",
+          "source_sample_timestamp": null,
+          "query_evaluation_timestamp": null,
+          "observation_time": "2026-10-22T14:36:54.513499+00:00"
+        }
+      ],
+      "remediation_outcome": "not_executed",
+      "remediation_result": null,
+      "verification_outcome": "not_run",
+      "recovered_at": null,
+      "failure_reason": null,
+      "rca_json_valid": null,
+      "llm_latency_ms": null,
+      "llm_tokens": null,
+      "expected_policy_decision": "require_approval",
+      "policy_evaluation": {
+        "status": "evaluated",
+        "expected_decision": "require_approval",
+        "actual_decision": "require_approval",
+        "matches_expected": true,
+        "profile": "default",
+        "rules": [
+          {
+            "id": "action_allowlisted",
+            "passed": true,
+            "detail": "action=restart_pod"
+          },
+          {
+            "id": "namespace_allowlisted",
+            "passed": true,
+            "detail": "namespace=kybernaut-lab"
+          },
+          {
+            "id": "deployment_allowlisted",
+            "passed": true,
+            "detail": "deployment=demo-web"
+          },
+          {
+            "id": "pod_belongs_to_deployment",
+            "passed": true,
+            "detail": "pod=demo-web-memoryleak1 deployment=demo-web"
+          },
+          {
+            "id": "confidence_threshold",
+            "passed": true,
+            "detail": "confidence=0.70 minimum=0.60"
+          },
+          {
+            "id": "rate_limit",
+            "passed": true,
+            "detail": "recent_actions=0 limit=3 per 3600s"
+          },
+          {
+            "id": "blast_radius_restart",
+            "passed": true,
+            "detail": "available=2 desired=2 required>=2"
+          },
+          {
+            "id": "approval_required",
+            "passed": true,
+            "detail": "human approval required"
+          }
+        ],
+        "reasons": []
+      },
+      "policy_approval": {
+        "policy_decision": "require_approval",
+        "approval_required": true,
+        "approval_outcome": "pending",
+        "execution_status": "not_executed",
+        "verification_result": "not_run",
+        "decision_at": "2026-10-22T14:36:54.513499+00:00"
+      }
+    },
+    {
+      "scenario_id": "memory-leak-2",
+      "run_id": "synthetic-8562b44baa5844a88993aedf8f3c7b57",
+      "expected_category": "memory_leak",
+      "observed_category": "memory_leak",
+      "expected_outcome": "classified_as_expected_category",
+      "diagnosis_status": "available",
+      "detection_result": "not_measured",
+      "injected_at": "2026-10-22T14:36:54.513499+00:00",
+      "detected_at": null,
+      "evidence": [
+        "Container previously terminated with reason OOMKilled."
+      ],
+      "evidence_provenance": [
+        {
+          "evidence_ref": "fixture://kubernetes/memory-leak-2",
+          "source_identity": "synthetic-kubernetes-fixture:memory-leak-2",
+          "status": "available",
+          "source_sample_timestamp": null,
+          "query_evaluation_timestamp": null,
+          "observation_time": "2026-10-22T14:36:54.513499+00:00"
+        },
+        {
+          "evidence_ref": "fixture://telemetry/memory-leak-2",
+          "source_identity": "synthetic-telemetry-fixture:memory-leak-2",
+          "status": "unavailable",
+          "source_sample_timestamp": null,
+          "query_evaluation_timestamp": null,
+          "observation_time": "2026-10-22T14:36:54.513499+00:00"
+        },
+        {
+          "evidence_ref": "fixture://prometheus/memory-leak-2",
+          "source_identity": "synthetic-prometheus-fixture:memory-leak-2",
+          "status": "available",
+          "source_sample_timestamp": null,
+          "query_evaluation_timestamp": null,
+          "observation_time": "2026-10-22T14:36:54.513499+00:00"
+        }
+      ],
+      "remediation_outcome": "not_executed",
+      "remediation_result": null,
+      "verification_outcome": "not_run",
+      "recovered_at": null,
+      "failure_reason": null,
+      "rca_json_valid": null,
+      "llm_latency_ms": null,
+      "llm_tokens": null,
+      "expected_policy_decision": "deny",
+      "policy_evaluation": {
+        "status": "evaluated",
+        "expected_decision": "deny",
+        "actual_decision": "deny",
+        "matches_expected": true,
+        "profile": "default",
+        "rules": [
+          {
+            "id": "action_allowlisted",
+            "passed": true,
+            "detail": "action=restart_pod"
+          },
+          {
+            "id": "namespace_allowlisted",
+            "passed": true,
+            "detail": "namespace=kybernaut-lab"
+          },
+          {
+            "id": "deployment_allowlisted",
+            "passed": true,
+            "detail": "deployment=demo-web"
+          },
+          {
+            "id": "pod_belongs_to_deployment",
+            "passed": true,
+            "detail": "pod=demo-web-memoryleak2 deployment=demo-web"
+          },
+          {
+            "id": "confidence_threshold",
+            "passed": true,
+            "detail": "confidence=0.70 minimum=0.60"
+          },
+          {
+            "id": "rate_limit",
+            "passed": true,
+            "detail": "recent_actions=0 limit=3 per 3600s"
+          },
+          {
+            "id": "blast_radius_restart",
+            "passed": false,
+            "detail": "deployment state unavailable (fail closed)"
+          },
+          {
+            "id": "approval_required",
+            "passed": true,
+            "detail": "human approval required"
+          }
+        ],
+        "reasons": [
+          "blast_radius_restart: deployment state unavailable (fail closed)"
+        ]
+      },
+      "policy_approval": {
+        "policy_decision": "deny",
+        "approval_required": false,
+        "approval_outcome": "not_required",
+        "execution_status": "not_executed",
+        "verification_result": "not_run",
+        "decision_at": "2026-10-22T14:36:54.513499+00:00"
+      }
+    },
+    {
+      "scenario_id": "memory-leak-3",
+      "run_id": "synthetic-8562b44baa5844a88993aedf8f3c7b57",
+      "expected_category": "memory_leak",
+      "observed_category": "memory_leak",
+      "expected_outcome": "classified_as_expected_category",
+      "diagnosis_status": "available",
+      "detection_result": "not_measured",
+      "injected_at": "2026-10-22T14:36:54.513499+00:00",
+      "detected_at": null,
+      "evidence": [
+        "Container previously terminated with reason OOMKilled."
+      ],
+      "evidence_provenance": [
+        {
+          "evidence_ref": "fixture://kubernetes/memory-leak-3",
+          "source_identity": "synthetic-kubernetes-fixture:memory-leak-3",
+          "status": "available",
+          "source_sample_timestamp": null,
+          "query_evaluation_timestamp": null,
+          "observation_time": "2026-10-22T14:36:54.513499+00:00"
+        },
+        {
+          "evidence_ref": "fixture://telemetry/memory-leak-3",
+          "source_identity": "synthetic-telemetry-fixture:memory-leak-3",
+          "status": "unavailable",
+          "source_sample_timestamp": null,
+          "query_evaluation_timestamp": null,
+          "observation_time": "2026-10-22T14:36:54.513499+00:00"
+        },
+        {
+          "evidence_ref": "fixture://prometheus/memory-leak-3",
+          "source_identity": "synthetic-prometheus-fixture:memory-leak-3",
+          "status": "available",
+          "source_sample_timestamp": null,
+          "query_evaluation_timestamp": null,
+          "observation_time": "2026-10-22T14:36:54.513499+00:00"
+        }
+      ],
+      "remediation_outcome": "not_executed",
+      "remediation_result": null,
+      "verification_outcome": "not_run",
+      "recovered_at": null,
+      "failure_reason": null,
+      "rca_json_valid": null,
+      "llm_latency_ms": null,
+      "llm_tokens": null,
+      "expected_policy_decision": "require_approval",
+      "policy_evaluation": {
+        "status": "evaluated",
+        "expected_decision": "require_approval",
+        "actual_decision": "require_approval",
+        "matches_expected": true,
+        "profile": "default",
+        "rules": [
+          {
+            "id": "action_allowlisted",
+            "passed": true,
+            "detail": "action=restart_pod"
+          },
+          {
+            "id": "namespace_allowlisted",
+            "passed": true,
+            "detail": "namespace=kybernaut-lab"
+          },
+          {
+            "id": "deployment_allowlisted",
+            "passed": true,
+            "detail": "deployment=demo-web"
+          },
+          {
+            "id": "pod_belongs_to_deployment",
+            "passed": true,
+            "detail": "pod=demo-web-memoryleak3 deployment=demo-web"
+          },
+          {
+            "id": "confidence_threshold",
+            "passed": true,
+            "detail": "confidence=0.70 minimum=0.60"
+          },
+          {
+            "id": "rate_limit",
+            "passed": true,
+            "detail": "recent_actions=0 limit=3 per 3600s"
+          },
+          {
+            "id": "blast_radius_restart",
+            "passed": true,
+            "detail": "available=2 desired=2 required>=2"
+          },
+          {
+            "id": "approval_required",
+            "passed": true,
+            "detail": "human approval required"
+          }
+        ],
+        "reasons": []
+      },
+      "policy_approval": {
+        "policy_decision": "require_approval",
+        "approval_required": true,
+        "approval_outcome": "pending",
+        "execution_status": "not_executed",
+        "verification_result": "not_run",
+        "decision_at": "2026-10-22T14:36:54.513499+00:00"
+      }
+    },
+    {
+      "scenario_id": "memory-leak-4",
+      "run_id": "synthetic-8562b44baa5844a88993aedf8f3c7b57",
+      "expected_category": "memory_leak",
+      "observed_category": "memory_leak",
+      "expected_outcome": "classified_as_expected_category",
+      "diagnosis_status": "missing_evidence",
+      "detection_result": "not_measured",
+      "injected_at": "2026-10-22T14:36:54.513499+00:00",
+      "detected_at": null,
+      "evidence": [
+        "Container previously terminated with reason OOMKilled."
+      ],
+      "evidence_provenance": [
+        {
+          "evidence_ref": "fixture://kubernetes/memory-leak-4",
+          "source_identity": "synthetic-kubernetes-fixture:memory-leak-4",
+          "status": "available",
+          "source_sample_timestamp": null,
+          "query_evaluation_timestamp": null,
+          "observation_time": "2026-10-22T14:36:54.513499+00:00"
+        },
+        {
+          "evidence_ref": "fixture://telemetry/memory-leak-4",
+          "source_identity": "synthetic-telemetry-fixture:memory-leak-4",
+          "status": "unavailable",
+          "source_sample_timestamp": null,
+          "query_evaluation_timestamp": null,
+          "observation_time": "2026-10-22T14:36:54.513499+00:00"
+        },
+        {
+          "evidence_ref": "fixture://prometheus/memory-leak-4",
+          "source_identity": "synthetic-prometheus-fixture:memory-leak-4",
+          "status": "unavailable",
+          "source_sample_timestamp": null,
+          "query_evaluation_timestamp": null,
+          "observation_time": "2026-10-22T14:36:54.513499+00:00"
+        }
+      ],
+      "remediation_outcome": "not_executed",
+      "remediation_result": null,
+      "verification_outcome": "not_run",
+      "recovered_at": null,
+      "failure_reason": null,
+      "rca_json_valid": null,
+      "llm_latency_ms": null,
+      "llm_tokens": null,
+      "expected_policy_decision": "require_approval",
+      "policy_evaluation": {
+        "status": "evaluated",
+        "expected_decision": "require_approval",
+        "actual_decision": "require_approval",
+        "matches_expected": true,
+        "profile": "default",
+        "rules": [
+          {
+            "id": "action_allowlisted",
+            "passed": true,
+            "detail": "action=restart_pod"
+          },
+          {
+            "id": "namespace_allowlisted",
+            "passed": true,
+            "detail": "namespace=kybernaut-lab"
+          },
+          {
+            "id": "deployment_allowlisted",
+            "passed": true,
+            "detail": "deployment=demo-web"
+          },
+          {
+            "id": "pod_belongs_to_deployment",
+            "passed": true,
+            "detail": "pod=demo-web-memoryleak4 deployment=demo-web"
+          },
+          {
+            "id": "confidence_threshold",
+            "passed": true,
+            "detail": "confidence=0.70 minimum=0.60"
+          },
+          {
+            "id": "rate_limit",
+            "passed": true,
+            "detail": "recent_actions=0 limit=3 per 3600s"
+          },
+          {
+            "id": "blast_radius_restart",
+            "passed": true,
+            "detail": "available=2 desired=2 required>=2"
+          },
+          {
+            "id": "approval_required",
+            "passed": true,
+            "detail": "human approval required"
+          }
+        ],
+        "reasons": []
+      },
+      "policy_approval": {
+        "policy_decision": "require_approval",
+        "approval_required": true,
+        "approval_outcome": "pending",
+        "execution_status": "not_executed",
+        "verification_result": "not_run",
+        "decision_at": "2026-10-22T14:36:54.513499+00:00"
+      }
+    },
+    {
+      "scenario_id": "pod-crash-1",
+      "run_id": "synthetic-8562b44baa5844a88993aedf8f3c7b57",
+      "expected_category": "pod_crash",
+      "observed_category": "pod_crash",
+      "expected_outcome": "classified_as_expected_category",
+      "diagnosis_status": "available",
+      "detection_result": "not_measured",
+      "injected_at": "2026-10-22T14:36:54.513499+00:00",
+      "detected_at": null,
+      "evidence": [
+        "Container is waiting with reason CrashLoopBackOff."
+      ],
+      "evidence_provenance": [
+        {
+          "evidence_ref": "fixture://kubernetes/pod-crash-1",
+          "source_identity": "synthetic-kubernetes-fixture:pod-crash-1",
+          "status": "available",
+          "source_sample_timestamp": null,
+          "query_evaluation_timestamp": null,
+          "observation_time": "2026-10-22T14:36:54.513499+00:00"
+        },
+        {
+          "evidence_ref": "fixture://telemetry/pod-crash-1",
+          "source_identity": "synthetic-telemetry-fixture:pod-crash-1",
+          "status": "unavailable",
+          "source_sample_timestamp": null,
+          "query_evaluation_timestamp": null,
+          "observation_time": "2026-10-22T14:36:54.513499+00:00"
+        },
+        {
+          "evidence_ref": "fixture://prometheus/pod-crash-1",
+          "source_identity": "synthetic-prometheus-fixture:pod-crash-1",
+          "status": "available",
+          "source_sample_timestamp": null,
+          "query_evaluation_timestamp": null,
+          "observation_time": "2026-10-22T14:36:54.513499+00:00"
+        }
+      ],
+      "remediation_outcome": "not_executed",
+      "remediation_result": null,
+      "verification_outcome": "not_run",
+      "recovered_at": null,
+      "failure_reason": null,
+      "rca_json_valid": null,
+      "llm_latency_ms": null,
+      "llm_tokens": null,
+      "expected_policy_decision": "require_approval",
+      "policy_evaluation": {
+        "status": "evaluated",
+        "expected_decision": "require_approval",
+        "actual_decision": "require_approval",
+        "matches_expected": true,
+        "profile": "default",
+        "rules": [
+          {
+            "id": "action_allowlisted",
+            "passed": true,
+            "detail": "action=restart_pod"
+          },
+          {
+            "id": "namespace_allowlisted",
+            "passed": true,
+            "detail": "namespace=kybernaut-lab"
+          },
+          {
+            "id": "deployment_allowlisted",
+            "passed": true,
+            "detail": "deployment=demo-web"
+          },
+          {
+            "id": "pod_belongs_to_deployment",
+            "passed": true,
+            "detail": "pod=demo-web-podcrash1 deployment=demo-web"
+          },
+          {
+            "id": "confidence_threshold",
+            "passed": true,
+            "detail": "confidence=0.85 minimum=0.60"
+          },
+          {
+            "id": "rate_limit",
+            "passed": true,
+            "detail": "recent_actions=0 limit=3 per 3600s"
+          },
+          {
+            "id": "blast_radius_restart",
+            "passed": true,
+            "detail": "available=2 desired=2 required>=2"
+          },
+          {
+            "id": "approval_required",
+            "passed": true,
+            "detail": "human approval required"
+          }
+        ],
+        "reasons": []
+      },
+      "policy_approval": {
+        "policy_decision": "require_approval",
+        "approval_required": true,
+        "approval_outcome": "pending",
+        "execution_status": "not_executed",
+        "verification_result": "not_run",
+        "decision_at": "2026-10-22T14:36:54.513499+00:00"
+      }
+    },
+    {
+      "scenario_id": "pod-crash-2",
+      "run_id": "synthetic-8562b44baa5844a88993aedf8f3c7b57",
+      "expected_category": "pod_crash",
+      "observed_category": "pod_crash",
+      "expected_outcome": "classified_as_expected_category",
+      "diagnosis_status": "available",
+      "detection_result": "not_measured",
+      "injected_at": "2026-10-22T14:36:54.513499+00:00",
+      "detected_at": null,
+      "evidence": [
+        "Container is waiting with reason CrashLoopBackOff."
+      ],
+      "evidence_provenance": [
+        {
+          "evidence_ref": "fixture://kubernetes/pod-crash-2",
+          "source_identity": "synthetic-kubernetes-fixture:pod-crash-2",
+          "status": "available",
+          "source_sample_timestamp": null,
+          "query_evaluation_timestamp": null,
+          "observation_time": "2026-10-22T14:36:54.513499+00:00"
+        },
+        {
+          "evidence_ref": "fixture://telemetry/pod-crash-2",
+          "source_identity": "synthetic-telemetry-fixture:pod-crash-2",
+          "status": "unavailable",
+          "source_sample_timestamp": null,
+          "query_evaluation_timestamp": null,
+          "observation_time": "2026-10-22T14:36:54.513499+00:00"
+        },
+        {
+          "evidence_ref": "fixture://prometheus/pod-crash-2",
+          "source_identity": "synthetic-prometheus-fixture:pod-crash-2",
+          "status": "available",
+          "source_sample_timestamp": null,
+          "query_evaluation_timestamp": null,
+          "observation_time": "2026-10-22T14:36:54.513499+00:00"
+        }
+      ],
+      "remediation_outcome": "not_executed",
+      "remediation_result": null,
+      "verification_outcome": "not_run",
+      "recovered_at": null,
+      "failure_reason": null,
+      "rca_json_valid": null,
+      "llm_latency_ms": null,
+      "llm_tokens": null,
+      "expected_policy_decision": "require_approval",
+      "policy_evaluation": {
+        "status": "evaluated",
+        "expected_decision": "require_approval",
+        "actual_decision": "require_approval",
+        "matches_expected": true,
+        "profile": "default",
+        "rules": [
+          {
+            "id": "action_allowlisted",
+            "passed": true,
+            "detail": "action=restart_pod"
+          },
+          {
+            "id": "namespace_allowlisted",
+            "passed": true,
+            "detail": "namespace=kybernaut-lab"
+          },
+          {
+            "id": "deployment_allowlisted",
+            "passed": true,
+            "detail": "deployment=demo-web"
+          },
+          {
+            "id": "pod_belongs_to_deployment",
+            "passed": true,
+            "detail": "pod=demo-web-podcrash2 deployment=demo-web"
+          },
+          {
+            "id": "confidence_threshold",
+            "passed": true,
+            "detail": "confidence=0.85 minimum=0.60"
+          },
+          {
+            "id": "rate_limit",
+            "passed": true,
+            "detail": "recent_actions=0 limit=3 per 3600s"
+          },
+          {
+            "id": "blast_radius_restart",
+            "passed": true,
+            "detail": "available=2 desired=2 required>=2"
+          },
+          {
+            "id": "approval_required",
+            "passed": true,
+            "detail": "human approval required"
+          }
+        ],
+        "reasons": []
+      },
+      "policy_approval": {
+        "policy_decision": "require_approval",
+        "approval_required": true,
+        "approval_outcome": "pending",
+        "execution_status": "not_executed",
+        "verification_result": "not_run",
+        "decision_at": "2026-10-22T14:36:54.513499+00:00"
+      }
+    },
+    {
+      "scenario_id": "pod-crash-3",
+      "run_id": "synthetic-8562b44baa5844a88993aedf8f3c7b57",
+      "expected_category": "pod_crash",
+      "observed_category": "pod_crash",
+      "expected_outcome": "classified_as_expected_category",
+      "diagnosis_status": "available",
+      "detection_result": "not_measured",
+      "injected_at": "2026-10-22T14:36:54.513499+00:00",
+      "detected_at": null,
+      "evidence": [
+        "Container is waiting with reason CrashLoopBackOff."
+      ],
+      "evidence_provenance": [
+        {
+          "evidence_ref": "fixture://kubernetes/pod-crash-3",
+          "source_identity": "synthetic-kubernetes-fixture:pod-crash-3",
+          "status": "available",
+          "source_sample_timestamp": null,
+          "query_evaluation_timestamp": null,
+          "observation_time": "2026-10-22T14:36:54.513499+00:00"
+        },
+        {
+          "evidence_ref": "fixture://telemetry/pod-crash-3",
+          "source_identity": "synthetic-telemetry-fixture:pod-crash-3",
+          "status": "unavailable",
+          "source_sample_timestamp": null,
+          "query_evaluation_timestamp": null,
+          "observation_time": "2026-10-22T14:36:54.513499+00:00"
+        },
+        {
+          "evidence_ref": "fixture://prometheus/pod-crash-3",
+          "source_identity": "synthetic-prometheus-fixture:pod-crash-3",
+          "status": "available",
+          "source_sample_timestamp": null,
+          "query_evaluation_timestamp": null,
+          "observation_time": "2026-10-22T14:36:54.513499+00:00"
+        }
+      ],
+      "remediation_outcome": "not_executed",
+      "remediation_result": null,
+      "verification_outcome": "not_run",
+      "recovered_at": null,
+      "failure_reason": null,
+      "rca_json_valid": null,
+      "llm_latency_ms": null,
+      "llm_tokens": null,
+      "expected_policy_decision": "require_approval",
+      "policy_evaluation": {
+        "status": "evaluated",
+        "expected_decision": "require_approval",
+        "actual_decision": "require_approval",
+        "matches_expected": true,
+        "profile": "default",
+        "rules": [
+          {
+            "id": "action_allowlisted",
+            "passed": true,
+            "detail": "action=restart_pod"
+          },
+          {
+            "id": "namespace_allowlisted",
+            "passed": true,
+            "detail": "namespace=kybernaut-lab"
+          },
+          {
+            "id": "deployment_allowlisted",
+            "passed": true,
+            "detail": "deployment=demo-web"
+          },
+          {
+            "id": "pod_belongs_to_deployment",
+            "passed": true,
+            "detail": "pod=demo-web-podcrash3 deployment=demo-web"
+          },
+          {
+            "id": "confidence_threshold",
+            "passed": true,
+            "detail": "confidence=0.85 minimum=0.60"
+          },
+          {
+            "id": "rate_limit",
+            "passed": true,
+            "detail": "recent_actions=0 limit=3 per 3600s"
+          },
+          {
+            "id": "blast_radius_restart",
+            "passed": true,
+            "detail": "available=2 desired=2 required>=2"
+          },
+          {
+            "id": "approval_required",
+            "passed": true,
+            "detail": "human approval required"
+          }
+        ],
+        "reasons": []
+      },
+      "policy_approval": {
+        "policy_decision": "require_approval",
+        "approval_required": true,
+        "approval_outcome": "pending",
+        "execution_status": "not_executed",
+        "verification_result": "not_run",
+        "decision_at": "2026-10-22T14:36:54.513499+00:00"
+      }
+    },
+    {
+      "scenario_id": "pod-crash-4",
+      "run_id": "synthetic-8562b44baa5844a88993aedf8f3c7b57",
+      "expected_category": "pod_crash",
+      "observed_category": "pod_crash",
+      "expected_outcome": "classified_as_expected_category",
+      "diagnosis_status": "available",
+      "detection_result": "not_measured",
+      "injected_at": "2026-10-22T14:36:54.513499+00:00",
+      "detected_at": null,
+      "evidence": [
+        "Container is waiting with reason CrashLoopBackOff."
+      ],
+      "evidence_provenance": [
+        {
+          "evidence_ref": "fixture://kubernetes/pod-crash-4",
+          "source_identity": "synthetic-kubernetes-fixture:pod-crash-4",
+          "status": "available",
+          "source_sample_timestamp": null,
+          "query_evaluation_timestamp": null,
+          "observation_time": "2026-10-22T14:36:54.513499+00:00"
+        },
+        {
+          "evidence_ref": "fixture://telemetry/pod-crash-4",
+          "source_identity": "synthetic-telemetry-fixture:pod-crash-4",
+          "status": "unavailable",
+          "source_sample_timestamp": null,
+          "query_evaluation_timestamp": null,
+          "observation_time": "2026-10-22T14:36:54.513499+00:00"
+        },
+        {
+          "evidence_ref": "fixture://prometheus/pod-crash-4",
+          "source_identity": "synthetic-prometheus-fixture:pod-crash-4",
+          "status": "available",
+          "source_sample_timestamp": null,
+          "query_evaluation_timestamp": null,
+          "observation_time": "2026-10-22T14:36:54.513499+00:00"
+        }
+      ],
+      "remediation_outcome": "not_executed",
+      "remediation_result": null,
+      "verification_outcome": "not_run",
+      "recovered_at": null,
+      "failure_reason": null,
+      "rca_json_valid": null,
+      "llm_latency_ms": null,
+      "llm_tokens": null,
+      "expected_policy_decision": "require_approval",
+      "policy_evaluation": {
+        "status": "evaluated",
+        "expected_decision": "require_approval",
+        "actual_decision": "require_approval",
+        "matches_expected": true,
+        "profile": "default",
+        "rules": [
+          {
+            "id": "action_allowlisted",
+            "passed": true,
+            "detail": "action=restart_pod"
+          },
+          {
+            "id": "namespace_allowlisted",
+            "passed": true,
+            "detail": "namespace=kybernaut-lab"
+          },
+          {
+            "id": "deployment_allowlisted",
+            "passed": true,
+            "detail": "deployment=demo-web"
+          },
+          {
+            "id": "pod_belongs_to_deployment",
+            "passed": true,
+            "detail": "pod=demo-web-podcrash4 deployment=demo-web"
+          },
+          {
+            "id": "confidence_threshold",
+            "passed": true,
+            "detail": "confidence=0.85 minimum=0.60"
+          },
+          {
+            "id": "rate_limit",
+            "passed": true,
+            "detail": "recent_actions=0 limit=3 per 3600s"
+          },
+          {
+            "id": "blast_radius_restart",
+            "passed": true,
+            "detail": "available=2 desired=2 required>=2"
+          },
+          {
+            "id": "approval_required",
+            "passed": true,
+            "detail": "human approval required"
+          }
+        ],
+        "reasons": []
+      },
+      "policy_approval": {
+        "policy_decision": "require_approval",
+        "approval_required": true,
+        "approval_outcome": "pending",
+        "execution_status": "not_executed",
+        "verification_result": "not_run",
+        "decision_at": "2026-10-22T14:36:54.513499+00:00"
+      }
+    },
+    {
+      "scenario_id": "disk-full-1",
+      "run_id": "synthetic-8562b44baa5844a88993aedf8f3c7b57",
+      "expected_category": "disk_full",
+      "observed_category": "disk_full",
+      "expected_outcome": "classified_as_expected_category",
+      "diagnosis_status": "available",
+      "detection_result": "not_measured",
+      "injected_at": "2026-10-22T14:36:54.513499+00:00",
+      "detected_at": null,
+      "evidence": [
+        "Evicted: Usage of EmptyDir volume \"scratch\" exceeds the limit \"40Mi\"."
+      ],
+      "evidence_provenance": [
+        {
+          "evidence_ref": "fixture://kubernetes/disk-full-1",
+          "source_identity": "synthetic-kubernetes-fixture:disk-full-1",
+          "status": "available",
+          "source_sample_timestamp": null,
+          "query_evaluation_timestamp": null,
+          "observation_time": "2026-10-22T14:36:54.513499+00:00"
+        },
+        {
+          "evidence_ref": "fixture://telemetry/disk-full-1",
+          "source_identity": "synthetic-telemetry-fixture:disk-full-1",
+          "status": "unavailable",
+          "source_sample_timestamp": null,
+          "query_evaluation_timestamp": null,
+          "observation_time": "2026-10-22T14:36:54.513499+00:00"
+        },
+        {
+          "evidence_ref": "fixture://prometheus/disk-full-1",
+          "source_identity": "synthetic-prometheus-fixture:disk-full-1",
+          "status": "available",
+          "source_sample_timestamp": null,
+          "query_evaluation_timestamp": null,
+          "observation_time": "2026-10-22T14:36:54.513499+00:00"
+        }
+      ],
+      "remediation_outcome": "not_executed",
+      "remediation_result": null,
+      "verification_outcome": "not_run",
+      "recovered_at": null,
+      "failure_reason": null,
+      "rca_json_valid": null,
+      "llm_latency_ms": null,
+      "llm_tokens": null,
+      "expected_policy_decision": "require_approval",
+      "policy_evaluation": {
+        "status": "evaluated",
+        "expected_decision": "require_approval",
+        "actual_decision": "require_approval",
+        "matches_expected": true,
+        "profile": "default",
+        "rules": [
+          {
+            "id": "action_allowlisted",
+            "passed": true,
+            "detail": "action=restart_pod"
+          },
+          {
+            "id": "namespace_allowlisted",
+            "passed": true,
+            "detail": "namespace=kybernaut-lab"
+          },
+          {
+            "id": "deployment_allowlisted",
+            "passed": true,
+            "detail": "deployment=demo-web"
+          },
+          {
+            "id": "pod_belongs_to_deployment",
+            "passed": true,
+            "detail": "pod=demo-web-diskfull1 deployment=demo-web"
+          },
+          {
+            "id": "confidence_threshold",
+            "passed": true,
+            "detail": "confidence=0.80 minimum=0.60"
+          },
+          {
+            "id": "rate_limit",
+            "passed": true,
+            "detail": "recent_actions=0 limit=3 per 3600s"
+          },
+          {
+            "id": "blast_radius_restart",
+            "passed": true,
+            "detail": "available=2 desired=2 required>=2"
+          },
+          {
+            "id": "approval_required",
+            "passed": true,
+            "detail": "human approval required"
+          }
+        ],
+        "reasons": []
+      },
+      "policy_approval": {
+        "policy_decision": "require_approval",
+        "approval_required": true,
+        "approval_outcome": "pending",
+        "execution_status": "not_executed",
+        "verification_result": "not_run",
+        "decision_at": "2026-10-22T14:36:54.513499+00:00"
+      }
+    },
+    {
+      "scenario_id": "disk-full-2",
+      "run_id": "synthetic-8562b44baa5844a88993aedf8f3c7b57",
+      "expected_category": "disk_full",
+      "observed_category": "disk_full",
+      "expected_outcome": "classified_as_expected_category",
+      "diagnosis_status": "available",
+      "detection_result": "not_measured",
+      "injected_at": "2026-10-22T14:36:54.513499+00:00",
+      "detected_at": null,
+      "evidence": [
+        "Evicted: Usage of EmptyDir volume \"scratch\" exceeds the limit \"40Mi\"."
+      ],
+      "evidence_provenance": [
+        {
+          "evidence_ref": "fixture://kubernetes/disk-full-2",
+          "source_identity": "synthetic-kubernetes-fixture:disk-full-2",
+          "status": "available",
+          "source_sample_timestamp": null,
+          "query_evaluation_timestamp": null,
+          "observation_time": "2026-10-22T14:36:54.513499+00:00"
+        },
+        {
+          "evidence_ref": "fixture://telemetry/disk-full-2",
+          "source_identity": "synthetic-telemetry-fixture:disk-full-2",
+          "status": "unavailable",
+          "source_sample_timestamp": null,
+          "query_evaluation_timestamp": null,
+          "observation_time": "2026-10-22T14:36:54.513499+00:00"
+        },
+        {
+          "evidence_ref": "fixture://prometheus/disk-full-2",
+          "source_identity": "synthetic-prometheus-fixture:disk-full-2",
+          "status": "available",
+          "source_sample_timestamp": null,
+          "query_evaluation_timestamp": null,
+          "observation_time": "2026-10-22T14:36:54.513499+00:00"
+        }
+      ],
+      "remediation_outcome": "not_executed",
+      "remediation_result": null,
+      "verification_outcome": "not_run",
+      "recovered_at": null,
+      "failure_reason": null,
+      "rca_json_valid": null,
+      "llm_latency_ms": null,
+      "llm_tokens": null,
+      "expected_policy_decision": "require_approval",
+      "policy_evaluation": {
+        "status": "evaluated",
+        "expected_decision": "require_approval",
+        "actual_decision": "require_approval",
+        "matches_expected": true,
+        "profile": "default",
+        "rules": [
+          {
+            "id": "action_allowlisted",
+            "passed": true,
+            "detail": "action=restart_pod"
+          },
+          {
+            "id": "namespace_allowlisted",
+            "passed": true,
+            "detail": "namespace=kybernaut-lab"
+          },
+          {
+            "id": "deployment_allowlisted",
+            "passed": true,
+            "detail": "deployment=demo-web"
+          },
+          {
+            "id": "pod_belongs_to_deployment",
+            "passed": true,
+            "detail": "pod=demo-web-diskfull2 deployment=demo-web"
+          },
+          {
+            "id": "confidence_threshold",
+            "passed": true,
+            "detail": "confidence=0.80 minimum=0.60"
+          },
+          {
+            "id": "rate_limit",
+            "passed": true,
+            "detail": "recent_actions=0 limit=3 per 3600s"
+          },
+          {
+            "id": "blast_radius_restart",
+            "passed": true,
+            "detail": "available=2 desired=2 required>=2"
+          },
+          {
+            "id": "approval_required",
+            "passed": true,
+            "detail": "human approval required"
+          }
+        ],
+        "reasons": []
+      },
+      "policy_approval": {
+        "policy_decision": "require_approval",
+        "approval_required": true,
+        "approval_outcome": "pending",
+        "execution_status": "not_executed",
+        "verification_result": "not_run",
+        "decision_at": "2026-10-22T14:36:54.513499+00:00"
+      }
+    },
+    {
+      "scenario_id": "disk-full-3",
+      "run_id": "synthetic-8562b44baa5844a88993aedf8f3c7b57",
+      "expected_category": "disk_full",
+      "observed_category": "disk_full",
+      "expected_outcome": "classified_as_expected_category",
+      "diagnosis_status": "available",
+      "detection_result": "not_measured",
+      "injected_at": "2026-10-22T14:36:54.513499+00:00",
+      "detected_at": null,
+      "evidence": [
+        "Evicted: Usage of EmptyDir volume \"scratch\" exceeds the limit \"40Mi\"."
+      ],
+      "evidence_provenance": [
+        {
+          "evidence_ref": "fixture://kubernetes/disk-full-3",
+          "source_identity": "synthetic-kubernetes-fixture:disk-full-3",
+          "status": "available",
+          "source_sample_timestamp": null,
+          "query_evaluation_timestamp": null,
+          "observation_time": "2026-10-22T14:36:54.513499+00:00"
+        },
+        {
+          "evidence_ref": "fixture://telemetry/disk-full-3",
+          "source_identity": "synthetic-telemetry-fixture:disk-full-3",
+          "status": "unavailable",
+          "source_sample_timestamp": null,
+          "query_evaluation_timestamp": null,
+          "observation_time": "2026-10-22T14:36:54.513499+00:00"
+        },
+        {
+          "evidence_ref": "fixture://prometheus/disk-full-3",
+          "source_identity": "synthetic-prometheus-fixture:disk-full-3",
+          "status": "available",
+          "source_sample_timestamp": null,
+          "query_evaluation_timestamp": null,
+          "observation_time": "2026-10-22T14:36:54.513499+00:00"
+        }
+      ],
+      "remediation_outcome": "not_executed",
+      "remediation_result": null,
+      "verification_outcome": "not_run",
+      "recovered_at": null,
+      "failure_reason": null,
+      "rca_json_valid": null,
+      "llm_latency_ms": null,
+      "llm_tokens": null,
+      "expected_policy_decision": "require_approval",
+      "policy_evaluation": {
+        "status": "evaluated",
+        "expected_decision": "require_approval",
+        "actual_decision": "require_approval",
+        "matches_expected": true,
+        "profile": "default",
+        "rules": [
+          {
+            "id": "action_allowlisted",
+            "passed": true,
+            "detail": "action=restart_pod"
+          },
+          {
+            "id": "namespace_allowlisted",
+            "passed": true,
+            "detail": "namespace=kybernaut-lab"
+          },
+          {
+            "id": "deployment_allowlisted",
+            "passed": true,
+            "detail": "deployment=demo-web"
+          },
+          {
+            "id": "pod_belongs_to_deployment",
+            "passed": true,
+            "detail": "pod=demo-web-diskfull3 deployment=demo-web"
+          },
+          {
+            "id": "confidence_threshold",
+            "passed": true,
+            "detail": "confidence=0.80 minimum=0.60"
+          },
+          {
+            "id": "rate_limit",
+            "passed": true,
+            "detail": "recent_actions=0 limit=3 per 3600s"
+          },
+          {
+            "id": "blast_radius_restart",
+            "passed": true,
+            "detail": "available=2 desired=2 required>=2"
+          },
+          {
+            "id": "approval_required",
+            "passed": true,
+            "detail": "human approval required"
+          }
+        ],
+        "reasons": []
+      },
+      "policy_approval": {
+        "policy_decision": "require_approval",
+        "approval_required": true,
+        "approval_outcome": "pending",
+        "execution_status": "not_executed",
+        "verification_result": "not_run",
+        "decision_at": "2026-10-22T14:36:54.513499+00:00"
+      }
+    },
+    {
+      "scenario_id": "disk-full-4",
+      "run_id": "synthetic-8562b44baa5844a88993aedf8f3c7b57",
+      "expected_category": "disk_full",
+      "observed_category": "disk_full",
+      "expected_outcome": "classified_as_expected_category",
+      "diagnosis_status": "available",
+      "detection_result": "not_measured",
+      "injected_at": "2026-10-22T14:36:54.513499+00:00",
+      "detected_at": null,
+      "evidence": [
+        "Evicted: Usage of EmptyDir volume \"scratch\" exceeds the limit \"40Mi\"."
+      ],
+      "evidence_provenance": [
+        {
+          "evidence_ref": "fixture://kubernetes/disk-full-4",
+          "source_identity": "synthetic-kubernetes-fixture:disk-full-4",
+          "status": "available",
+          "source_sample_timestamp": null,
+          "query_evaluation_timestamp": null,
+          "observation_time": "2026-10-22T14:36:54.513499+00:00"
+        },
+        {
+          "evidence_ref": "fixture://telemetry/disk-full-4",
+          "source_identity": "synthetic-telemetry-fixture:disk-full-4",
+          "status": "unavailable",
+          "source_sample_timestamp": null,
+          "query_evaluation_timestamp": null,
+          "observation_time": "2026-10-22T14:36:54.513499+00:00"
+        },
+        {
+          "evidence_ref": "fixture://prometheus/disk-full-4",
+          "source_identity": "synthetic-prometheus-fixture:disk-full-4",
+          "status": "available",
+          "source_sample_timestamp": null,
+          "query_evaluation_timestamp": null,
+          "observation_time": "2026-10-22T14:36:54.513499+00:00"
+        }
+      ],
+      "remediation_outcome": "not_executed",
+      "remediation_result": null,
+      "verification_outcome": "not_run",
+      "recovered_at": null,
+      "failure_reason": null,
+      "rca_json_valid": null,
+      "llm_latency_ms": null,
+      "llm_tokens": null,
+      "expected_policy_decision": "require_approval",
+      "policy_evaluation": {
+        "status": "evaluated",
+        "expected_decision": "require_approval",
+        "actual_decision": "require_approval",
+        "matches_expected": true,
+        "profile": "default",
+        "rules": [
+          {
+            "id": "action_allowlisted",
+            "passed": true,
+            "detail": "action=restart_pod"
+          },
+          {
+            "id": "namespace_allowlisted",
+            "passed": true,
+            "detail": "namespace=kybernaut-lab"
+          },
+          {
+            "id": "deployment_allowlisted",
+            "passed": true,
+            "detail": "deployment=demo-web"
+          },
+          {
+            "id": "pod_belongs_to_deployment",
+            "passed": true,
+            "detail": "pod=demo-web-diskfull4 deployment=demo-web"
+          },
+          {
+            "id": "confidence_threshold",
+            "passed": true,
+            "detail": "confidence=0.80 minimum=0.60"
+          },
+          {
+            "id": "rate_limit",
+            "passed": true,
+            "detail": "recent_actions=0 limit=3 per 3600s"
+          },
+          {
+            "id": "blast_radius_restart",
+            "passed": true,
+            "detail": "available=2 desired=2 required>=2"
+          },
+          {
+            "id": "approval_required",
+            "passed": true,
+            "detail": "human approval required"
+          }
+        ],
+        "reasons": []
+      },
+      "policy_approval": {
+        "policy_decision": "require_approval",
+        "approval_required": true,
+        "approval_outcome": "pending",
+        "execution_status": "not_executed",
+        "verification_result": "not_run",
+        "decision_at": "2026-10-22T14:36:54.513499+00:00"
+      }
+    },
+    {
+      "scenario_id": "deployment-failure-1",
+      "run_id": "synthetic-8562b44baa5844a88993aedf8f3c7b57",
+      "expected_category": "deployment_failure",
+      "observed_category": "deployment_failure",
+      "expected_outcome": "classified_as_expected_category",
+      "diagnosis_status": "available",
+      "detection_result": "not_measured",
+      "injected_at": "2026-10-22T14:36:54.513499+00:00",
+      "detected_at": null,
+      "evidence": [
+        "Container is waiting with reason ImagePullBackOff."
+      ],
+      "evidence_provenance": [
+        {
+          "evidence_ref": "fixture://kubernetes/deployment-failure-1",
+          "source_identity": "synthetic-kubernetes-fixture:deployment-failure-1",
+          "status": "available",
+          "source_sample_timestamp": null,
+          "query_evaluation_timestamp": null,
+          "observation_time": "2026-10-22T14:36:54.513499+00:00"
+        },
+        {
+          "evidence_ref": "fixture://telemetry/deployment-failure-1",
+          "source_identity": "synthetic-telemetry-fixture:deployment-failure-1",
+          "status": "unavailable",
+          "source_sample_timestamp": null,
+          "query_evaluation_timestamp": null,
+          "observation_time": "2026-10-22T14:36:54.513499+00:00"
+        },
+        {
+          "evidence_ref": "fixture://prometheus/deployment-failure-1",
+          "source_identity": "synthetic-prometheus-fixture:deployment-failure-1",
+          "status": "available",
+          "source_sample_timestamp": null,
+          "query_evaluation_timestamp": null,
+          "observation_time": "2026-10-22T14:36:54.513499+00:00"
+        }
+      ],
+      "remediation_outcome": "not_executed",
+      "remediation_result": null,
+      "verification_outcome": "not_run",
+      "recovered_at": null,
+      "failure_reason": null,
+      "rca_json_valid": null,
+      "llm_latency_ms": null,
+      "llm_tokens": null,
+      "expected_policy_decision": "allow",
+      "policy_evaluation": {
+        "status": "evaluated",
+        "expected_decision": "allow",
+        "actual_decision": "allow",
+        "matches_expected": true,
+        "profile": "synthetic_auto_eligibility_probe",
+        "rules": [
+          {
+            "id": "action_allowlisted",
+            "passed": true,
+            "detail": "action=restart_pod"
+          },
+          {
+            "id": "namespace_allowlisted",
+            "passed": true,
+            "detail": "namespace=kybernaut-lab"
+          },
+          {
+            "id": "deployment_allowlisted",
+            "passed": true,
+            "detail": "deployment=demo-web"
+          },
+          {
+            "id": "pod_belongs_to_deployment",
+            "passed": true,
+            "detail": "pod=demo-web-deploymentfailure1 deployment=demo-web"
+          },
+          {
+            "id": "confidence_threshold",
+            "passed": true,
+            "detail": "confidence=0.90 minimum=0.60"
+          },
+          {
+            "id": "rate_limit",
+            "passed": true,
+            "detail": "recent_actions=0 limit=3 per 3600s"
+          },
+          {
+            "id": "blast_radius_restart",
+            "passed": true,
+            "detail": "available=2 desired=2 required>=2"
+          },
+          {
+            "id": "approval_required",
+            "passed": false,
+            "detail": "eligible for automatic execution"
+          }
+        ],
+        "reasons": []
+      },
+      "policy_approval": {
+        "policy_decision": "allow",
+        "approval_required": false,
+        "approval_outcome": "not_required",
+        "execution_status": "not_executed",
+        "verification_result": "not_run",
+        "decision_at": "2026-10-22T14:36:54.513499+00:00"
+      }
+    },
+    {
+      "scenario_id": "deployment-failure-2",
+      "run_id": "synthetic-8562b44baa5844a88993aedf8f3c7b57",
+      "expected_category": "deployment_failure",
+      "observed_category": "deployment_failure",
+      "expected_outcome": "classified_as_expected_category",
+      "diagnosis_status": "available",
+      "detection_result": "not_measured",
+      "injected_at": "2026-10-22T14:36:54.513499+00:00",
+      "detected_at": null,
+      "evidence": [
+        "Container is waiting with reason ImagePullBackOff."
+      ],
+      "evidence_provenance": [
+        {
+          "evidence_ref": "fixture://kubernetes/deployment-failure-2",
+          "source_identity": "synthetic-kubernetes-fixture:deployment-failure-2",
+          "status": "available",
+          "source_sample_timestamp": null,
+          "query_evaluation_timestamp": null,
+          "observation_time": "2026-10-22T14:36:54.513499+00:00"
+        },
+        {
+          "evidence_ref": "fixture://telemetry/deployment-failure-2",
+          "source_identity": "synthetic-telemetry-fixture:deployment-failure-2",
+          "status": "unavailable",
+          "source_sample_timestamp": null,
+          "query_evaluation_timestamp": null,
+          "observation_time": "2026-10-22T14:36:54.513499+00:00"
+        },
+        {
+          "evidence_ref": "fixture://prometheus/deployment-failure-2",
+          "source_identity": "synthetic-prometheus-fixture:deployment-failure-2",
+          "status": "available",
+          "source_sample_timestamp": null,
+          "query_evaluation_timestamp": null,
+          "observation_time": "2026-10-22T14:36:54.513499+00:00"
+        }
+      ],
+      "remediation_outcome": "not_executed",
+      "remediation_result": null,
+      "verification_outcome": "not_run",
+      "recovered_at": null,
+      "failure_reason": null,
+      "rca_json_valid": null,
+      "llm_latency_ms": null,
+      "llm_tokens": null,
+      "expected_policy_decision": "require_approval",
+      "policy_evaluation": {
+        "status": "evaluated",
+        "expected_decision": "require_approval",
+        "actual_decision": "require_approval",
+        "matches_expected": true,
+        "profile": "default",
+        "rules": [
+          {
+            "id": "action_allowlisted",
+            "passed": true,
+            "detail": "action=restart_pod"
+          },
+          {
+            "id": "namespace_allowlisted",
+            "passed": true,
+            "detail": "namespace=kybernaut-lab"
+          },
+          {
+            "id": "deployment_allowlisted",
+            "passed": true,
+            "detail": "deployment=demo-web"
+          },
+          {
+            "id": "pod_belongs_to_deployment",
+            "passed": true,
+            "detail": "pod=demo-web-deploymentfailure2 deployment=demo-web"
+          },
+          {
+            "id": "confidence_threshold",
+            "passed": true,
+            "detail": "confidence=0.90 minimum=0.60"
+          },
+          {
+            "id": "rate_limit",
+            "passed": true,
+            "detail": "recent_actions=0 limit=3 per 3600s"
+          },
+          {
+            "id": "blast_radius_restart",
+            "passed": true,
+            "detail": "available=2 desired=2 required>=2"
+          },
+          {
+            "id": "approval_required",
+            "passed": true,
+            "detail": "human approval required"
+          }
+        ],
+        "reasons": []
+      },
+      "policy_approval": {
+        "policy_decision": "require_approval",
+        "approval_required": true,
+        "approval_outcome": "pending",
+        "execution_status": "not_executed",
+        "verification_result": "not_run",
+        "decision_at": "2026-10-22T14:36:54.513499+00:00"
+      }
+    },
+    {
+      "scenario_id": "deployment-failure-3",
+      "run_id": "synthetic-8562b44baa5844a88993aedf8f3c7b57",
+      "expected_category": "deployment_failure",
+      "observed_category": "deployment_failure",
+      "expected_outcome": "classified_as_expected_category",
+      "diagnosis_status": "available",
+      "detection_result": "not_measured",
+      "injected_at": "2026-10-22T14:36:54.513499+00:00",
+      "detected_at": null,
+      "evidence": [
+        "Container is waiting with reason ImagePullBackOff."
+      ],
+      "evidence_provenance": [
+        {
+          "evidence_ref": "fixture://kubernetes/deployment-failure-3",
+          "source_identity": "synthetic-kubernetes-fixture:deployment-failure-3",
+          "status": "available",
+          "source_sample_timestamp": null,
+          "query_evaluation_timestamp": null,
+          "observation_time": "2026-10-22T14:36:54.513499+00:00"
+        },
+        {
+          "evidence_ref": "fixture://telemetry/deployment-failure-3",
+          "source_identity": "synthetic-telemetry-fixture:deployment-failure-3",
+          "status": "unavailable",
+          "source_sample_timestamp": null,
+          "query_evaluation_timestamp": null,
+          "observation_time": "2026-10-22T14:36:54.513499+00:00"
+        },
+        {
+          "evidence_ref": "fixture://prometheus/deployment-failure-3",
+          "source_identity": "synthetic-prometheus-fixture:deployment-failure-3",
+          "status": "available",
+          "source_sample_timestamp": null,
+          "query_evaluation_timestamp": null,
+          "observation_time": "2026-10-22T14:36:54.513499+00:00"
+        }
+      ],
+      "remediation_outcome": "not_executed",
+      "remediation_result": null,
+      "verification_outcome": "not_run",
+      "recovered_at": null,
+      "failure_reason": null,
+      "rca_json_valid": null,
+      "llm_latency_ms": null,
+      "llm_tokens": null,
+      "expected_policy_decision": "require_approval",
+      "policy_evaluation": {
+        "status": "evaluated",
+        "expected_decision": "require_approval",
+        "actual_decision": "require_approval",
+        "matches_expected": true,
+        "profile": "default",
+        "rules": [
+          {
+            "id": "action_allowlisted",
+            "passed": true,
+            "detail": "action=restart_pod"
+          },
+          {
+            "id": "namespace_allowlisted",
+            "passed": true,
+            "detail": "namespace=kybernaut-lab"
+          },
+          {
+            "id": "deployment_allowlisted",
+            "passed": true,
+            "detail": "deployment=demo-web"
+          },
+          {
+            "id": "pod_belongs_to_deployment",
+            "passed": true,
+            "detail": "pod=demo-web-deploymentfailure3 deployment=demo-web"
+          },
+          {
+            "id": "confidence_threshold",
+            "passed": true,
+            "detail": "confidence=0.90 minimum=0.60"
+          },
+          {
+            "id": "rate_limit",
+            "passed": true,
+            "detail": "recent_actions=0 limit=3 per 3600s"
+          },
+          {
+            "id": "blast_radius_restart",
+            "passed": true,
+            "detail": "available=2 desired=2 required>=2"
+          },
+          {
+            "id": "approval_required",
+            "passed": true,
+            "detail": "human approval required"
+          }
+        ],
+        "reasons": []
+      },
+      "policy_approval": {
+        "policy_decision": "require_approval",
+        "approval_required": true,
+        "approval_outcome": "pending",
+        "execution_status": "not_executed",
+        "verification_result": "not_run",
+        "decision_at": "2026-10-22T14:36:54.513499+00:00"
+      }
+    },
+    {
+      "scenario_id": "deployment-failure-4",
+      "run_id": "synthetic-8562b44baa5844a88993aedf8f3c7b57",
+      "expected_category": "deployment_failure",
+      "observed_category": "deployment_failure",
+      "expected_outcome": "classified_as_expected_category",
+      "diagnosis_status": "available",
+      "detection_result": "not_measured",
+      "injected_at": "2026-10-22T14:36:54.513499+00:00",
+      "detected_at": null,
+      "evidence": [
+        "Container is waiting with reason ImagePullBackOff."
+      ],
+      "evidence_provenance": [
+        {
+          "evidence_ref": "fixture://kubernetes/deployment-failure-4",
+          "source_identity": "synthetic-kubernetes-fixture:deployment-failure-4",
+          "status": "available",
+          "source_sample_timestamp": null,
+          "query_evaluation_timestamp": null,
+          "observation_time": "2026-10-22T14:36:54.513499+00:00"
+        },
+        {
+          "evidence_ref": "fixture://telemetry/deployment-failure-4",
+          "source_identity": "synthetic-telemetry-fixture:deployment-failure-4",
+          "status": "unavailable",
+          "source_sample_timestamp": null,
+          "query_evaluation_timestamp": null,
+          "observation_time": "2026-10-22T14:36:54.513499+00:00"
+        },
+        {
+          "evidence_ref": "fixture://prometheus/deployment-failure-4",
+          "source_identity": "synthetic-prometheus-fixture:deployment-failure-4",
+          "status": "available",
+          "source_sample_timestamp": null,
+          "query_evaluation_timestamp": null,
+          "observation_time": "2026-10-22T14:36:54.513499+00:00"
+        }
+      ],
+      "remediation_outcome": "not_executed",
+      "remediation_result": null,
+      "verification_outcome": "not_run",
+      "recovered_at": null,
+      "failure_reason": null,
+      "rca_json_valid": null,
+      "llm_latency_ms": null,
+      "llm_tokens": null,
+      "expected_policy_decision": "require_approval",
+      "policy_evaluation": {
+        "status": "evaluated",
+        "expected_decision": "require_approval",
+        "actual_decision": "require_approval",
+        "matches_expected": true,
+        "profile": "default",
+        "rules": [
+          {
+            "id": "action_allowlisted",
+            "passed": true,
+            "detail": "action=restart_pod"
+          },
+          {
+            "id": "namespace_allowlisted",
+            "passed": true,
+            "detail": "namespace=kybernaut-lab"
+          },
+          {
+            "id": "deployment_allowlisted",
+            "passed": true,
+            "detail": "deployment=demo-web"
+          },
+          {
+            "id": "pod_belongs_to_deployment",
+            "passed": true,
+            "detail": "pod=demo-web-deploymentfailure4 deployment=demo-web"
+          },
+          {
+            "id": "confidence_threshold",
+            "passed": true,
+            "detail": "confidence=0.90 minimum=0.60"
+          },
+          {
+            "id": "rate_limit",
+            "passed": true,
+            "detail": "recent_actions=0 limit=3 per 3600s"
+          },
+          {
+            "id": "blast_radius_restart",
+            "passed": true,
+            "detail": "available=2 desired=2 required>=2"
+          },
+          {
+            "id": "approval_required",
+            "passed": true,
+            "detail": "human approval required"
+          }
+        ],
+        "reasons": []
+      },
+      "policy_approval": {
+        "policy_decision": "require_approval",
+        "approval_required": true,
+        "approval_outcome": "pending",
+        "execution_status": "not_executed",
+        "verification_result": "not_run",
+        "decision_at": "2026-10-22T14:36:54.513499+00:00"
+      }
+    }
+  ],
+  "controls": [
+    {
+      "control_id": "healthy-control-1",
+      "run_id": "synthetic-8562b44baa5844a88993aedf8f3c7b57",
+      "alert_raised": null,
+      "observed_category": "unknown",
+      "started_at": "2026-10-22T14:36:54.513499+00:00",
+      "ended_at": "2026-10-22T14:36:54.513499+00:00",
+      "evidence": [
+        "Synthetic healthy fixture; no alert source or time window was observed."
+      ],
+      "failure_reason": null
+    },
+    {
+      "control_id": "healthy-control-2",
+      "run_id": "synthetic-8562b44baa5844a88993aedf8f3c7b57",
+      "alert_raised": null,
+      "observed_category": "unknown",
+      "started_at": "2026-10-22T14:36:54.513499+00:00",
+      "ended_at": "2026-10-22T14:36:54.513499+00:00",
+      "evidence": [
+        "Synthetic healthy fixture; no alert source or time window was observed."
+      ],
+      "failure_reason": null
+    },
+    {
+      "control_id": "healthy-control-3",
+      "run_id": "synthetic-8562b44baa5844a88993aedf8f3c7b57",
+      "alert_raised": null,
+      "observed_category": "unknown",
+      "started_at": "2026-10-22T14:36:54.513499+00:00",
+      "ended_at": "2026-10-22T14:36:54.513499+00:00",
+      "evidence": [
+        "Synthetic healthy fixture; no alert source or time window was observed."
+      ],
+      "failure_reason": null
+    },
+    {
+      "control_id": "healthy-control-4",
+      "run_id": "synthetic-8562b44baa5844a88993aedf8f3c7b57",
+      "alert_raised": null,
+      "observed_category": "unknown",
+      "started_at": "2026-10-22T14:36:54.513499+00:00",
+      "ended_at": "2026-10-22T14:36:54.513499+00:00",
+      "evidence": [
+        "Synthetic healthy fixture; no alert source or time window was observed."
+      ],
+      "failure_reason": null
+    },
+    {
+      "control_id": "healthy-control-5",
+      "run_id": "synthetic-8562b44baa5844a88993aedf8f3c7b57",
+      "alert_raised": null,
+      "observed_category": "unknown",
+      "started_at": "2026-10-22T14:36:54.513499+00:00",
+      "ended_at": "2026-10-22T14:36:54.513499+00:00",
+      "evidence": [
+        "Synthetic healthy fixture; no alert source or time window was observed."
+      ],
+      "failure_reason": null
+    }
+  ],
+  "metrics": {
+    "run_metadata": {
+      "status": "enveloped",
+      "run_id": "synthetic-8562b44baa5844a88993aedf8f3c7b57",
+      "evaluation_mode": "synthetic",
+      "scenario_matrix_sha256": "1f6b4b0a6cfca7b053b899cc816fd7dd32be7e3f6c0e2514045490e2adb12e3c",
+      "matrix_digest_matched": true,
+      "started_at": "2026-10-22T14:36:54.513499+00:00",
+      "completed_at": "2026-10-22T14:36:54.518245+00:00",
+      "evaluation_mode_is_declared_only": true,
+      "execution_independently_verified": false
+    },
+    "cases": 20,
+    "controls": 5,
+    "detection": {
+      "true_positives": null,
+      "false_negatives": null,
+      "false_positives": null,
+      "precision": null,
+      "recall": null,
+      "f1": null,
+      "status": "not_measured",
+      "sample_count": 0,
+      "excluded_count": 20,
+      "caveat": null
+    },
+    "mttd_seconds": null,
+    "mttr_seconds": null,
+    "timing": {
+      "mttd": {
+        "mean": null,
+        "numerator": 0,
+        "denominator": 0,
+        "sample_count": 0,
+        "missing_count": 20,
+        "excluded_count": 0
+      },
+      "verified_mttr": {
+        "mean": null,
+        "numerator": 0,
+        "denominator": 0,
+        "sample_count": 0,
+        "missing_count": 0,
+        "excluded_count": 20
+      }
+    },
+    "classification": {
+      "accuracy": 1.0,
+      "macro_f1": 1.0,
+      "per_class_f1": {
+        "cpu_spike": 1.0,
+        "memory_leak": 1.0,
+        "pod_crash": 1.0,
+        "disk_full": 1.0,
+        "deployment_failure": 1.0
+      },
+      "unlabelled_cases": 0
+    },
+    "classification_metrics": {
+      "sample_count": 25,
+      "correct_count": 25,
+      "incorrect_count": 0,
+      "unclassified_count": 0,
+      "accuracy_numerator": 25,
+      "accuracy_denominator": 25,
+      "accuracy": 1.0,
+      "confusion_matrix": {
+        "cpu_spike": {
+          "cpu_spike": 4,
+          "memory_leak": 0,
+          "pod_crash": 0,
+          "disk_full": 0,
+          "deployment_failure": 0,
+          "unknown": 0,
+          "unclassified": 0
+        },
+        "memory_leak": {
+          "cpu_spike": 0,
+          "memory_leak": 4,
+          "pod_crash": 0,
+          "disk_full": 0,
+          "deployment_failure": 0,
+          "unknown": 0,
+          "unclassified": 0
+        },
+        "pod_crash": {
+          "cpu_spike": 0,
+          "memory_leak": 0,
+          "pod_crash": 4,
+          "disk_full": 0,
+          "deployment_failure": 0,
+          "unknown": 0,
+          "unclassified": 0
+        },
+        "disk_full": {
+          "cpu_spike": 0,
+          "memory_leak": 0,
+          "pod_crash": 0,
+          "disk_full": 4,
+          "deployment_failure": 0,
+          "unknown": 0,
+          "unclassified": 0
+        },
+        "deployment_failure": {
+          "cpu_spike": 0,
+          "memory_leak": 0,
+          "pod_crash": 0,
+          "disk_full": 0,
+          "deployment_failure": 4,
+          "unknown": 0,
+          "unclassified": 0
+        },
+        "unknown": {
+          "cpu_spike": 0,
+          "memory_leak": 0,
+          "pod_crash": 0,
+          "disk_full": 0,
+          "deployment_failure": 0,
+          "unknown": 5,
+          "unclassified": 0
+        }
+      },
+      "per_category": {
+        "cpu_spike": {
+          "support": 4,
+          "predicted_count": 4,
+          "true_positives": 4,
+          "false_positives": 0,
+          "false_negatives": 0,
+          "precision_denominator": 4,
+          "recall_denominator": 4,
+          "f1_numerator": 8,
+          "f1_denominator": 8,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        },
+        "memory_leak": {
+          "support": 4,
+          "predicted_count": 4,
+          "true_positives": 4,
+          "false_positives": 0,
+          "false_negatives": 0,
+          "precision_denominator": 4,
+          "recall_denominator": 4,
+          "f1_numerator": 8,
+          "f1_denominator": 8,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        },
+        "pod_crash": {
+          "support": 4,
+          "predicted_count": 4,
+          "true_positives": 4,
+          "false_positives": 0,
+          "false_negatives": 0,
+          "precision_denominator": 4,
+          "recall_denominator": 4,
+          "f1_numerator": 8,
+          "f1_denominator": 8,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        },
+        "disk_full": {
+          "support": 4,
+          "predicted_count": 4,
+          "true_positives": 4,
+          "false_positives": 0,
+          "false_negatives": 0,
+          "precision_denominator": 4,
+          "recall_denominator": 4,
+          "f1_numerator": 8,
+          "f1_denominator": 8,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        },
+        "deployment_failure": {
+          "support": 4,
+          "predicted_count": 4,
+          "true_positives": 4,
+          "false_positives": 0,
+          "false_negatives": 0,
+          "precision_denominator": 4,
+          "recall_denominator": 4,
+          "f1_numerator": 8,
+          "f1_denominator": 8,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        },
+        "unknown": {
+          "support": 5,
+          "predicted_count": 5,
+          "true_positives": 5,
+          "false_positives": 0,
+          "false_negatives": 0,
+          "precision_denominator": 5,
+          "recall_denominator": 5,
+          "f1_numerator": 10,
+          "f1_denominator": 10,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        }
+      },
+      "macro_f1_including_unknown": 1.0,
+      "macro_f1_denominator": 6,
+      "missed_detection_count": 0,
+      "classification_is_independent_of_detection": true
+    },
+    "target_correctness": {
+      "status": "not_measured",
+      "numerator": 0,
+      "denominator": 0,
+      "sample_count": 0,
+      "excluded_count": 20,
+      "exclusions_by_reason": {
+        "canonical_expected_target_not_defined": 20
+      },
+      "accuracy": null
+    },
+    "evidence_provenance": {
+      "record_count": 25,
+      "records_with_valid_provenance": 20,
+      "records_without_valid_provenance": 5,
+      "records_missing_provenance_field": 5,
+      "records_with_malformed_provenance_field": 0,
+      "valid_entry_count": 60,
+      "incomplete_entry_count": 0,
+      "invalid_entry_count": 0,
+      "legacy_entry_count": 0,
+      "source_sample_timestamp_count": 0,
+      "query_evaluation_timestamp_count": 0,
+      "observation_time_count": 60,
+      "evidence_reference_count": 60,
+      "reported_source_status_counts": {
+        "available": 42,
+        "unavailable": 18,
+        "stale": 0,
+        "invalid": 0
+      },
+      "freshness_assessed_entry_count": 0,
+      "freshness_unassessed_entry_count": 60,
+      "freshness_unassessed_record_count": 25,
+      "freshness_limitation": "A parseable source timestamp and declared provenance do not establish freshness. No freshness threshold or underlying scrape-age evidence is defined by this result schema."
+    },
+    "policy_approval_safety": {
+      "status": "not_measured",
+      "coverage_status": "schema_validated",
+      "sample_count": 16,
+      "excluded_count": 4,
+      "policy_decision_counts": {
+        "require_approval": 14,
+        "deny": 1,
+        "allow": 1
+      },
+      "approval_outcome_counts": {
+        "pending": 14,
+        "not_required": 2
+      },
+      "execution_status_counts": {
+        "not_executed": 16
+      },
+      "verification_result_counts": {
+        "not_run": 16
+      },
+      "records_with_audit_event_refs": 0,
+      "records_without_audit_event_refs": 16,
+      "safety_claim": null,
+      "limitation": "This reports schema-consistent, caller-recorded states only; it does not independently prove policy enforcement, approval ordering, execution, verification, or audit persistence."
+    },
+    "rca": {
+      "json_validity": null,
+      "json_validity_counts": {
+        "rate": null,
+        "numerator": 0,
+        "denominator": 0,
+        "sample_count": 0,
+        "missing_count": 20,
+        "excluded_count": 0
+      }
+    },
+    "remediation_success": null,
+    "remediation_success_counts": {
+      "rate": null,
+      "numerator": 0,
+      "denominator": 0,
+      "sample_count": 0,
+      "missing_count": 0,
+      "excluded_count": 20
+    },
+    "verification_success": null,
+    "verification_success_counts": {
+      "rate": null,
+      "numerator": 0,
+      "denominator": 0,
+      "sample_count": 0,
+      "missing_count": 0,
+      "excluded_count": 20
+    },
+    "llm": {
+      "mean_latency_ms": null,
+      "mean_tokens": null,
+      "latency_counts": {
+        "mean": null,
+        "numerator": 0,
+        "denominator": 0,
+        "sample_count": 0,
+        "missing_count": 20,
+        "excluded_count": 0
+      },
+      "token_counts": {
+        "mean": null,
+        "numerator": 0,
+        "denominator": 0,
+        "sample_count": 0,
+        "missing_count": 20,
+        "excluded_count": 0
+      }
+    }
+  },
+  "summary": {
+    "status": "complete",
+    "all_expectations_met": true,
+    "scenario_count": 20,
+    "classification": {
+      "correct": 20,
+      "denominator": 20,
+      "accuracy": 1.0,
+      "failed_scenario_ids": []
+    },
+    "diagnosis_availability": {
+      "evaluation_scope": "synthetic fixtures only",
+      "status_counts": {
+        "available": 18,
+        "missing_evidence": 1,
+        "unavailable": 1
+      },
+      "available_count": 18,
+      "denominator": 20,
+      "availability_rate": 0.9
+    },
+    "policy_contract_match": {
+      "evaluation_scope": "pure deterministic policy function",
+      "matched": 16,
+      "denominator": 16,
+      "match_rate": 1.0,
+      "decision_counts": {
+        "allow": 1,
+        "deny": 1,
+        "not_applicable": 4,
+        "require_approval": 14
+      },
+      "failed_scenario_ids": [],
+      "runtime_safety_status": "not_measured"
+    },
+    "detection": {
+      "status": "not_measured",
+      "precision": null,
+      "recall": null,
+      "f1": null
+    },
+    "remediation": {
+      "actions_executed": 0,
+      "verified_recoveries": 0,
+      "status": "not_exercised"
+    },
+    "live_integrations": "not_exercised"
+  }
+}

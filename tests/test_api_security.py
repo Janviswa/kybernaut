@@ -10,7 +10,6 @@ from fastapi.testclient import TestClient
 TEST_JWT_SECRET = "test-only-jwt-secret-do-not-use-in-production"
 TEST_JWT_ISSUER = "kybernaut-test"
 TEST_JWT_AUDIENCE = "kybernaut-api-test"
-TEST_APPROVAL_TOKEN = "test-only-approval-token"
 
 
 def create_operator_token(
@@ -38,10 +37,8 @@ def create_operator_token(
 
 @pytest.fixture
 def api_client(monkeypatch):
-    monkeypatch.setenv(
-        "KYBERNAUT_REMEDIATION_TOKEN",
-        TEST_APPROVAL_TOKEN,
-    )
+    monkeypatch.setenv("KYBERNAUT_ANOMALY_MONITOR_ENABLED", "false")
+    monkeypatch.delenv("KYBERNAUT_REMEDIATION_TOKEN", raising=False)
     monkeypatch.setenv("KYBERNAUT_JWT_SECRET", TEST_JWT_SECRET)
     monkeypatch.setenv("KYBERNAUT_JWT_ISSUER", TEST_JWT_ISSUER)
     monkeypatch.setenv("KYBERNAUT_JWT_AUDIENCE", TEST_JWT_AUDIENCE)
@@ -74,14 +71,11 @@ def api_client(monkeypatch):
         yield client
 
 
-def remediation_headers(*, token=None, approval=TEST_APPROVAL_TOKEN):
+def remediation_headers(*, token=None):
     headers = {}
 
     if token is not None:
         headers["Authorization"] = f"Bearer {token}"
-
-    if approval is not None:
-        headers["X-Approval-Token"] = approval
 
     return headers
 
@@ -90,7 +84,6 @@ def test_remediation_rejects_missing_jwt(api_client):
     response = api_client.post(
         "/remediate/user-service",
         headers={
-            "X-Approval-Token": TEST_APPROVAL_TOKEN,
             "X-Operator-ID": "spoofed-operator",
         },
         json={
@@ -101,6 +94,87 @@ def test_remediation_rejects_missing_jwt(api_client):
 
     assert response.status_code == 401
     assert response.headers["www-authenticate"] == "Bearer"
+
+
+def test_monitor_status_requires_authenticated_read_permission(api_client):
+    unauthenticated = api_client.get("/monitor/status")
+    assert unauthenticated.status_code == 401
+
+    token = create_operator_token(permissions=["remediation"])
+    unauthorized = api_client.get(
+        "/monitor/status",
+        headers={"Authorization": f"Bearer {token}"},
+    )
+    assert unauthorized.status_code == 403
+    assert unauthorized.json()["detail"] == "Operator lacks read permission"
+
+    read_token = create_operator_token(permissions=["read"])
+    response = api_client.get(
+        "/monitor/status",
+        headers={"Authorization": f"Bearer {read_token}"},
+    )
+    assert response.status_code == 200
+    status = response.json()
+    assert status["configured_enabled"] is False
+    assert status["lifecycle_state"] == "disabled"
+    assert status["health"] == "disabled"
+    assert status["workflow_health"] == "disabled"
+    assert status["last_poll_attempt_at"] is None
+    assert status["last_successful_poll_at"] is None
+    assert all(
+        component["freshness"] == "unknown"
+        for component in status["components"].values()
+    )
+
+
+def test_monitor_status_is_read_only_and_contains_no_sensitive_details(
+    api_client, monkeypatch, tmp_path
+):
+    import app.main as main
+    import app.services.application_anomaly_monitor as monitor_module
+    from app.services.application_anomaly_monitor import ApplicationAnomalyMonitor
+
+    def unexpected_call(*_args, **_kwargs):
+        pytest.fail("Status reads must not initiate monitoring operations")
+
+    monitor = ApplicationAnomalyMonitor(
+        60,
+        services=("order-service",),
+        lock_path=tmp_path / "monitor.lock",
+    )
+    main.app.state.anomaly_monitor = monitor
+    main.app.state.anomaly_monitor_enabled = True
+    monkeypatch.setattr(
+        monitor_module.ApplicationAnomalyMonitor,
+        "poll_once",
+        unexpected_call,
+    )
+    monkeypatch.setattr(monitor_module, "evaluate_service_anomaly", unexpected_call)
+    monkeypatch.setattr(monitor_module, "dispatch_pending_handoffs", unexpected_call)
+    monkeypatch.setattr(monitor_module, "process_active_incidents", unexpected_call)
+    monkeypatch.setattr(main, "observe_namespace", unexpected_call, raising=False)
+    monkeypatch.setattr(main, "remediate_service", unexpected_call)
+    monkeypatch.setattr(
+        "app.services.k8s_remediation.execute_action",
+        unexpected_call,
+    )
+
+    token = create_operator_token(permissions=["read"])
+    response = api_client.get(
+        "/monitor/status",
+        headers={"Authorization": f"Bearer {token}"},
+    )
+
+    assert response.status_code == 200
+    body = response.json()
+    assert body["configured_enabled"] is True
+    assert body["lifecycle_state"] == "not_started"
+    assert body["workflow_health"] == "unknown"
+    assert body["last_poll_attempt_at"] is None
+    assert monitor._last_poll_attempt_at is None
+    assert "traceback" not in str(body).lower()
+    assert "token" not in str(body).lower()
+    assert "secret" not in str(body).lower()
 
 
 def test_remediation_rejects_invalid_jwt(api_client):
@@ -151,41 +225,7 @@ def test_remediation_rejects_operator_without_permission(api_client):
     )
 
 
-def test_remediation_rejects_missing_approval_token(api_client):
-    token = create_operator_token()
-
-    response = api_client.post(
-        "/remediate/user-service",
-        headers=remediation_headers(token=token, approval=None),
-        json={
-            "approved": True,
-            "incident_id": "inc-test-123",
-        },
-    )
-
-    assert response.status_code == 403
-    assert response.json()["detail"] == "Valid approval token required"
-
-
-def test_remediation_rejects_invalid_approval_token(api_client):
-    token = create_operator_token()
-
-    response = api_client.post(
-        "/remediate/user-service",
-        headers=remediation_headers(
-            token=token,
-            approval="incorrect-token",
-        ),
-        json={
-            "approved": True,
-            "incident_id": "inc-test-123",
-        },
-    )
-
-    assert response.status_code == 403
-
-
-def test_remediation_accepts_valid_jwt_and_approval(api_client):
+def test_legacy_remediation_is_deprecated_for_authorized_operator(api_client):
     token = create_operator_token(operator_id="authenticated-operator")
 
     response = api_client.post(
@@ -197,11 +237,8 @@ def test_remediation_accepts_valid_jwt_and_approval(api_client):
         },
     )
 
-    assert response.status_code == 200
-    assert response.json()["status"] == "test-approved"
-    assert response.json()["service"] == "user-service"
-    assert response.json()["incident_id"] == "inc-test-123"
-    assert response.json()["operator_id"] == "authenticated-operator"
+    assert response.status_code == 410
+    assert "POST /workflow/{service}/respond" in response.json()["detail"]
 
 
 def test_remediation_ignores_spoofed_operator_id_header(api_client):
@@ -219,8 +256,31 @@ def test_remediation_ignores_spoofed_operator_id_header(api_client):
         },
     )
 
-    assert response.status_code == 200
-    assert response.json()["operator_id"] == "verified-operator"
+    assert response.status_code == 410
+
+
+def test_legacy_remediation_route_never_invokes_helper(
+    api_client,
+    monkeypatch,
+):
+    import app.main as main
+
+    calls = []
+
+    async def unexpected_remediation(**kwargs):
+        calls.append(kwargs)
+        pytest.fail("Deprecated route must not invoke the legacy executor")
+
+    monkeypatch.setattr(main, "remediate_service", unexpected_remediation)
+    token = create_operator_token(permissions=["remediation"])
+    response = api_client.post(
+        "/remediate/user-service",
+        headers=remediation_headers(token=token),
+        json={"approved": True, "incident_id": "inc-test-123"},
+    )
+
+    assert response.status_code == 410
+    assert calls == []
 
 
 def test_remediation_rejects_unknown_service(api_client):
@@ -359,7 +419,11 @@ def test_diagnosis_handles_prometheus_failure(api_client, monkeypatch):
 
     monkeypatch.setattr(main, "diagnose_service", failing_diagnosis)
 
-    response = api_client.get("/diagnose/user-service")
+    token = create_operator_token(permissions=["read"])
+    response = api_client.get(
+        "/diagnose/user-service",
+        headers=remediation_headers(token=token),
+    )
 
     assert response.status_code == 503
     assert response.json()["detail"] == (
@@ -374,7 +438,11 @@ def test_decision_handles_prometheus_failure(api_client, monkeypatch):
 
     monkeypatch.setattr(main, "decide_action", failing_decision)
 
-    response = api_client.get("/decide/user-service")
+    token = create_operator_token(permissions=["read"])
+    response = api_client.get(
+        "/decide/user-service",
+        headers=remediation_headers(token=token),
+    )
 
     assert response.status_code == 503
     assert response.json()["detail"] == (
@@ -402,10 +470,108 @@ def test_incidents_endpoint_returns_detector_result(
         fake_detect_unhealthy_services,
     )
 
-    response = api_client.get("/incidents")
+    token = create_operator_token(permissions=["read"])
+    response = api_client.get(
+        "/incidents",
+        headers=remediation_headers(token=token),
+    )
 
     assert response.status_code == 200
     assert response.json() == expected
+
+
+@pytest.mark.parametrize(
+    ("path", "function_name"),
+    [
+        ("/incidents", "detect_unhealthy_services"),
+        ("/diagnose/user-service", "diagnose_service"),
+        ("/decide/user-service", "decide_action"),
+    ],
+)
+@pytest.mark.parametrize(
+    ("token_kind", "expected_status"),
+    [
+        ("missing", 401),
+        ("invalid", 401),
+        ("expired", 401),
+        ("insufficient", 403),
+    ],
+)
+def test_legacy_diagnostic_routes_reject_unauthorized_requests_before_work(
+    api_client,
+    monkeypatch,
+    path,
+    function_name,
+    token_kind,
+    expected_status,
+):
+    import app.main as main
+
+    calls = []
+
+    async def track_call(*args, **kwargs):
+        calls.append((args, kwargs))
+        return {"unexpected": True}
+
+    monkeypatch.setattr(main, function_name, track_call)
+
+    headers = None
+    if token_kind == "invalid":
+        headers = remediation_headers(token="invalid-token")
+    elif token_kind == "expired":
+        expired = create_operator_token(
+            permissions=["read"],
+            expires_delta=timedelta(seconds=-10),
+        )
+        headers = remediation_headers(token=expired)
+    elif token_kind == "insufficient":
+        token = create_operator_token(permissions=["remediation"])
+        headers = remediation_headers(token=token)
+
+    response = api_client.get(path, headers=headers)
+
+    assert response.status_code == expected_status
+    if expected_status == 401:
+        assert response.headers["www-authenticate"] == "Bearer"
+    else:
+        assert response.json()["detail"] == "Operator lacks read permission"
+    assert calls == []
+
+
+@pytest.mark.parametrize(
+    ("path", "function_name"),
+    [
+        ("/incidents", "detect_unhealthy_services"),
+        ("/diagnose/user-service", "diagnose_service"),
+        ("/decide/user-service", "decide_action"),
+    ],
+)
+def test_legacy_diagnostic_routes_preserve_read_only_response(
+    api_client,
+    monkeypatch,
+    path,
+    function_name,
+):
+    import app.main as main
+
+    expected = {"source": "test", "incident_count": 1}
+    calls = []
+
+    async def track_call(*args, **kwargs):
+        calls.append((args, kwargs))
+        return expected
+
+    monkeypatch.setattr(main, function_name, track_call)
+    token = create_operator_token(permissions=["read"])
+
+    response = api_client.get(
+        path,
+        headers=remediation_headers(token=token),
+    )
+
+    assert response.status_code == 200
+    assert response.json() == expected
+    assert len(calls) == 1
 
 
 def test_incident_history_returns_stored_incidents(
@@ -438,7 +604,7 @@ def test_incident_history_returns_stored_incidents(
     monkeypatch.setattr(
         main,
         "list_incidents",
-        lambda status=None: expected,
+        lambda status=None, source="operational", *, latest_per_incident=False: expected,
     )
 
     token = create_operator_token(permissions=["read"])
@@ -448,7 +614,10 @@ def test_incident_history_returns_stored_incidents(
     )
 
     assert response.status_code == 200
-    assert response.json() == {"incidents": expected}
+    assert response.json() == {
+        "incidents": expected,
+        "source_filter": "operational",
+    }
 
 
 def test_incident_history_filters_by_status(
@@ -459,8 +628,10 @@ def test_incident_history_filters_by_status(
 
     calls = []
 
-    def fake_list_incidents(status=None):
-        calls.append(status)
+    def fake_list_incidents(
+        status=None, source="operational", *, latest_per_incident=False
+    ):
+        calls.append((status, source, latest_per_incident))
         return []
 
     monkeypatch.setattr(main, "list_incidents", fake_list_incidents)
@@ -472,8 +643,11 @@ def test_incident_history_filters_by_status(
     )
 
     assert response.status_code == 200
-    assert response.json() == {"incidents": []}
-    assert calls == ["RESOLVED"]
+    assert response.json() == {
+        "incidents": [],
+        "source_filter": "operational",
+    }
+    assert calls == [("RESOLVED", "operational", True)]
 
 
 def test_incident_history_rejects_invalid_status(api_client):
@@ -487,16 +661,35 @@ def test_incident_history_rejects_invalid_status(api_client):
     assert response.json()["detail"].startswith("Invalid status")
 
 
-def test_kubernetes_incidents_rejects_missing_token(api_client):
+def test_kubernetes_incidents_rejects_missing_token(api_client, monkeypatch):
+    import app.main as main
+
+    observer_calls = []
+
+    def guarded_observer():
+        observer_calls.append(True)
+        return {}
+
+    monkeypatch.setattr(main, "observe_namespace", guarded_observer)
     response = api_client.get("/kubernetes/incidents")
 
     assert response.status_code == 401
     assert response.headers["www-authenticate"] == "Bearer"
+    assert observer_calls == []
 
 
 def test_kubernetes_incidents_rejects_operator_without_read_permission(
-    api_client,
+    api_client, monkeypatch,
 ):
+    import app.main as main
+
+    observer_calls = []
+
+    def guarded_observer():
+        observer_calls.append(True)
+        return {}
+
+    monkeypatch.setattr(main, "observe_namespace", guarded_observer)
     token = create_operator_token(permissions=["remediation"])
 
     response = api_client.get(
@@ -506,6 +699,7 @@ def test_kubernetes_incidents_rejects_operator_without_read_permission(
 
     assert response.status_code == 403
     assert response.json()["detail"] == "Operator lacks read permission"
+    assert observer_calls == []
 
 
 def test_kubernetes_incidents_returns_observations(

@@ -1,5 +1,6 @@
 import os
 from dataclasses import dataclass
+from datetime import datetime, timedelta, timezone
 
 import jwt
 from dotenv import load_dotenv
@@ -13,12 +14,32 @@ JWT_ISSUER = os.getenv("KYBERNAUT_JWT_ISSUER", "kybernaut")
 JWT_AUDIENCE = os.getenv("KYBERNAUT_JWT_AUDIENCE", "kybernaut-api")
 
 JWT_ALGORITHM = "HS256"
+ACCESS_TOKEN_LIFETIME_MINUTES = 15
 
 
 @dataclass(frozen=True)
 class AuthenticatedOperator:
     operator_id: str
     permissions: tuple[str, ...]
+
+
+def issue_operator_token(operator: AuthenticatedOperator) -> str:
+    """Issue a short-lived access token using the existing JWT claims."""
+    secret = os.getenv("KYBERNAUT_JWT_SECRET")
+    issuer = os.getenv("KYBERNAUT_JWT_ISSUER", "kybernaut")
+    audience = os.getenv("KYBERNAUT_JWT_AUDIENCE", "kybernaut-api")
+    if not secret or len(secret.encode("utf-8")) < 32:
+        raise RuntimeError("KYBERNAUT_JWT_SECRET is not securely configured")
+    now = datetime.now(timezone.utc)
+    payload = {
+        "sub": operator.operator_id,
+        "iss": issuer,
+        "aud": audience,
+        "iat": now,
+        "exp": now + timedelta(minutes=ACCESS_TOKEN_LIFETIME_MINUTES),
+        "permissions": list(operator.permissions),
+    }
+    return jwt.encode(payload, secret, algorithm=JWT_ALGORITHM)
 
 
 def verify_operator_token(token: str) -> AuthenticatedOperator:

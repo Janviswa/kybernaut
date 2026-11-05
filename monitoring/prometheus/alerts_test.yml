@@ -1,0 +1,29 @@
+rule_files:
+  - alerts.yml
+
+evaluation_interval: 15s
+
+tests:
+  - interval: 15s
+    input_series:
+      - series: 'up{job="order-service", instance="order-service:8001"}'
+        values: "1 0 0 0 0 0 0 0 1 1 1"
+    alert_rule_test:
+      - eval_time: 30s
+        alertname: KybernautApplicationTargetDown
+        exp_alerts: []
+      - eval_time: 1m30s
+        alertname: KybernautApplicationTargetDown
+        exp_alerts:
+          - exp_labels:
+              alertname: KybernautApplicationTargetDown
+              instance: order-service:8001
+              job: order-service
+              service: order-service
+              severity: critical
+            exp_annotations:
+              summary: "Application target order-service is unavailable"
+              description: "Prometheus has failed to scrape order-service:8001 for at least 1 minute."
+      - eval_time: 2m
+        alertname: KybernautApplicationTargetDown
+        exp_alerts: []

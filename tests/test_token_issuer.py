@@ -1,8 +1,9 @@
 
 import json
-import os
+import shutil
 import subprocess
 import sys
+import tempfile
 from pathlib import Path
 
 import jwt
@@ -17,48 +18,36 @@ TEST_AUDIENCE = "kybernaut-api-test"
 
 
 def run_issuer(*args, secret=TEST_SECRET, operators=None):
-    env = os.environ.copy()
-    env["KYBERNAUT_JWT_SECRET"] = secret
-    env["KYBERNAUT_JWT_ISSUER"] = TEST_ISSUER
-    env["KYBERNAUT_JWT_AUDIENCE"] = TEST_AUDIENCE
-
-    config_dir = PROJECT_ROOT / "config"
-    operators_file = config_dir / "operators.json"
-    config_dir.mkdir(parents=True, exist_ok=True)
-
-    original_content = (
-        operators_file.read_text(encoding="utf-8")
-        if operators_file.exists()
-        else None
-    )
-
     test_operators = operators or {
         "test-operator": {"permissions": ["read", "remediation"]},
         "read-only": {"permissions": ["read"]},
     }
 
-    try:
+    with tempfile.TemporaryDirectory(prefix="kybernaut-token-issuer-") as root:
+        project_root = Path(root)
+        config_dir = project_root / "config"
+        scripts_dir = project_root / "scripts"
+        config_dir.mkdir()
+        scripts_dir.mkdir()
+        issuer_script = scripts_dir / ISSUER_SCRIPT.name
+        shutil.copyfile(ISSUER_SCRIPT, issuer_script)
+        operators_file = config_dir / "operators.json"
         operators_file.write_text(
-            json.dumps({"operators": test_operators}),
-            encoding="utf-8",
+            json.dumps({"operators": test_operators}), encoding="utf-8"
         )
-
+        env = {
+            "KYBERNAUT_JWT_SECRET": secret,
+            "KYBERNAUT_JWT_ISSUER": TEST_ISSUER,
+            "KYBERNAUT_JWT_AUDIENCE": TEST_AUDIENCE,
+        }
         return subprocess.run(
-            [sys.executable, str(ISSUER_SCRIPT), *args],
-            cwd=PROJECT_ROOT,
+            [sys.executable, str(issuer_script), *args],
+            cwd=project_root,
             env=env,
             capture_output=True,
             text=True,
             check=False,
         )
-    finally:
-        if original_content is None:
-            operators_file.unlink(missing_ok=True)
-        else:
-            operators_file.write_text(
-                original_content,
-                encoding="utf-8",
-            )
 
 
 def test_issuer_generates_valid_operator_token():

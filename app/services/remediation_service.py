@@ -38,6 +38,24 @@ SERVICE_LOCKS = {
 }
 
 
+class CommandStartError(Exception):
+    """The operating system confirmed the helper could not be started."""
+
+
+async def start_remediation_process(service: str):
+    try:
+        return await asyncio.create_subprocess_exec(
+            "/usr/bin/sudo",
+            HELPER_PATH,
+            service,
+            "restart",
+            stdout=asyncio.subprocess.PIPE,
+            stderr=asyncio.subprocess.PIPE,
+        )
+    except OSError as exc:
+        raise CommandStartError from exc
+
+
 def write_audit_record(record: dict) -> None:
     """Append an audit record to the JSON Lines audit log."""
     AUDIT_PATH.parent.mkdir(parents=True, exist_ok=True)
@@ -86,6 +104,68 @@ def make_record(
         "message": message,
         **extra,
     }
+
+
+def _persist_result(audit_id: str, result: dict) -> dict:
+    persist_attempt_outcome(
+        audit_id,
+        result["status"],
+        result["message"],
+    )
+    write_audit_record(result)
+    return result
+
+
+def _persist_unknown_outcome(
+    *,
+    audit_id: str,
+    service: str,
+    incident_id: str,
+    operator_id: str | None,
+    attempt_count: int,
+    outage_confirmed: bool,
+    healthy_before: bool,
+    error: Exception,
+) -> dict:
+    result = make_record(
+        audit_id,
+        service,
+        incident_id,
+        "execution_unknown",
+        "Command invocation began, but its outcome is unknown; automatic retry is blocked.",
+        operator_id=operator_id,
+        outage_confirmed=outage_confirmed,
+        health_before=healthy_before,
+        attempt_count=attempt_count,
+        outcome_unknown=True,
+        error_type=type(error).__name__,
+    )
+    logger.error(
+        "Legacy remediation outcome is unknown for service=%s "
+        "incident_id=%s audit_id=%s error_type=%s",
+        service,
+        incident_id,
+        audit_id,
+        type(error).__name__,
+    )
+    try:
+        write_audit_record(result)
+    except Exception as exc:
+        persist_attempt_outcome(
+            audit_id,
+            result["status"],
+            result["message"],
+        )
+        raise RuntimeError(
+            "Execution outcome is unknown and its audit record could not be "
+            "written; automatic retry remains blocked."
+        ) from exc
+    persist_attempt_outcome(
+        audit_id,
+        result["status"],
+        result["message"],
+    )
+    return result
 
 
 async def check_service_health(service: str) -> bool:
@@ -211,125 +291,170 @@ async def _remediate_service_locked(
 
     attempt_count = reservation["attempt_count"]
 
+    start_record = make_record(
+        audit_id,
+        service,
+        incident_id,
+        "attempt_started",
+        "Legacy remediation attempt reserved; helper invocation may begin.",
+        operator_id=operator_id,
+        outage_confirmed=outage_confirmed,
+        health_before=healthy_before,
+        attempt_count=attempt_count,
+    )
     try:
-        process = await asyncio.create_subprocess_exec(
-            "/usr/bin/sudo",
-            HELPER_PATH,
-            service,
-            "restart",
-            stdout=asyncio.subprocess.PIPE,
-            stderr=asyncio.subprocess.PIPE,
-        )
-
-        stdout, stderr = await asyncio.wait_for(
-            process.communicate(),
-            timeout=30,
-        )
-
-        if process.returncode != 0:
-            result = make_record(
-                audit_id,
-                service,
-                incident_id,
-                "failed",
-                stderr.decode(errors="replace").strip()
-                or "Restricted helper returned an error.",
-                operator_id=operator_id,
-                outage_confirmed=outage_confirmed,
-                health_before=healthy_before,
-                attempt_count=attempt_count,
-            )
-
+        write_audit_record(start_record)
+    except Exception as exc:
+        try:
             persist_attempt_outcome(
-                audit_id, "failed", result["message"]
+                audit_id,
+                "blocked_audit_failure",
+                "Pre-execution audit persistence failed; helper was not invoked.",
             )
-            write_audit_record(result)
-            return result
+        except Exception:
+            logger.exception(
+                "Could not persist blocked legacy remediation audit "
+                "failure for audit_id=%s",
+                audit_id,
+            )
+        raise RuntimeError(
+            "Pre-execution audit persistence failed; remediation was not invoked."
+        ) from exc
 
-        # Verify recovery for up to 30 seconds.
-        healthy_after = False
-
-        for _ in range(10):
-            await asyncio.sleep(3)
-
-            if await check_service_health(service):
-                healthy_after = True
-                break
-
-        final_status = "verified" if healthy_after else "unverified"
-        final_message = (
-            "Restart completed and health check passed."
-            if healthy_after
-            else "Restart completed, but health recovery was not verified."
-        )
-
+    try:
+        process = await start_remediation_process(service)
+    except CommandStartError as exc:
         result = make_record(
             audit_id,
             service,
             incident_id,
-            final_status,
-            final_message,
+            "failed_before_execution",
+            "The operating system confirmed the helper did not start.",
             operator_id=operator_id,
             outage_confirmed=outage_confirmed,
             health_before=healthy_before,
-            health_after=healthy_after,
-            helper_output=stdout.decode(errors="replace").strip(),
             attempt_count=attempt_count,
+            error_type=type(exc.__cause__).__name__,
         )
-
-        persist_attempt_outcome(
-            audit_id, final_status, final_message
+        return _persist_result(audit_id, result)
+    except asyncio.CancelledError as exc:
+        _persist_unknown_outcome(
+            audit_id=audit_id,
+            service=service,
+            incident_id=incident_id,
+            operator_id=operator_id,
+            attempt_count=attempt_count,
+            outage_confirmed=outage_confirmed,
+            healthy_before=healthy_before,
+            error=exc,
         )
-        write_audit_record(result)
-        return result
-
+        raise
     except Exception as exc:
-        logger.exception(
-            "Remediation execution or outcome persistence failed "
-            "for service=%s incident_id=%s audit_id=%s",
-            service,
-            incident_id,
-            audit_id,
+        return _persist_unknown_outcome(
+            audit_id=audit_id,
+            service=service,
+            incident_id=incident_id,
+            operator_id=operator_id,
+            attempt_count=attempt_count,
+            outage_confirmed=outage_confirmed,
+            healthy_before=healthy_before,
+            error=exc,
         )
 
-        failure_message = (
-            f"Remediation or outcome persistence failed: "
-            f"{type(exc).__name__}: {exc}"
+    try:
+        stdout, stderr = await asyncio.wait_for(
+            process.communicate(),
+            timeout=30,
+        )
+    except asyncio.CancelledError as exc:
+        _persist_unknown_outcome(
+            audit_id=audit_id,
+            service=service,
+            incident_id=incident_id,
+            operator_id=operator_id,
+            attempt_count=attempt_count,
+            outage_confirmed=outage_confirmed,
+            healthy_before=healthy_before,
+            error=exc,
+        )
+        raise
+    except Exception as exc:
+        return _persist_unknown_outcome(
+            audit_id=audit_id,
+            service=service,
+            incident_id=incident_id,
+            operator_id=operator_id,
+            attempt_count=attempt_count,
+            outage_confirmed=outage_confirmed,
+            healthy_before=healthy_before,
+            error=exc,
         )
 
+    if process.returncode != 0:
         result = make_record(
             audit_id,
             service,
             incident_id,
             "failed",
-            failure_message,
+            stderr.decode(errors="replace").strip()
+            or "Restricted helper returned an error.",
             operator_id=operator_id,
             outage_confirmed=outage_confirmed,
             health_before=healthy_before,
             attempt_count=attempt_count,
         )
+        return _persist_result(audit_id, result)
 
-        try:
-            persist_attempt_outcome(
-                audit_id, "failed", failure_message
-            )
-        except Exception:
-            logger.exception(
-                "Could not persist failed remediation outcome "
-                "for audit_id=%s",
-                audit_id,
-            )
+    healthy_after = False
+    try:
+        for _ in range(10):
+            await asyncio.sleep(3)
+            if await check_service_health(service):
+                healthy_after = True
+                break
+    except Exception as exc:
+        logger.exception(
+            "Legacy remediation verification failed "
+            "for service=%s incident_id=%s audit_id=%s",
+            service,
+            incident_id,
+            audit_id,
+        )
+        result = make_record(
+            audit_id,
+            service,
+            incident_id,
+            "unverified",
+            "Helper completed, but recovery verification failed.",
+            operator_id=operator_id,
+            outage_confirmed=outage_confirmed,
+            health_before=healthy_before,
+            health_after=False,
+            attempt_count=attempt_count,
+            verification_error_type=type(exc).__name__,
+        )
+        return _persist_result(audit_id, result)
 
-        try:
-            write_audit_record(result)
-        except Exception:
-            logger.exception(
-                "Could not write remediation audit record "
-                "for audit_id=%s",
-                audit_id,
-            )
-
-        return result
+    final_status = "verified" if healthy_after else "unverified"
+    final_message = (
+        "Restart completed and health check passed."
+        if healthy_after
+        else "Restart completed, but health recovery was not verified."
+    )
+    result = make_record(
+        audit_id,
+        service,
+        incident_id,
+        final_status,
+        final_message,
+        operator_id=operator_id,
+        outage_confirmed=outage_confirmed,
+        health_before=healthy_before,
+        health_after=healthy_after,
+        helper_output=stdout.decode(errors="replace").strip(),
+        attempt_count=attempt_count,
+    )
+    return _persist_result(audit_id, result)
 
 
 async def remediate_service(

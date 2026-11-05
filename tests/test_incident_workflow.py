@@ -1,6 +1,95 @@
 import pytest
+from pydantic import ValidationError
 
+import app.database as database
 from app.services import incident_workflow as workflow
+from app.services.rca_agent import RCAConfigurationError
+
+POLICY_OBSERVED_AT = "2026-10-22T10:00:00+00:00"
+
+
+@pytest.fixture(autouse=True)
+def initialized_isolated_database(tmp_path, monkeypatch):
+    monkeypatch.setattr(database, "DATABASE_PATH", tmp_path / "workflow.db")
+    database.initialize_database()
+
+
+def _high_kubernetes_observation(severity="high"):
+    return {
+        "observed_at": POLICY_OBSERVED_AT,
+        "namespace": "kybernaut-lab",
+        "incidents": [{
+            "type": "pod_container_failure",
+            "severity": severity,
+            "resource": "demo-web-pod-1",
+            "resource_kind": "Pod",
+            "resource_uid": "pod-uid-1",
+            "source_timestamp": POLICY_OBSERVED_AT,
+            "evidence": ["Container waiting: CrashLoopBackOff"],
+        }],
+        "deployments": [{"name": "demo-web"}],
+    }
+
+
+def _enforce_policy_with_complete_fixture(state):
+    complete = dict(state)
+    diagnosis = complete.get("diagnosis")
+    if isinstance(diagnosis, dict):
+        diagnosis = dict(diagnosis)
+        diagnosis.setdefault("evidence_status", "available")
+        diagnosis.setdefault("missing_evidence", [])
+        if (
+            diagnosis.get("status") == "down"
+            and any(
+                isinstance(item, dict)
+                and item.get("type") == "service_unavailable"
+                for item in diagnosis.get("findings", [])
+            )
+        ):
+            diagnosis.setdefault("evidence_timestamps", {
+                "service_availability": {
+                    "timestamp": POLICY_OBSERVED_AT,
+                    "provenance": "prometheus_sample_timestamp",
+                },
+            })
+        complete["diagnosis"] = diagnosis
+
+    telemetry = complete.get("telemetry_anomaly")
+    if telemetry is None:
+        complete["telemetry_anomaly"] = {
+            "status": "evaluated",
+            "observed_at": POLICY_OBSERVED_AT,
+            "actionable_candidates": [],
+        }
+    elif isinstance(telemetry, dict) and telemetry.get("status") == "evaluated":
+        telemetry = dict(telemetry)
+        telemetry.setdefault("observed_at", POLICY_OBSERVED_AT)
+        telemetry.setdefault("actionable_candidates", [])
+        complete["telemetry_anomaly"] = telemetry
+
+    kubernetes = complete.get("kubernetes")
+    if kubernetes is None:
+        kubernetes = {"incidents": []}
+    if isinstance(kubernetes, dict):
+        kubernetes = dict(kubernetes)
+        if kubernetes.get("incidents") == []:
+            kubernetes.setdefault("namespace", "kybernaut-lab")
+            kubernetes.setdefault("observed_at", POLICY_OBSERVED_AT)
+        complete["kubernetes"] = kubernetes
+        complete.setdefault("kubernetes_status", "completed")
+
+    return workflow.enforce_policy(complete)
+
+
+@pytest.fixture
+def isolated_anomaly_evaluation(monkeypatch):
+    async def unavailable_anomaly(_service):
+        return {"status": "unavailable", "reason": "test"}
+
+    monkeypatch.setattr(
+        workflow, "evaluate_service_anomaly", unavailable_anomaly
+    )
+
 
 def test_unknown_monitoring_data_requires_investigation():
     result = workflow.enforce_policy({
@@ -14,13 +103,33 @@ def test_unknown_monitoring_data_requires_investigation():
     })
 
     assert result["policy"]["action"] == "investigate_monitoring"
+    assert "availability is unknown" in result["policy"]["reason"]
+    assert result["policy"]["automatic_execution"] is False
+
+
+def test_complete_evidence_with_no_actionable_findings_explains_monitoring():
+    result = _enforce_policy_with_complete_fixture({
+        "diagnosis": {
+            "status": "up",
+            "findings": [{"type": "no_detected_anomaly"}],
+        },
+        "rca": None,
+    })
+
+    assert result["policy"]["action"] == "continue_monitoring"
+    assert result["policy"]["reason"] == (
+        "No configured intervention threshold is met; continue monitoring."
+    )
     assert result["policy"]["automatic_execution"] is False
 
 def test_service_outage_requires_approval():
-    result = workflow.enforce_policy({
+    result = _enforce_policy_with_complete_fixture({
         "diagnosis": {
             "status": "down",
-            "findings": [{"type": "service_unavailable"}],
+            "findings": [{
+                "type": "service_unavailable",
+                "severity": "critical",
+            }],
         },
         "rca": None,
     })
@@ -50,11 +159,22 @@ async def test_workflow_rejects_unknown_service():
         await workflow.run_incident_workflow("unknown-service")
 
 @pytest.mark.asyncio
-async def test_workflow_runs_without_groq(monkeypatch):
+async def test_workflow_runs_without_groq(
+    monkeypatch, isolated_anomaly_evaluation
+):
+    async def no_anomaly(_service):
+        return {
+            "status": "evaluated",
+            "observed_at": POLICY_OBSERVED_AT,
+            "actionable_candidates": [],
+        }
+
     async def fake_diagnosis(service):
         return {
             "service": service,
             "status": "up",
+            "evidence_status": "available",
+            "missing_evidence": [],
             "findings": [{"type": "no_detected_anomaly"}],
         }
 
@@ -64,7 +184,18 @@ async def test_workflow_runs_without_groq(monkeypatch):
         )
 
     monkeypatch.setattr(workflow, "diagnose_service", fake_diagnosis)
+    monkeypatch.setattr(workflow, "evaluate_service_anomaly", no_anomaly)
     monkeypatch.setattr(workflow, "generate_rca", unavailable_rca)
+    monkeypatch.setattr(
+        workflow,
+        "observe_namespace",
+        lambda: {
+            "observed_at": POLICY_OBSERVED_AT,
+            "namespace": "kybernaut-lab",
+            "incidents": [],
+            "deployments": [],
+        },
+    )
 
     result = await workflow.run_incident_workflow("order-service")
 
@@ -73,18 +204,100 @@ async def test_workflow_runs_without_groq(monkeypatch):
     assert result["policy"]["action"] == "continue_monitoring"
     assert result["policy"]["automatic_execution"] is False
 
+
+@pytest.mark.asyncio
+async def test_invalid_rca_output_is_marked_invalid_and_policy_continues(
+    monkeypatch,
+):
+    async def invalid_rca(_evidence):
+        raise ValidationError.from_exception_data(
+            "RCAResult",
+            [{
+                "type": "float_parsing",
+                "loc": ("confidence",),
+                "input": "not-a-number",
+            }],
+        )
+
+    monkeypatch.setattr(workflow, "generate_rca", invalid_rca)
+    update = await workflow.analyze_root_cause({
+        "diagnosis": {"status": "up"},
+        "kubernetes": {"incidents": []},
+    })
+
+    assert update == {
+        "rca": None,
+        "rca_status": "invalid",
+        "rca_error": "invalid_structured_output",
+    }
+    policy = _enforce_policy_with_complete_fixture({
+        "diagnosis": {
+            "status": "up",
+            "evidence_status": "available",
+            "missing_evidence": [],
+            "findings": [{"type": "no_detected_anomaly"}],
+        },
+        "rca": {"recommended_action": "request_approval"},
+    })["policy"]
+    assert policy["action"] == "continue_monitoring"
+    assert policy["automatic_execution"] is False
+
+
+@pytest.mark.asyncio
+async def test_rca_provider_error_content_is_not_logged(monkeypatch, caplog):
+    marker = "synthetic-provider-response-secret"
+
+    async def provider_failure(_evidence):
+        raise RuntimeError(marker)
+
+    monkeypatch.setattr(workflow, "generate_rca", provider_failure)
+    result = await workflow.analyze_root_cause({
+        "diagnosis": {"status": "unknown", "evidence": marker},
+    })
+
+    assert result["rca_status"] == "unavailable"
+    assert result["rca_error"] == "provider_error"
+    assert marker not in caplog.text
+
+
+@pytest.mark.asyncio
+async def test_rca_failure_codes_are_sanitized(monkeypatch, caplog):
+    timeout_error = type("APITimeoutError", (RuntimeError,), {})
+
+    async def timeout(_evidence):
+        raise timeout_error("synthetic provider timeout details")
+
+    monkeypatch.setattr(workflow, "generate_rca", timeout)
+    timed_out = await workflow.analyze_root_cause({
+        "diagnosis": {"status": "unknown"},
+    })
+    assert timed_out["rca_error"] == "provider_timeout"
+
+    async def invalid_config(_evidence):
+        raise RCAConfigurationError("rca_timeout_configuration_invalid")
+
+    monkeypatch.setattr(workflow, "generate_rca", invalid_config)
+    unavailable = await workflow.analyze_root_cause({
+        "diagnosis": {"status": "unknown"},
+    })
+    assert unavailable["rca_error"] == "rca_timeout_configuration_invalid"
+    assert "synthetic provider timeout details" not in caplog.text
+
+
 def test_kubernetes_high_severity_requires_approval():
     result = workflow.enforce_policy({
         "diagnosis": {
             "status": "up",
+            "evidence_status": "available",
+            "missing_evidence": [],
             "findings": [{"type": "no_detected_anomaly"}],
         },
-        "kubernetes": {
-            "incidents": [
-                {"type": "pod_container_failure", "severity": "high"}
-            ]
+        "kubernetes": _high_kubernetes_observation(),
+        "kubernetes_status": "completed",
+        "telemetry_anomaly": {
+            "status": "unavailable",
+            "reason": "synthetic incomplete evidence",
         },
-        "rca": None,
     })
 
     assert result["policy"]["action"] == "request_approval"
@@ -94,7 +307,7 @@ def test_kubernetes_high_severity_requires_approval():
     assert result["policy"]["remediation_executed"] is False
 
 def test_healthy_kubernetes_does_not_force_approval():
-    result = workflow.enforce_policy({
+    result = _enforce_policy_with_complete_fixture({
         "diagnosis": {
             "status": "up",
             "findings": [{"type": "no_detected_anomaly"}],
@@ -107,11 +320,15 @@ def test_healthy_kubernetes_does_not_force_approval():
     assert result["policy"]["automatic_execution"] is False
 
 @pytest.mark.asyncio
-async def test_workflow_preserves_kubernetes_success_status(monkeypatch):
+async def test_workflow_preserves_kubernetes_success_status(
+    monkeypatch, isolated_anomaly_evaluation
+):
     async def fake_diagnosis(service):
         return {
             "service": service,
             "status": "up",
+            "evidence_status": "available",
+            "missing_evidence": [],
             "findings": [{"type": "no_detected_anomaly"}],
         }
 
@@ -147,7 +364,9 @@ async def test_workflow_preserves_kubernetes_success_status(monkeypatch):
     assert result["policy"]["automatic_execution"] is False
 
 @pytest.mark.asyncio
-async def test_workflow_reports_kubernetes_unavailable(monkeypatch):
+async def test_workflow_reports_kubernetes_unavailable(
+    monkeypatch, isolated_anomaly_evaluation
+):
     async def fake_diagnosis(service):
         return {
             "service": service,
@@ -175,7 +394,9 @@ async def test_workflow_reports_kubernetes_unavailable(monkeypatch):
     assert result["policy"]["remediation_executed"] is False
 
 @pytest.mark.asyncio
-async def test_malformed_rca_does_not_stop_policy_enforcement(monkeypatch):
+async def test_malformed_rca_does_not_stop_policy_enforcement(
+    monkeypatch, isolated_anomaly_evaluation
+):
     """An LLM parsing/provider error must not abort the workflow."""
 
     async def fake_diagnosis(service):
@@ -187,6 +408,7 @@ async def test_malformed_rca_does_not_stop_policy_enforcement(monkeypatch):
 
     def fake_observer():
         return {
+            "observed_at": POLICY_OBSERVED_AT,
             "namespace": "kybernaut-lab",
             "incident_count": 1,
             "incidents": [
@@ -194,6 +416,10 @@ async def test_malformed_rca_does_not_stop_policy_enforcement(monkeypatch):
                     "type": "pod_container_failure",
                     "severity": "high",
                     "resource": "demo-web-test",
+                    "resource_kind": "Pod",
+                    "resource_uid": "demo-web-test-uid",
+                    "source_timestamp": POLICY_OBSERVED_AT,
+                    "evidence": ["Container waiting: CrashLoopBackOff"],
                 }
             ],
             "deployments": [],
@@ -210,7 +436,7 @@ async def test_malformed_rca_does_not_stop_policy_enforcement(monkeypatch):
 
     assert result["rca"] is None
     assert result["rca_status"] == "unavailable"
-    assert result["rca_error"] == "ValueError"
+    assert result["rca_error"] == "provider_error"
     assert result["policy"]["action"] == "request_approval"
     assert result["policy"]["priority"] == "critical"
     assert result["policy"]["requires_human_approval"] is True
@@ -218,18 +444,30 @@ async def test_malformed_rca_does_not_stop_policy_enforcement(monkeypatch):
     assert result["policy"]["remediation_executed"] is False
 
 @pytest.mark.asyncio
-async def test_rca_provider_error_does_not_escalate_healthy_system(monkeypatch):
+async def test_rca_provider_error_does_not_escalate_healthy_system(
+    monkeypatch, isolated_anomaly_evaluation
+):
     """An RCA error alone must not turn a healthy system into an incident."""
+
+    async def no_anomaly(_service):
+        return {
+            "status": "evaluated",
+            "observed_at": POLICY_OBSERVED_AT,
+            "actionable_candidates": [],
+        }
 
     async def fake_diagnosis(service):
         return {
             "service": service,
             "status": "up",
+            "evidence_status": "available",
+            "missing_evidence": [],
             "findings": [{"type": "no_detected_anomaly"}],
         }
 
     def fake_observer():
         return {
+            "observed_at": POLICY_OBSERVED_AT,
             "namespace": "kybernaut-lab",
             "incident_count": 0,
             "incidents": [],
@@ -240,6 +478,7 @@ async def test_rca_provider_error_does_not_escalate_healthy_system(monkeypatch):
         raise RuntimeError("Simulated provider failure")
 
     monkeypatch.setattr(workflow, "diagnose_service", fake_diagnosis)
+    monkeypatch.setattr(workflow, "evaluate_service_anomaly", no_anomaly)
     monkeypatch.setattr(workflow, "observe_namespace", fake_observer)
     monkeypatch.setattr(workflow, "generate_rca", failed_rca)
 
@@ -251,7 +490,7 @@ async def test_rca_provider_error_does_not_escalate_healthy_system(monkeypatch):
     assert result["policy"]["remediation_executed"] is False
 
 def test_statistical_memory_candidate_does_not_escalate_without_operational_rule():
-    result = workflow.enforce_policy({
+    result = _enforce_policy_with_complete_fixture({
         "diagnosis": {
             "status": "up",
             "findings": [{"type": "no_detected_anomaly"}],
@@ -272,7 +511,7 @@ def test_statistical_memory_candidate_does_not_escalate_without_operational_rule
     assert policy["remediation_executed"] is False
 
 def test_informational_telemetry_does_not_escalate():
-    result = workflow.enforce_policy({
+    result = _enforce_policy_with_complete_fixture({
         "diagnosis": {
             "status": "up",
             "findings": [{"type": "no_detected_anomaly"}],
@@ -288,7 +527,7 @@ def test_informational_telemetry_does_not_escalate():
     assert result["policy"]["action"] == "continue_monitoring"
     assert result["policy"]["priority"] == "low"
 
-def test_unavailable_telemetry_does_not_escalate():
+def test_unavailable_telemetry_requires_monitoring_investigation():
     result = workflow.enforce_policy({
         "diagnosis": {
             "status": "up",
@@ -301,11 +540,13 @@ def test_unavailable_telemetry_does_not_escalate():
         "rca": None,
     })
 
-    assert result["policy"]["action"] == "continue_monitoring"
+    assert result["policy"]["action"] == "investigate_monitoring"
+    assert result["policy"]["priority"] == "medium"
     assert result["policy"]["automatic_execution"] is False
 
-def test_statistical_memory_candidate_does_not_escalate_without_operational_rule():
-    result = workflow.enforce_policy({
+
+def test_memory_candidate_without_informational_deviations_does_not_escalate():
+    result = _enforce_policy_with_complete_fixture({
         "diagnosis": {
             "status": "up",
             "findings": [{"type": "no_detected_anomaly"}],
@@ -325,10 +566,13 @@ def test_statistical_memory_candidate_does_not_escalate_without_operational_rule
     assert policy["remediation_executed"] is False
 
 def test_critical_outage_overrides_actionable_telemetry():
-    result = workflow.enforce_policy({
+    result = _enforce_policy_with_complete_fixture({
         "diagnosis": {
             "status": "down",
-            "findings": [{"type": "service_unavailable"}],
+            "findings": [{
+                "type": "service_unavailable",
+                "severity": "critical",
+            }],
         },
         "telemetry_anomaly": {
             "status": "evaluated",
@@ -344,7 +588,9 @@ def test_critical_outage_overrides_actionable_telemetry():
     assert result["policy"]["remediation_executed"] is False
 
 @pytest.mark.asyncio
-async def test_runbook_retrieval_failure_does_not_block_rca(monkeypatch):
+async def test_runbook_retrieval_failure_does_not_block_rca(
+    monkeypatch, isolated_anomaly_evaluation
+):
     """RCA should still run when optional runbook retrieval fails."""
 
     # retrieve_runbooks is called through asyncio.to_thread, so this
@@ -384,7 +630,7 @@ async def test_runbook_retrieval_failure_does_not_block_rca(monkeypatch):
     assert result["policy"]["remediation_executed"] is False
 
 def test_operational_latency_finding_triggers_investigation():
-    result = workflow.enforce_policy({
+    result = _enforce_policy_with_complete_fixture({
         "diagnosis": {
             "status": "up",
             "findings": [{"type": "no_detected_anomaly"}],
@@ -410,7 +656,7 @@ def test_operational_latency_finding_triggers_investigation():
     assert policy["remediation_executed"] is False
 
 def test_statistical_latency_below_operational_threshold_does_not_escalate():
-    result = workflow.enforce_policy({
+    result = _enforce_policy_with_complete_fixture({
         "diagnosis": {
             "status": "up",
             "findings": [{"type": "no_detected_anomaly"}],
@@ -495,11 +741,18 @@ async def test_graph_executes_nodes_in_order(monkeypatch):
     assert result["policy"]["remediation_executed"] is False
 
 @pytest.mark.asyncio
-async def test_graph_handles_unexpected_diagnosis_failure(monkeypatch):
+async def test_graph_handles_unexpected_diagnosis_failure(
+    monkeypatch, isolated_anomaly_evaluation
+):
     async def failed_diagnosis(service):
         raise RuntimeError("Simulated diagnosis failure")
 
     monkeypatch.setattr(workflow, "diagnose_service", failed_diagnosis)
+    monkeypatch.setattr(
+        workflow,
+        "observe_namespace",
+        lambda: {"incidents": [], "deployments": []},
+    )
 
     graph = workflow.build_incident_graph()
     result = await graph.ainvoke({"service": "order-service"})
@@ -585,7 +838,252 @@ def test_malformed_kubernetes_incidents_do_not_crash_policy():
     })
 
     policy = result["policy"]
-    assert policy["action"] == "continue_monitoring"
-    assert policy["priority"] == "low"
+    assert policy["action"] == "investigate_monitoring"
+    assert policy["priority"] == "medium"
     assert policy["automatic_execution"] is False
     assert policy["remediation_executed"] is False
+
+
+def test_malformed_telemetry_does_not_crash_policy():
+    result = workflow.enforce_policy({
+        "diagnosis": {
+            "status": "up",
+            "findings": [{"type": "no_detected_anomaly"}],
+        },
+        "kubernetes": {"incidents": []},
+        "telemetry_anomaly": "invalid-telemetry",
+        "rca": None,
+    })
+
+    policy = result["policy"]
+    assert policy["action"] == "investigate_monitoring"
+    assert policy["priority"] == "medium"
+    assert policy["automatic_execution"] is False
+    assert policy["remediation_executed"] is False
+
+
+def test_malformed_telemetry_findings_require_investigation():
+    result = workflow.enforce_policy({
+        "diagnosis": {
+            "status": "up",
+            "findings": [{"type": "no_detected_anomaly"}],
+        },
+        "telemetry_anomaly": {
+            "status": "evaluated",
+            "operational_findings": ["invalid-finding"],
+        },
+    })
+
+    assert result["policy"]["action"] == "investigate_monitoring"
+    assert result["policy"]["automatic_execution"] is False
+
+
+def test_critical_kubernetes_incident_requires_approval():
+    result = workflow.enforce_policy({
+        "diagnosis": {
+            "status": "up",
+            "evidence_status": "available",
+            "missing_evidence": [],
+            "findings": [{"type": "no_detected_anomaly"}],
+        },
+        "kubernetes": _high_kubernetes_observation("critical"),
+        "kubernetes_status": "completed",
+        "telemetry_anomaly": {
+            "status": "evaluated",
+            "observed_at": POLICY_OBSERVED_AT,
+            "actionable_candidates": [],
+        },
+    })
+
+    assert result["policy"]["action"] == "request_approval"
+    assert result["policy"]["priority"] == "critical"
+    assert result["policy"]["requires_human_approval"] is True
+    assert result["policy"]["automatic_execution"] is False
+
+
+def test_malformed_diagnosis_findings_require_investigation():
+    result = workflow.enforce_policy({
+        "diagnosis": {
+            "status": "up",
+            "evidence_status": "available",
+            "missing_evidence": [],
+            "findings": ["invalid-finding"],
+        },
+        "telemetry_anomaly": {"status": "evaluated"},
+    })
+
+    assert result["policy"]["action"] == "investigate_monitoring"
+    assert result["policy"]["automatic_execution"] is False
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize("invalid_result", [None, [], "invalid"])
+async def test_non_dictionary_diagnosis_result_becomes_unknown(
+    monkeypatch, invalid_result
+):
+    async def invalid_diagnosis(_service):
+        return invalid_result
+
+    async def unavailable_anomaly(_service):
+        return {"status": "unavailable", "reason": "test"}
+
+    monkeypatch.setattr(workflow, "diagnose_service", invalid_diagnosis)
+    monkeypatch.setattr(
+        workflow, "evaluate_service_anomaly", unavailable_anomaly
+    )
+    monkeypatch.setattr(
+        workflow, "observe_namespace",
+        lambda: {"incidents": [], "deployments": []},
+    )
+
+    result = await workflow.detect_and_diagnose({"service": "order-service"})
+
+    assert result["diagnosis"]["status"] == "unknown"
+    assert result["diagnosis"]["evidence_status"] == "invalid"
+    assert result["diagnosis"]["reason"] == "invalid_diagnosis_result"
+    policy = workflow.enforce_policy({
+        **result,
+        "diagnosis": result["diagnosis"],
+    })["policy"]
+    assert policy["action"] == "investigate_monitoring"
+
+
+def test_incomplete_prometheus_evidence_never_selects_healthy_policy():
+    result = workflow.enforce_policy({
+        "diagnosis": {
+            "status": "up",
+            "evidence_status": "unavailable",
+            "missing_evidence": ["http_5xx_rate"],
+            "findings": [{"type": "no_detected_anomaly"}],
+        },
+        "kubernetes": {"incidents": []},
+        "telemetry_anomaly": {"status": "evaluated"},
+        "rca": None,
+    })
+
+    assert result["policy"]["action"] == "investigate_monitoring"
+    assert result["policy"]["automatic_execution"] is False
+    assert result["policy"]["remediation_executed"] is False
+
+
+def test_stale_prometheus_evidence_requires_monitoring_investigation():
+    result = workflow.enforce_policy({
+        "diagnosis": {
+            "status": "up",
+            "evidence_status": "stale",
+            "findings": [{"type": "no_detected_anomaly"}],
+        },
+        "kubernetes": {"incidents": []},
+        "telemetry_anomaly": {"status": "evaluated"},
+        "rca": None,
+    })
+
+    assert result["policy"]["action"] == "investigate_monitoring"
+
+
+def test_missing_prometheus_evidence_cannot_be_overridden_by_healthy_finding():
+    result = workflow.enforce_policy({
+        "diagnosis": {
+            "status": "up",
+            "missing_evidence": ["http_5xx_rate"],
+            "findings": [{"type": "no_detected_anomaly"}],
+        },
+        "kubernetes": {"incidents": []},
+        "telemetry_anomaly": {"status": "evaluated"},
+        "rca": None,
+    })
+
+    assert result["policy"]["action"] == "investigate_monitoring"
+
+
+def test_missing_telemetry_cannot_be_interpreted_as_healthy():
+    result = workflow.enforce_policy({
+        "diagnosis": {
+            "status": "up",
+            "evidence_status": "available",
+            "missing_evidence": [],
+            "findings": [{"type": "no_detected_anomaly", "severity": "info"}],
+        },
+        "kubernetes_status": "completed",
+        "kubernetes": {
+            "observed_at": POLICY_OBSERVED_AT,
+            "namespace": "kybernaut-lab",
+            "incidents": [],
+            "deployments": [],
+        },
+    })
+
+    assert result["policy"]["action"] == "investigate_monitoring"
+    assert result["policy"]["automatic_execution"] is False
+
+
+def test_contradictory_high_kubernetes_evidence_has_no_target_or_approval():
+    observation = _high_kubernetes_observation()
+    observation["incidents"].append({
+        "type": "pod_container_failure",
+        "severity": "critical",
+        "resource": "demo-web-pod-2",
+        "resource_kind": "Pod",
+        "resource_uid": "pod-uid-2",
+        "source_timestamp": POLICY_OBSERVED_AT,
+        "evidence": ["Container terminated with reason OOMKilled."],
+    })
+    diagnosis = {
+        "status": "up",
+        "evidence_status": "unavailable",
+        "missing_evidence": ["http_5xx_rate"],
+        "findings": [{"type": "no_detected_anomaly", "severity": "info"}],
+    }
+
+    result = workflow.enforce_policy({
+        "diagnosis": diagnosis,
+        "kubernetes_status": "completed",
+        "kubernetes": observation,
+        "telemetry_anomaly": {
+            "status": "unavailable",
+            "reason": "synthetic source outage",
+        },
+    })
+    classification = workflow.classify_incident(
+        diagnosis,
+        observation,
+        {"status": "unavailable"},
+    )
+
+    assert classification["incident_type"] == "unknown"
+    assert classification["target"] is None
+    assert result["policy"]["action"] == "investigate_monitoring"
+    assert result["policy"]["requires_human_approval"] is False
+    assert result["policy"]["automatic_execution"] is False
+
+
+def test_unrecognized_high_severity_kubernetes_record_cannot_request_approval():
+    result = workflow.enforce_policy({
+        "diagnosis": {
+            "status": "up",
+            "evidence_status": "available",
+            "missing_evidence": [],
+            "findings": [{"type": "no_detected_anomaly", "severity": "info"}],
+        },
+        "kubernetes_status": "completed",
+        "kubernetes": {
+            "observed_at": POLICY_OBSERVED_AT,
+            "namespace": "kybernaut-lab",
+            "incidents": [{
+                "severity": "critical",
+                "resource": "unknown-resource",
+                "resource_kind": "Pod",
+                "evidence": ["Unrecognized event"],
+            }],
+            "deployments": [],
+        },
+        "telemetry_anomaly": {
+            "status": "evaluated",
+            "observed_at": POLICY_OBSERVED_AT,
+            "actionable_candidates": [],
+        },
+    })
+
+    assert result["policy"]["action"] == "investigate_monitoring"
+    assert result["policy"]["requires_human_approval"] is False
+    assert result["policy"]["automatic_execution"] is False

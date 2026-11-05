@@ -8,7 +8,15 @@ from fastapi.testclient import TestClient
 TEST_JWT_SECRET = "test-only-jwt-secret-do-not-use-in-production"
 TEST_JWT_ISSUER = "kybernaut-test"
 TEST_JWT_AUDIENCE = "kybernaut-api-test"
-TEST_APPROVAL_TOKEN = "test-only-approval-token"
+
+
+@pytest.fixture(autouse=True)
+def isolate_database_environment(tmp_path, monkeypatch):
+    import app.database as database
+
+    monkeypatch.delenv("KYBERNAUT_DATABASE_PATH", raising=False)
+    monkeypatch.setattr(database, "DATABASE_PATH", tmp_path / "test-incidents.db")
+    monkeypatch.setenv("KYBERNAUT_LAB_AUTOGEN", "false")
 
 
 def create_operator_token(
@@ -36,10 +44,8 @@ def create_operator_token(
 
 @pytest.fixture
 def api_client(monkeypatch):
-    monkeypatch.setenv(
-        "KYBERNAUT_REMEDIATION_TOKEN",
-        TEST_APPROVAL_TOKEN,
-    )
+    monkeypatch.setenv("KYBERNAUT_ANOMALY_MONITOR_ENABLED", "false")
+    monkeypatch.delenv("KYBERNAUT_REMEDIATION_TOKEN", raising=False)
     monkeypatch.setenv("KYBERNAUT_JWT_SECRET", TEST_JWT_SECRET)
     monkeypatch.setenv("KYBERNAUT_JWT_ISSUER", TEST_JWT_ISSUER)
     monkeypatch.setenv("KYBERNAUT_JWT_AUDIENCE", TEST_JWT_AUDIENCE)

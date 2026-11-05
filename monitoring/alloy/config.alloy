@@ -1,0 +1,61 @@
+loki.source.syslog "docker" {
+  listener {
+    address                = "0.0.0.0:1515"
+    protocol               = "tcp"
+    syslog_format          = "rfc5424"
+    use_incoming_timestamp = true
+    max_message_length     = 8192
+    labels                 = { job = "kybernaut" }
+  }
+
+  relabel_rules = loki.relabel.docker_tags.rules
+  forward_to    = [loki.write.kybernaut.receiver]
+}
+
+loki.relabel "docker_tags" {
+  forward_to = [loki.write.kybernaut.receiver]
+
+  rule {
+    action        = "keep"
+    source_labels = ["__syslog_message_app_name"]
+    regex         = "^kybernaut-(order|payment|user|inventory)$"
+  }
+
+  rule {
+    action        = "replace"
+    source_labels = ["__syslog_message_app_name"]
+    regex         = "^kybernaut-order$"
+    replacement   = "order"
+    target_label  = "service"
+  }
+
+  rule {
+    action        = "replace"
+    source_labels = ["__syslog_message_app_name"]
+    regex         = "^kybernaut-payment$"
+    replacement   = "payment"
+    target_label  = "service"
+  }
+
+  rule {
+    action        = "replace"
+    source_labels = ["__syslog_message_app_name"]
+    regex         = "^kybernaut-user$"
+    replacement   = "user"
+    target_label  = "service"
+  }
+
+  rule {
+    action        = "replace"
+    source_labels = ["__syslog_message_app_name"]
+    regex         = "^kybernaut-inventory$"
+    replacement   = "inventory"
+    target_label  = "service"
+  }
+}
+
+loki.write "kybernaut" {
+  endpoint {
+    url = "http://loki:3100/loki/api/v1/push"
+  }
+}

@@ -402,10 +402,110 @@ async def test_unexpected_helper_exception_is_recorded(
         incident_id="current-incident",
     )
 
-    assert result["status"] == "failed"
-    assert "Simulated unexpected helper error" in result["message"]
+    assert result["status"] == "execution_unknown"
+    assert result["outcome_unknown"] is True
+    assert "automatic retry is blocked" in result["message"]
     assert len(updated_attempts) == 1
-    assert updated_attempts[0]["status"] == "failed"
+    assert updated_attempts[0]["status"] == "execution_unknown"
+    records = [
+        json.loads(line)
+        for line in audit_log.read_text().splitlines()
+    ]
+    assert records[0]["status"] == "attempt_started"
+    assert records[-1]["status"] == "execution_unknown"
+
+
+@pytest.mark.asyncio
+async def test_confirmed_process_start_failure_is_distinct(
+    audit_log, monkeypatch
+):
+    async def active_incident(_service):
+        return "current-incident"
+
+    async def unhealthy(_service):
+        return False
+
+    monkeypatch.setattr(remediation, "get_active_incident_id", active_incident)
+    monkeypatch.setattr(remediation, "check_service_health", unhealthy)
+    monkeypatch.setattr(
+        remediation,
+        "reserve_attempt",
+        lambda **kwargs: {"allowed": True, "attempt_count": 1},
+    )
+
+    async def fail_before_start(*_args, **_kwargs):
+        raise FileNotFoundError("helper unavailable")
+
+    monkeypatch.setattr(
+        remediation.asyncio,
+        "create_subprocess_exec",
+        fail_before_start,
+    )
+    updated_attempts = []
+    monkeypatch.setattr(
+        remediation,
+        "update_attempt_result",
+        lambda **kwargs: updated_attempts.append(kwargs) or True,
+    )
+
+    result = await remediation.remediate_service(
+        service="user-service",
+        approved=True,
+        incident_id="current-incident",
+    )
+
+    assert result["status"] == "failed_before_execution"
+    assert result.get("outcome_unknown") is not True
+    assert updated_attempts[0]["status"] == "failed_before_execution"
+
+
+@pytest.mark.asyncio
+async def test_preexecution_audit_failure_prevents_helper_invocation(
+    monkeypatch,
+):
+    async def active_incident(_service):
+        return "current-incident"
+
+    async def unhealthy(_service):
+        return False
+
+    monkeypatch.setattr(remediation, "get_active_incident_id", active_incident)
+    monkeypatch.setattr(remediation, "check_service_health", unhealthy)
+    monkeypatch.setattr(
+        remediation,
+        "reserve_attempt",
+        lambda **kwargs: {"allowed": True, "attempt_count": 1},
+    )
+
+    statuses = []
+    monkeypatch.setattr(
+        remediation,
+        "update_attempt_result",
+        lambda **kwargs: statuses.append(kwargs["status"]) or True,
+    )
+
+    def fail_audit(_record):
+        raise OSError("synthetic audit failure")
+
+    monkeypatch.setattr(remediation, "write_audit_record", fail_audit)
+
+    async def unexpected_runner(*_args, **_kwargs):
+        pytest.fail("Audit failure must prevent helper invocation")
+
+    monkeypatch.setattr(
+        remediation.asyncio,
+        "create_subprocess_exec",
+        unexpected_runner,
+    )
+
+    with pytest.raises(RuntimeError, match="Pre-execution audit"):
+        await remediation.remediate_service(
+            service="user-service",
+            approved=True,
+            incident_id="current-incident",
+        )
+
+    assert statuses == ["blocked_audit_failure"]
 
 @pytest.mark.asyncio
 async def test_outcome_update_failure_is_visible(
@@ -452,12 +552,9 @@ async def test_outcome_update_failure_is_visible(
         remediation, "update_attempt_result", failed_update
     )
 
-    result = await remediation.remediate_service(
-        service="user-service",
-        approved=True,
-        incident_id="current-incident",
-    )
-
-    # This assertion defines the desired behavior.
-    assert result["status"] == "failed"
-    assert "database" in result["message"].lower()
+    with pytest.raises(RuntimeError, match="Database outcome update failed"):
+        await remediation.remediate_service(
+            service="user-service",
+            approved=True,
+            incident_id="current-incident",
+        )

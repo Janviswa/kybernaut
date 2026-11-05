@@ -43,6 +43,19 @@ def test_detector_rejects_invalid_values():
         detector.score([[0.2, float("nan"), 49_000_000, 0.02]])
 
 
+def test_detector_rejects_boolean_baseline_and_observation_values():
+    detector = TelemetryAnomalyDetector()
+    baseline = [[0.2, 0.095, 49_000_000, 0.02] for _ in range(20)]
+    baseline[0][0] = True
+
+    with pytest.raises(ValueError, match="not boolean"):
+        detector.fit(baseline)
+
+    detector.fit([[0.2, 0.095, 49_000_000, 0.02] for _ in range(20)])
+    with pytest.raises(ValueError, match="not boolean"):
+        detector.score([[0.2, 0.095, True, 0.02]])
+
+
 def test_detector_returns_scores_without_side_effects(baseline):
     detector = TelemetryAnomalyDetector()
     detector.fit(baseline)

@@ -1,0 +1,9 @@
+{
+  "example": true,
+  "source": "EXAMPLE VALUES ONLY - replace with your provider's current price list",
+  "instance_types": [
+    {"name": "example.xlarge", "vcpu": 4, "memory_gb": 16, "monthly_cost": 180.0},
+    {"name": "example.large",  "vcpu": 2, "memory_gb": 8,  "monthly_cost": 95.0},
+    {"name": "example.medium", "vcpu": 1, "memory_gb": 4,  "monthly_cost": 50.0}
+  ]
+}

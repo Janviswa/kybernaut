@@ -1,0 +1,12 @@
+{
+  "model": "kubernetes_requests",
+  "example": true,
+  "currency": "USD",
+  "source": "REPLACE_WITH_APPROVED_PRICING_SOURCE",
+  "effective_date": "2026-01-01",
+  "provider": "REPLACE_WITH_PROVIDER_OR_NULL",
+  "region": "REPLACE_WITH_REGION_OR_NULL",
+  "cpu_per_core_hour": null,
+  "memory_per_gib_hour": null,
+  "workload_adjustments_per_hour": {}
+}

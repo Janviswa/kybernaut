@@ -1,0 +1,87 @@
+# Dedicated, bounded lab workloads for demonstrating REAL approved remediation.
+# Namespace kybernaut-lab on the Kind cluster kind-kybernaut ONLY.
+#
+#   kubectl --context kind-kybernaut apply -f k8s/lab/remediation-scenarios.yaml
+#   python scripts/remediation_lab.py up bad-image | crash-loop | disk-evict
+#
+# All start at replicas: 0 so applying this file creates no failure. Each one
+# carries kybernaut.io/lab-scenario=true, which Kybernaut requires before it
+# will mutate a deployment (resource-ownership check). Images are
+# imagePullPolicy IfNotPresent so a pre-loaded image needs no registry access
+# (python scripts/remediation_lab.py preload).
+---
+# Scenario A: deliberately invalid image tag -> ImagePullBackOff.
+# Fix (set_image): registered known-good image + command.
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: sim-bad-image
+  namespace: kybernaut-lab
+  labels: {app: sim-bad-image, kybernaut.io/lab-scenario: "true"}
+spec:
+  replicas: 0
+  selector: {matchLabels: {app: sim-bad-image}}
+  template:
+    metadata: {labels: {app: sim-bad-image}}
+    spec:
+      containers:
+        - name: app
+          image: busybox:kybernaut-missing-tag
+          imagePullPolicy: IfNotPresent
+          command: ["sh", "-c", "while :; do sleep 30; done"]
+          resources:
+            requests: {cpu: 10m, memory: 8Mi}
+            limits: {cpu: 50m, memory: 16Mi}
+---
+# Scenario B: command exits 1 immediately -> CrashLoopBackOff. A restart would
+# crash again; the fix (restore_command) applies the registered known-good command.
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: sim-crash-loop
+  namespace: kybernaut-lab
+  labels: {app: sim-crash-loop, kybernaut.io/lab-scenario: "true"}
+spec:
+  replicas: 0
+  selector: {matchLabels: {app: sim-crash-loop}}
+  template:
+    metadata: {labels: {app: sim-crash-loop}}
+    spec:
+      containers:
+        - name: app
+          image: busybox:1.36
+          imagePullPolicy: IfNotPresent
+          command: ["sh", "-c", "echo 'startup config missing' >&2; exit 1"]
+          resources:
+            requests: {cpu: 10m, memory: 8Mi}
+            limits: {cpu: 50m, memory: 16Mi}
+---
+# Scenario C: healthy until `remediation_lab.py up disk-evict` writes ONE
+# bounded 60Mi file into a 40Mi emptyDir. The kubelet then evicts the pod
+# (the host disk is never filled: sizeLimit and the ephemeral-storage limit bound
+# it). The replacement pod starts with a fresh, empty volume and is healthy, so
+# deleting the Evicted pod (restart_pod, with approval) is a real, safe recovery.
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: sim-disk-evict
+  namespace: kybernaut-lab
+  labels: {app: sim-disk-evict, kybernaut.io/lab-scenario: "true"}
+spec:
+  replicas: 0
+  selector: {matchLabels: {app: sim-disk-evict}}
+  template:
+    metadata: {labels: {app: sim-disk-evict}}
+    spec:
+      containers:
+        - name: app
+          image: busybox:1.36
+          imagePullPolicy: IfNotPresent
+          command: ["sh", "-c", "while :; do sleep 30; done"]
+          volumeMounts: [{name: scratch, mountPath: /scratch}]
+          resources:
+            requests: {cpu: 10m, memory: 8Mi, ephemeral-storage: 16Mi}
+            limits: {cpu: 50m, memory: 16Mi, ephemeral-storage: 64Mi}
+      volumes:
+        - name: scratch
+          emptyDir: {sizeLimit: 40Mi}

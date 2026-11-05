@@ -6,6 +6,7 @@ from app.services.incident_repository import (
     record_incident,
     resolve_open_incidents,
 )
+from app.services import audit_repository
 
 
 @pytest.fixture(autouse=True)
@@ -60,6 +61,28 @@ def test_resolve_open_incident_after_recovery():
     resolved = list_incidents(status="RESOLVED")
     assert len(resolved) == 1
     assert resolved[0]["resolved_at"] is not None
+
+
+def test_resolution_cancels_pending_approval_without_action_claim():
+    incident = record_incident(sample_incident())
+    approval = audit_repository.create_approval(
+        incident_ref=incident["incident_id"],
+        proposed_action={"action": "restart_pod"},
+        context={},
+        requested_by="operator-a",
+    )
+
+    assert resolve_open_incidents("user-service") == 1
+
+    persisted = audit_repository.get_approval(approval["approval_id"])
+    assert persisted["status"] == "CANCELLED"
+    assert persisted["decision_reason"] == "healthy_service_observation"
+    events = audit_repository.list_events(incident["incident_id"])
+    assert [event["event_type"] for event in events] == [
+        "approval_requested",
+        "approval_cancelled",
+        "incident_resolved",
+    ]
 
 
 def test_resolving_service_without_open_incident_returns_zero():

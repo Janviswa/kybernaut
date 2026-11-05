@@ -1,0 +1,90 @@
+# Failure-simulation workloads for the Kind lab ONLY (namespace kybernaut-lab).
+# All start at replicas: 0 -- nothing runs until the simulator scales one up.
+# Every workload has hard resource limits so it cannot starve the host.
+#   kubectl apply -f k8s/lab/sim-workloads.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: sim-pod-crash
+  namespace: kybernaut-lab
+  labels: {app: sim-pod-crash, kybernaut.io/simulator: "true"}
+spec:
+  replicas: 0
+  selector: {matchLabels: {app: sim-pod-crash}}
+  template:
+    metadata: {labels: {app: sim-pod-crash}}
+    spec:
+      containers:
+        - name: crash
+          image: busybox:1.36
+          command: ["sh", "-c", "sleep 2; exit 1"]
+          resources:
+            requests: {cpu: 25m, memory: 8Mi}
+            limits: {cpu: 100m, memory: 32Mi}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: sim-cpu-stress
+  namespace: kybernaut-lab
+  labels: {app: sim-cpu-stress, kybernaut.io/simulator: "true"}
+spec:
+  replicas: 0
+  selector: {matchLabels: {app: sim-cpu-stress}}
+  template:
+    metadata: {labels: {app: sim-cpu-stress}}
+    spec:
+      containers:
+        - name: burn
+          image: busybox:1.36
+          command: ["sh", "-c", "while :; do :; done"]
+          resources:
+            requests: {cpu: 100m, memory: 16Mi}
+            limits: {cpu: 300m, memory: 32Mi}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: sim-memory-leak
+  namespace: kybernaut-lab
+  labels: {app: sim-memory-leak, kybernaut.io/simulator: "true"}
+spec:
+  replicas: 0
+  selector: {matchLabels: {app: sim-memory-leak}}
+  template:
+    metadata: {labels: {app: sim-memory-leak}}
+    spec:
+      containers:
+        - name: leak
+          image: busybox:1.36
+          # Grows memory ~1MiB/s until the 96Mi limit -> OOMKilled -> restart.
+          command: ["sh", "-c", "a=''; while :; do a=\"$a$(head -c 1048576 /dev/zero | tr '\\0' x)\"; sleep 1; done"]
+          resources:
+            requests: {cpu: 50m, memory: 32Mi}
+            limits: {cpu: 200m, memory: 96Mi}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: sim-disk-fill
+  namespace: kybernaut-lab
+  labels: {app: sim-disk-fill, kybernaut.io/simulator: "true"}
+spec:
+  replicas: 0
+  selector: {matchLabels: {app: sim-disk-fill}}
+  template:
+    metadata: {labels: {app: sim-disk-fill}}
+    spec:
+      containers:
+        - name: filler
+          image: busybox:1.36
+          # Writes into a size-limited emptyDir; exceeding it evicts the pod.
+          # The host disk is never filled: sizeLimit bounds the volume.
+          command: ["sh", "-c", "i=0; while :; do dd if=/dev/zero of=/scratch/f$i bs=1M count=5 2>/dev/null; i=$((i+1)); sleep 2; done"]
+          volumeMounts: [{name: scratch, mountPath: /scratch}]
+          resources:
+            requests: {cpu: 50m, memory: 16Mi, ephemeral-storage: 16Mi}
+            limits: {cpu: 100m, memory: 32Mi, ephemeral-storage: 64Mi}
+      volumes:
+        - name: scratch
+          emptyDir: {sizeLimit: 40Mi}

@@ -28,6 +28,7 @@ def test_metrics_endpoint_returns_metrics(api_client, monkeypatch):
     expected = {
         "total_incidents": 2,
         "active_incidents": 1,
+        "pending_approvals": 0,
         "by_status": {"OPEN": 1, "RESOLVED": 1},
         "by_severity": {"high": 2},
         "by_service": {"kubernetes-lab": 2},

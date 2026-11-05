@@ -1,0 +1,12 @@
+groups:
+  - name: kybernaut.application
+    rules:
+      - alert: KybernautApplicationTargetDown
+        expr: up{job=~"^(order|payment|user|inventory)-service$"} == 0
+        for: 1m
+        labels:
+          severity: critical
+          service: "{{ $labels.job }}"
+        annotations:
+          summary: "Application target {{ $labels.job }} is unavailable"
+          description: "Prometheus has failed to scrape {{ $labels.instance }} for at least 1 minute."

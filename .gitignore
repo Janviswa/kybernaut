@@ -2,7 +2,9 @@
 # Secrets
 .env
 .env.*
+!.env.example
 config/operators.json
+config/operator_password_hashes.json
 
 # Python
 .venv/
@@ -17,6 +19,8 @@ remediation_audit.jsonl
 
 # Local development
 .vscode/
+UI/node_modules/
+UI/dist/
 
 # Local backups and temporary copies
 backups/
@@ -30,3 +34,7 @@ data/telemetry_baseline_v2_failed.csv
 data/telemetry_baseline_v3.csv
 data/telemetry_baseline_v4.csv
 data/telemetry_baseline_v5.csv
+
+# Generated reports and benchmark runs
+reports/
+benchmark/results*.json

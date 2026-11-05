@@ -1,0 +1,48 @@
+/* Incident detail page */
+.idet-hero{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:14px;padding:18px 20px;border-radius:18px;border:1px solid var(--bd);background:linear-gradient(135deg,#F0FAF9 0%,#fff 60%);box-shadow:var(--sh1);position:relative;overflow:hidden}
+.idet-hero::before{content:"";position:absolute;left:0;top:0;bottom:0;width:5px;background:var(--ac)}
+.idet-hero.sev-critical::before{background:#DC2626}.idet-hero.sev-high::before{background:#EA580C}
+.idet-hero.sev-medium::before{background:#D97706}.idet-hero.sev-low::before{background:#16A34A}
+.idet-stat{display:flex;gap:12px;align-items:flex-start;min-width:0}
+.idet-stat>svg{flex:none;margin-top:3px;color:var(--ac);background:var(--acl);border-radius:8px;padding:5px;box-sizing:content-box;width:16px;height:16px}
+.idet-stat small{display:block;color:var(--mu);font-size:11px;text-transform:uppercase;letter-spacing:.05em;font-weight:700}
+.idet-stat b{display:block;font-size:14.5px;overflow-wrap:anywhere}
+
+.idet-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px;align-items:start}
+.idet-card{background:#fff;border:1px solid var(--bd);border-radius:18px;box-shadow:var(--sh1);overflow:hidden;min-width:0;animation:rise .45s var(--ease) both}
+.idet-card.wide{grid-column:1/-1}
+.idet-card:nth-child(2){animation-delay:.06s}.idet-card:nth-child(3){animation-delay:.12s}.idet-card:nth-child(4){animation-delay:.18s}
+.idet-card>header{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:14px 20px;border-bottom:1px solid var(--bd);background:#F7FBFB}
+.idet-card>header h3{margin:0;display:flex;align-items:center;gap:10px;font-size:14.5px}
+.idet-ic{display:grid;place-items:center;width:28px;height:28px;border-radius:9px;background:var(--acl);color:var(--ac2)}
+.idet-body{padding:18px 20px;max-height:620px;overflow:auto}
+.idet-body h3{margin:18px 0 8px;font-size:13.5px}
+
+.idet-kv{display:grid;grid-template-columns:130px minmax(0,1fr);margin:0}
+.idet-kv dt,.idet-kv dd{padding:10px 0;border-bottom:1px solid #EAF2F2;margin:0}
+.idet-kv dt{color:var(--mu);font-weight:600}
+.idet-kv dd{overflow-wrap:anywhere;font-weight:500}
+.idet-kv dt:nth-last-of-type(1),.idet-kv dd:last-of-type{border-bottom:0}
+.idet-fp{font-size:11.5px;line-height:1.5}
+
+.idet-lead{margin:0 0 12px;font-size:14px;font-weight:600}
+.idet-facts{margin:0 0 12px;padding:0;list-style:none;display:flex;flex-direction:column;gap:8px}
+.idet-facts li{padding:10px 12px;border-radius:12px;background:#F4FBFA;border:1px solid #D3EEEB;border-left:4px solid var(--ac)}
+.idet-chips{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:12px}
+.idet-chip{display:inline-flex;flex-direction:column;padding:6px 12px;border:1px solid var(--bd);border-radius:12px;background:#fff;font-weight:600;font-size:12.5px;max-width:100%;overflow-wrap:anywhere}
+.idet-chip small{color:var(--mu);font-size:10.5px;text-transform:uppercase;letter-spacing:.05em;font-weight:700}
+.idet-raw{margin-top:8px}.idet-raw summary{cursor:pointer;color:var(--ac2);font-weight:700;font-size:12.5px}
+.idet-raw .json{background:#F5F9F9;border:1px solid var(--bd);border-radius:12px;padding:12px}
+
+.idet-stages{list-style:none;margin:0 0 12px;padding:0;display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:12px}
+.idet-stage{display:flex;gap:12px;padding:14px;border:1px solid var(--bd);border-radius:14px;background:#FBFDFD}
+.idet-stage.on{border-color:#9ED8D3;background:linear-gradient(180deg,#F2FBFA,#fff)}
+.idet-stage small{display:block;color:var(--mu);font-size:11px;text-transform:uppercase;letter-spacing:.05em;font-weight:700;margin-bottom:2px}
+.idet-stage>div{min-width:0;overflow-wrap:anywhere}
+.idet-dot{flex:none;width:32px;height:32px;border-radius:50%;display:grid;place-items:center;background:#EEF3F3;color:#7A9498}
+.idet-stage.on .idet-dot{background:var(--acl);color:var(--ac2)}
+.idet-note{padding:10px 14px;border-radius:12px;background:#F7FBFB;border:1px dashed var(--bd2);margin:0 0 10px}
+.idet-approval{padding:12px 14px;border:1px solid var(--bd);border-radius:12px;margin-bottom:8px;background:#FBFDFD}
+
+@media (max-width:1000px){.idet-grid{grid-template-columns:1fr}.idet-kv{grid-template-columns:110px minmax(0,1fr)}}
+@media (prefers-reduced-motion:reduce){.idet-card{animation:none!important}}

@@ -1,0 +1,75 @@
+/* Console cards: service health explainer, audit flow chart, execution report */
+
+/* ---- service health ---- */
+.hcard{width:min(100%,640px)}
+.hcard-explain{margin:8px 0 10px;line-height:1.5}
+.hcard-incident{display:flex;gap:10px;align-items:flex-start;padding:10px 12px;border:1px solid #F3C98B;background:#FFF8EC;border-radius:12px;margin-bottom:10px;color:#7A4B00}
+.hcard-incident svg{flex:none;margin-top:2px}
+.hcard-incident p{margin:2px 0 0}
+.hcard-incident ul{margin:4px 0 0;padding-left:18px}
+.hcard-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin:8px 0}
+.hcard-grid>div{border:1px solid var(--bd);border-radius:12px;padding:8px 10px;background:#F7FBFB;display:flex;flex-direction:column;gap:2px;min-width:0}
+.hcard-grid small{color:var(--mu);font-size:11px;text-transform:uppercase;letter-spacing:.04em}
+.hcard-grid b{font-size:13px;overflow-wrap:anywhere}
+.hcard-findings{margin:6px 0;padding-left:18px}
+@media (max-width:720px){.hcard-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+
+/* ---- audit flow ---- */
+.aflow{width:min(100%,680px)}
+.aflow-phases{list-style:none;display:flex;flex-wrap:wrap;gap:6px;margin:10px 0 14px;padding:0}
+.aflow-phases li{display:inline-flex;align-items:center;gap:5px;font-size:12px;padding:4px 10px;border-radius:999px;border:1px dashed var(--bd2);color:var(--mu);background:#fff}
+.aflow-phases li.on{border-style:solid;border-color:#7CD1CB;background:#E8F7F6;color:#0A6B6E;font-weight:600}
+.aflow-stages{list-style:none;margin:0;padding:0;display:flex;flex-direction:column}
+.aflow-stage{display:flex;gap:12px;position:relative;padding-bottom:14px;opacity:0;animation:rise .45s var(--ease) both}
+.aflow-stage:last-child{padding-bottom:0}
+.aflow-stage::before{content:"";position:absolute;left:12px;top:26px;bottom:0;width:2px;background:#BFE6E3}
+.aflow-stage.is-off::before{background:repeating-linear-gradient(#D5E3E3 0 4px,transparent 4px 8px)}
+.aflow-stage:last-child::before{display:none}
+.aflow-num{flex:none;width:26px;height:26px;border-radius:50%;display:grid;place-items:center;font-size:12px;font-weight:700;background:#fff;border:2px dashed var(--bd2);color:var(--mu);z-index:1}
+.aflow-stage.is-on .aflow-num{border:0;background:#DCFCE7;color:#15803D}
+.aflow-body{flex:1;min-width:0;display:flex;flex-direction:column;gap:6px}
+.aflow-head{display:flex;align-items:center;gap:10px;min-height:26px}
+.aflow-stage.is-off .aflow-head strong{color:var(--mu);font-weight:600}
+.aflow-node{border:1px solid var(--bd2);border-left:4px solid var(--ac);border-radius:12px;padding:9px 12px;background:#fff}
+.aflow-node.t-good{border-left-color:#16A34A}
+.aflow-node.t-warn{border-left-color:#D97706}
+.aflow-node.t-bad{border-left-color:#DC2626;background:#FEF6F6}
+.aflow-node.t-info{border-left-color:#0E8C8F}
+.aflow-node b{text-transform:capitalize}
+.aflow-derived{border:1px dashed #9ED8D3;border-radius:12px;padding:9px 12px;background:#F5FBFA}
+.aflow-derived p{margin:2px 0 0}
+.aflow-phase{font-size:11px;color:var(--mu);text-transform:uppercase;letter-spacing:.05em}
+.aflow-other{margin-top:12px;display:flex;flex-direction:column;gap:6px}
+
+/* ---- execution report ---- */
+.report{width:min(100%,640px);border-left:5px solid var(--ac)}
+.report.r-resolved{border-left-color:#16A34A;background:linear-gradient(180deg,#F3FBF5,#fff)}
+.report.r-dry_run{border-left-color:#D97706;background:linear-gradient(180deg,#FFF9EF,#fff)}
+.report.r-not_resolved,.report.r-failed{border-left-color:#DC2626;background:linear-gradient(180deg,#FEF6F6,#fff)}
+.report p{margin:8px 0}
+.report ul{margin:2px 0 0;padding-left:18px}
+
+/* ---- inline remediation question ---- */
+.rem-ask{margin:8px 0 4px;font-weight:600}
+.rem-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
+.rem-actions .btn{margin-top:0}
+
+/* ---- audit flow inside the right-hand Audit tab (same flow as the chat card) ---- */
+.aflow-side{margin-top:10px}
+.aflow-side .ai{max-width:100%;width:100%;box-shadow:none;border:0;background:transparent;padding:0;border-radius:0;animation:none}
+.aflow-side .aflow{width:100%}
+.aflow-side .aflow-phases{margin:8px 0 12px}
+
+/* ---- grounded answer: structured, readable ---- */
+.rich{display:flex;flex-direction:column;gap:6px;margin:8px 0 2px;line-height:1.55}
+.rich p{margin:0}
+.rich .rich-h{margin:8px 0 0;font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:#0A6B6E}
+.rich .rich-lead{font-size:14.5px;font-weight:600}
+.rich ul{margin:0;padding:0;list-style:none;display:flex;flex-direction:column;gap:5px}
+.rich li{position:relative;padding:6px 10px 6px 26px;border:1px solid var(--bd);border-radius:10px;background:#F8FCFC}
+.rich li::before{content:"";position:absolute;left:11px;top:14px;width:6px;height:6px;border-radius:50%;background:#0E8C8F}
+.rich li.warn{background:#FFF9EF;border-color:#F3C98B}
+.rich li.warn::before{background:#D97706}
+.rich b{font-weight:700}
+
+@media (prefers-reduced-motion:reduce){.aflow-stage{animation:none!important;opacity:1!important}}

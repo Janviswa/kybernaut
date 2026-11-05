@@ -1,0 +1,64 @@
+name: kybernaut-observability
+
+services:
+  loki:
+    image: grafana/loki:3.0.0
+    container_name: kybernaut-observability-loki
+    command: ["-config.file=/etc/loki/loki-config.yml"]
+    volumes:
+      - ./monitoring/loki/loki-config.yml:/etc/loki/loki-config.yml:ro
+      - loki-data:/loki
+    networks:
+      observability:
+        aliases:
+          - loki
+    healthcheck:
+      test:
+        - CMD
+        - wget
+        - -q
+        - -O
+        - /dev/null
+        - http://127.0.0.1:3100/ready
+      interval: 10s
+      timeout: 3s
+      retries: 5
+      start_period: 10s
+    restart: unless-stopped
+
+  alloy:
+    image: grafana/alloy:v1.21.1
+    container_name: kybernaut-observability-alloy
+    command:
+      - run
+      - --storage.path=/tmp/alloy-data
+      - /etc/alloy/config.alloy
+    volumes:
+      - ./monitoring/alloy/config.alloy:/etc/alloy/config.alloy:ro
+    ports:
+      - "127.0.0.1:1515:1515/tcp"
+    networks:
+      - observability
+    depends_on:
+      loki:
+        condition: service_healthy
+    healthcheck:
+      test:
+        - CMD-SHELL
+        - >-
+          /usr/bin/bash -c 'exec 3<>/dev/tcp/127.0.0.1/12345; printf "GET /-/ready HTTP/1.0\r\n\r\n" >&3;
+          IFS= read -r status <&3; [[ "$$status" == *200* ]]'
+      interval: 10s
+      timeout: 3s
+      retries: 5
+      start_period: 10s
+    restart: unless-stopped
+
+volumes:
+  loki-data:
+    name: kybernaut-observability_loki-data
+
+networks:
+  observability:
+    name: kybernaut-observability_backend
+    driver: bridge

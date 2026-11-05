@@ -3,6 +3,7 @@
 import hashlib
 from collections.abc import Mapping
 
+from app.services.incident_classifier import classify_incident
 from app.services.incident_repository import (
     list_incidents,
     record_incident,
@@ -92,6 +93,35 @@ def validate_observation(observation: dict) -> None:
             raise ValueError("Deployment name is missing")
 
 
+def _incident_category(incident: dict, observation: dict) -> str | None:
+    classification = classify_incident(
+        None,
+        {
+            "namespace": observation["namespace"],
+            "incidents": [incident],
+            "deployments": observation["deployments"],
+        },
+        None,
+    )
+    category = classification.get("incident_type")
+    return category if isinstance(category, str) and category != "unknown" else None
+
+
+def _affected_workload(incident: dict, observation: dict) -> str | None:
+    resource = incident.get("resource")
+    if not isinstance(resource, str):
+        return None
+
+    if incident.get("resource_kind") == "Deployment":
+        return resource
+
+    deployments = [
+        item["name"] for item in observation["deployments"]
+        if resource.startswith(f"{item['name']}-")
+    ]
+    return max(deployments, key=len) if deployments else None
+
+
 def persist_observation(observation: dict) -> dict:
     """Validate and persist a complete successful observation."""
     validate_observation(observation)
@@ -107,6 +137,14 @@ def persist_observation(observation: dict) -> dict:
 
         digest = hashlib.sha256(fingerprint.encode("utf-8")).hexdigest()[:12]
         evidence = incident.get("evidence", [])
+        resource_kind = incident.get("resource_kind")
+        if not resource_kind:
+            if incident["type"] in {"pod_container_failure", "pod_failed"}:
+                resource_kind = "Pod"
+            elif incident["type"] == "deployment_unavailable_replicas":
+                resource_kind = "Deployment"
+            else:
+                resource_kind = "Unknown"
         message = "; ".join(evidence) or incident.get(
             "recommendation", "Kubernetes incident detected"
         )
@@ -118,6 +156,23 @@ def persist_observation(observation: dict) -> dict:
             "severity": incident["severity"],
             "message": message,
             "fingerprint": fingerprint,
+            "source_timestamp": incident.get("source_timestamp"),
+            "source_evidence": {
+                "source": "kubernetes",
+                "namespace": namespace,
+                "type": incident["type"],
+                "resource": incident["resource"],
+                "resource_kind": resource_kind,
+                "resource_uid": incident.get("resource_uid"),
+                "workload": _affected_workload(incident, observation),
+                "incident_category": _incident_category(
+                    incident, observation
+                ),
+                "source_timestamp": incident.get("source_timestamp"),
+                "observed_at": observation.get("observed_at"),
+                "evidence": evidence,
+                "recommendation": incident.get("recommendation"),
+            },
         })
         persisted.append(record)
 

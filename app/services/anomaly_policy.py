@@ -20,6 +20,15 @@ def _validate_rows(
 ) -> np.ndarray:
     """Validate telemetry observations without changing their values."""
     try:
+        raw_values = np.asarray(rows, dtype=object)
+    except (TypeError, ValueError) as exc:
+        raise ValueError("Telemetry must contain numeric values") from exc
+    if any(
+        isinstance(value, (bool, np.bool_))
+        for value in raw_values.flat
+    ):
+        raise ValueError("Telemetry values must be numeric, not boolean")
+    try:
         values = np.asarray(rows, dtype=float)
     except (TypeError, ValueError) as exc:
         raise ValueError("Telemetry must contain numeric values") from exc

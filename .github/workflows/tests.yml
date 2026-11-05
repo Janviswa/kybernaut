@@ -7,25 +7,58 @@ on:
   pull_request:
     branches: [main]
 
+permissions:
+  contents: read
+
 jobs:
   test:
     runs-on: ubuntu-latest
+    env:
+      PYTHON_BASE_IMAGE: python@sha256:b7a9e5f6a93d6d4a31f129bbd4bdee69efccb6ded0fb230d78aafaf37af98377
 
     steps:
       - name: Check out repository
         uses: actions/checkout@v4
+        with:
+          persist-credentials: false
 
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
           python-version: "3.11"
-          cache: pip
-          cache-dependency-path: requirements.txt
 
-      - name: Install dependencies
+      - name: Run isolated network canaries and full test suite
+        id: isolated-tests
         run: |
-          python -m pip install --upgrade pip
-          python -m pip install -r requirements.txt
+          python scripts/ci_network_isolation.py \
+            --python-version 3.11 \
+            --base-image "$PYTHON_BASE_IMAGE" \
+            --expected-revision "$GITHUB_SHA" \
+            --report-dir "$RUNNER_TEMP/kybernaut-ci-artifacts"
 
-      - name: Run tests
-        run: python -m pytest -q
+      - name: Validate JUnit report redaction
+        id: validate-junit
+        if: always()
+        env:
+          JUNIT_REPORT: ${{ runner.temp }}/kybernaut-ci-artifacts/junit/results.xml
+          KYBERNAUT_JWT_SECRET: ci-junit-validation-sentinel-secret
+        run: python scripts/validate_junit_report.py "$JUNIT_REPORT"
+
+      - name: Validate network isolation evidence
+        id: validate-isolation
+        if: always()
+        env:
+          ISOLATION_EVIDENCE: ${{ runner.temp }}/kybernaut-ci-artifacts/network-isolation.json
+          JUNIT_REPORT: ${{ runner.temp }}/kybernaut-ci-artifacts/junit/results.xml
+        run: python scripts/validate_network_isolation_evidence.py "$ISOLATION_EVIDENCE" "$JUNIT_REPORT"
+
+      - name: Upload JUnit report
+        if: ${{ always() && steps.validate-junit.outcome == 'success' && steps.validate-isolation.outcome == 'success' }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: junit-test-results
+          path: |
+            ${{ runner.temp }}/kybernaut-ci-artifacts/junit/results.xml
+            ${{ runner.temp }}/kybernaut-ci-artifacts/network-isolation.json
+          if-no-files-found: error
+          retention-days: 7

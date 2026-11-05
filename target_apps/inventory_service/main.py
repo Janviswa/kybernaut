@@ -1,7 +1,17 @@
 
 from fastapi import FastAPI, HTTPException
-from pydantic import BaseModel
+from pydantic import BaseModel, field_validator
 from prometheus_fastapi_instrumentator import Instrumentator
+try:
+    from common.local_failure_simulation import (
+        install_local_failure_simulation, scenarios_for_service,
+    )
+except ModuleNotFoundError as exc:
+    if exc.name != "common":
+        raise
+    from target_apps.common.local_failure_simulation import (
+        install_local_failure_simulation, scenarios_for_service,
+    )
 
 app = FastAPI(title="Kybernaut Target - Inventory Service")
 
@@ -28,6 +38,12 @@ Instrumentator(
     ),
 ).expose(app, endpoint="/metrics")
 
+install_local_failure_simulation(
+    app,
+    service="inventory-service",
+    scenarios=scenarios_for_service("inventory-service"),
+)
+
 inventory = {
     "Laptop": 10,
     "Mouse": 25,
@@ -38,6 +54,13 @@ inventory = {
 class StockRequest(BaseModel):
     product: str
     quantity: int
+
+    @field_validator("quantity", mode="before")
+    @classmethod
+    def reject_boolean_quantity(cls, value):
+        if isinstance(value, bool):
+            raise ValueError("quantity must be an integer")
+        return value
 
 
 @app.get("/health")

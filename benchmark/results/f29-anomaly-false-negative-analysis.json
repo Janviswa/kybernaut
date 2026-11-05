@@ -1,0 +1,5301 @@
+{
+  "schema_version": 1,
+  "evaluation_mode": "synthetic_false_negative_analysis",
+  "f28_artifact_sha256": "7694af9b92a42fca5e4d1214f3ab3f529f8f5915c7e0657729e15c484307571d",
+  "detector": {
+    "identity": "app.services.anomaly_policy.DirectionAwareAnomalyPolicy",
+    "threshold": 5.0,
+    "threshold_changed": false,
+    "baseline_sha256": "777724eb6aae20da2104fef327dd691ab31a542be06f0c45fc5f66d8cfcac1a1"
+  },
+  "split": {
+    "method": "episode-family holdout; F.28 development scenarios retained; new deterministic holdout episodes",
+    "development_scenario_families": [
+      "bounded_multivariate_noise_assumed_normal",
+      "gradual_cpu_drift",
+      "sudden_down_cpu_cores_used",
+      "sudden_down_p95_latency_seconds",
+      "sudden_down_request_rate",
+      "sudden_up_cpu_cores_used",
+      "sudden_up_memory_bytes",
+      "sudden_up_p95_latency_seconds"
+    ],
+    "holdout_scenario_families": [
+      "bounded_noise_control",
+      "concurrent_latency_memory_step",
+      "gradual_memory_drift",
+      "stable_center_control"
+    ],
+    "development_episode_count": 4,
+    "holdout_episode_count": 16,
+    "development_episode_ids": [
+      "gradual-drift-inventory-service-cpu",
+      "gradual-drift-order-service-cpu",
+      "gradual-drift-payment-service-cpu",
+      "gradual-drift-user-service-cpu"
+    ],
+    "holdout_episode_ids": [
+      "holdout-inventory-service-bounded_noise_control",
+      "holdout-inventory-service-concurrent_latency_memory_step",
+      "holdout-inventory-service-gradual_memory_drift",
+      "holdout-inventory-service-stable_center_control",
+      "holdout-order-service-bounded_noise_control",
+      "holdout-order-service-concurrent_latency_memory_step",
+      "holdout-order-service-gradual_memory_drift",
+      "holdout-order-service-stable_center_control",
+      "holdout-payment-service-bounded_noise_control",
+      "holdout-payment-service-concurrent_latency_memory_step",
+      "holdout-payment-service-gradual_memory_drift",
+      "holdout-payment-service-stable_center_control",
+      "holdout-user-service-bounded_noise_control",
+      "holdout-user-service-concurrent_latency_memory_step",
+      "holdout-user-service-gradual_memory_drift",
+      "holdout-user-service-stable_center_control"
+    ],
+    "episode_ids_disjoint": true,
+    "scenario_families_disjoint": true,
+    "threshold_frozen_before_holdout": true,
+    "candidate_changes_evaluated": []
+  },
+  "f28_integrity": {
+    "reported_confusion": {
+      "status": "measured",
+      "true_positives": 40,
+      "false_positives": 4,
+      "true_negatives": 104,
+      "false_negatives": 28,
+      "precision": 0.909091,
+      "recall": 0.588235,
+      "f1": 0.714286,
+      "false_positive_rate": 0.037037,
+      "sample_count": 176,
+      "excluded_count": 8
+    },
+    "recomputed_confusion": {
+      "status": "measured",
+      "tp": 40,
+      "fp": 4,
+      "tn": 104,
+      "fn": 28,
+      "precision": 0.909091,
+      "recall": 0.588235,
+      "f1": 0.714286,
+      "false_positive_rate": 0.037037,
+      "sample_count": 176
+    },
+    "confusion_consistent": true,
+    "false_negative_count": 28
+  },
+  "false_negative_analysis": {
+    "by_scenario": {
+      "gradual_cpu_drift": 24,
+      "sudden_down_request_rate": 4
+    },
+    "by_highest_deviation_feature": {
+      "cpu_cores_used": 24,
+      "request_rate": 4
+    },
+    "by_direction": {
+      "HIGH": 24,
+      "LOW": 4
+    },
+    "deviation_score_range_by_feature": {
+      "cpu_cores_used": {
+        "minimum": 0.75,
+        "maximum": 4.5
+      },
+      "request_rate": {
+        "minimum": 4.263163,
+        "maximum": 4.317477
+      }
+    },
+    "service_counts": {
+      "inventory-service": 7,
+      "order-service": 7,
+      "payment-service": 7,
+      "user-service": 7
+    },
+    "missed_episode_durations": [
+      {
+        "episode_id": "gradual-drift-inventory-service-cpu",
+        "service": "inventory-service",
+        "missed_point_count": 6,
+        "missed_sample_span_seconds": 150.0,
+        "positive_episode_duration_seconds": 300.0,
+        "onset_to_first_detection_seconds": 180.0
+      },
+      {
+        "episode_id": "gradual-drift-order-service-cpu",
+        "service": "order-service",
+        "missed_point_count": 6,
+        "missed_sample_span_seconds": 150.0,
+        "positive_episode_duration_seconds": 300.0,
+        "onset_to_first_detection_seconds": 180.0
+      },
+      {
+        "episode_id": "gradual-drift-payment-service-cpu",
+        "service": "payment-service",
+        "missed_point_count": 6,
+        "missed_sample_span_seconds": 150.0,
+        "positive_episode_duration_seconds": 300.0,
+        "onset_to_first_detection_seconds": 180.0
+      },
+      {
+        "episode_id": "gradual-drift-user-service-cpu",
+        "service": "user-service",
+        "missed_point_count": 6,
+        "missed_sample_span_seconds": 150.0,
+        "positive_episode_duration_seconds": 300.0,
+        "onset_to_first_detection_seconds": 180.0
+      }
+    ],
+    "single_point_miss_count": 4,
+    "single_point_miss_duration": "Not specified by F.28; each is a single sampled point.",
+    "baseline_context": {
+      "training_rows_per_service": 42,
+      "chronological_holdout_rows_per_service": 18,
+      "service_feature_statistics": {
+        "order-service": {
+          "request_rate": {
+            "training_median": 0.48474576271186437,
+            "training_robust_scale": 0.11227523970423163
+          },
+          "p95_latency_seconds": {
+            "training_median": 0.0024181297709923665,
+            "training_robust_scale": 4.658514511018453e-06
+          },
+          "memory_bytes": {
+            "training_median": 48840704.0,
+            "training_robust_scale": 64336.15482868549
+          },
+          "cpu_cores_used": {
+            "training_median": 0.0044745762711864406,
+            "training_robust_scale": 5.0257627118646614e-05
+          }
+        },
+        "payment-service": {
+          "request_rate": {
+            "training_median": 0.48474576271186437,
+            "training_robust_scale": 0.11326731125813996
+          },
+          "p95_latency_seconds": {
+            "training_median": 0.002425,
+            "training_robust_scale": 6.834287794129305e-06
+          },
+          "memory_bytes": {
+            "training_median": 48795648.0,
+            "training_robust_scale": 61339.60777607282
+          },
+          "cpu_cores_used": {
+            "training_median": 0.004474576271186439,
+            "training_robust_scale": 0.00010051525423728423
+          }
+        },
+        "user-service": {
+          "request_rate": {
+            "training_median": 0.48474576271186437,
+            "training_robust_scale": 0.11253998928748027
+          },
+          "p95_latency_seconds": {
+            "training_median": 0.0024187734962406015,
+            "training_robust_scale": 1.7630935781617614e-06
+          },
+          "memory_bytes": {
+            "training_median": 48386048.0,
+            "training_robust_scale": 118136.3996543125
+          },
+          "cpu_cores_used": {
+            "training_median": 0.0045084745762711854,
+            "training_robust_scale": 0.00010051525423728938
+          }
+        },
+        "inventory-service": {
+          "request_rate": {
+            "training_median": 0.48474576271186437,
+            "training_robust_scale": 0.11370567234201236
+          },
+          "p95_latency_seconds": {
+            "training_median": 0.0024197540705563096,
+            "training_robust_scale": 1.188281659882099e-06
+          },
+          "memory_bytes": {
+            "training_median": 49991680.0,
+            "training_robust_scale": 48847.65032447537
+          },
+          "cpu_cores_used": {
+            "training_median": 0.004542372881355931,
+            "training_robust_scale": 7.53864406779667e-05
+          }
+        }
+      }
+    },
+    "missed_points": [
+      {
+        "sample_id": "step-order-service-request_rate-down",
+        "service": "order-service",
+        "scenario": "sudden_down_request_rate",
+        "feature": "request_rate",
+        "direction": "LOW",
+        "deviation_score": 4.317476978796371,
+        "value": 0.0,
+        "baseline_median": 0.48474576271186437
+      },
+      {
+        "sample_id": "gradual-drift-order-service-cpu-01",
+        "service": "order-service",
+        "scenario": "gradual_cpu_drift",
+        "feature": "cpu_cores_used",
+        "direction": "HIGH",
+        "deviation_score": 0.7500000000000009,
+        "value": 0.004512269491525426,
+        "baseline_median": 0.0044745762711864406
+      },
+      {
+        "sample_id": "gradual-drift-order-service-cpu-02",
+        "service": "order-service",
+        "scenario": "gradual_cpu_drift",
+        "feature": "cpu_cores_used",
+        "direction": "HIGH",
+        "deviation_score": 1.5000000000000018,
+        "value": 0.004549962711864411,
+        "baseline_median": 0.0044745762711864406
+      },
+      {
+        "sample_id": "gradual-drift-order-service-cpu-03",
+        "service": "order-service",
+        "scenario": "gradual_cpu_drift",
+        "feature": "cpu_cores_used",
+        "direction": "HIGH",
+        "deviation_score": 2.2500000000000027,
+        "value": 0.004587655932203396,
+        "baseline_median": 0.0044745762711864406
+      },
+      {
+        "sample_id": "gradual-drift-order-service-cpu-04",
+        "service": "order-service",
+        "scenario": "gradual_cpu_drift",
+        "feature": "cpu_cores_used",
+        "direction": "HIGH",
+        "deviation_score": 3.0000000000000036,
+        "value": 0.004625349152542381,
+        "baseline_median": 0.0044745762711864406
+      },
+      {
+        "sample_id": "gradual-drift-order-service-cpu-05",
+        "service": "order-service",
+        "scenario": "gradual_cpu_drift",
+        "feature": "cpu_cores_used",
+        "direction": "HIGH",
+        "deviation_score": 3.7500000000000044,
+        "value": 0.004663042372881366,
+        "baseline_median": 0.0044745762711864406
+      },
+      {
+        "sample_id": "gradual-drift-order-service-cpu-06",
+        "service": "order-service",
+        "scenario": "gradual_cpu_drift",
+        "feature": "cpu_cores_used",
+        "direction": "HIGH",
+        "deviation_score": 4.500000000000005,
+        "value": 0.004700735593220351,
+        "baseline_median": 0.0044745762711864406
+      },
+      {
+        "sample_id": "step-payment-service-request_rate-down",
+        "service": "payment-service",
+        "scenario": "sudden_down_request_rate",
+        "feature": "request_rate",
+        "direction": "LOW",
+        "deviation_score": 4.279661601634674,
+        "value": 0.0,
+        "baseline_median": 0.48474576271186437
+      },
+      {
+        "sample_id": "gradual-drift-payment-service-cpu-01",
+        "service": "payment-service",
+        "scenario": "gradual_cpu_drift",
+        "feature": "cpu_cores_used",
+        "direction": "HIGH",
+        "deviation_score": 0.749999999999999,
+        "value": 0.004549962711864402,
+        "baseline_median": 0.004474576271186439
+      },
+      {
+        "sample_id": "gradual-drift-payment-service-cpu-02",
+        "service": "payment-service",
+        "scenario": "gradual_cpu_drift",
+        "feature": "cpu_cores_used",
+        "direction": "HIGH",
+        "deviation_score": 1.499999999999998,
+        "value": 0.004625349152542365,
+        "baseline_median": 0.004474576271186439
+      },
+      {
+        "sample_id": "gradual-drift-payment-service-cpu-03",
+        "service": "payment-service",
+        "scenario": "gradual_cpu_drift",
+        "feature": "cpu_cores_used",
+        "direction": "HIGH",
+        "deviation_score": 2.249999999999997,
+        "value": 0.004700735593220328,
+        "baseline_median": 0.004474576271186439
+      },
+      {
+        "sample_id": "gradual-drift-payment-service-cpu-04",
+        "service": "payment-service",
+        "scenario": "gradual_cpu_drift",
+        "feature": "cpu_cores_used",
+        "direction": "HIGH",
+        "deviation_score": 2.999999999999996,
+        "value": 0.004776122033898291,
+        "baseline_median": 0.004474576271186439
+      },
+      {
+        "sample_id": "gradual-drift-payment-service-cpu-05",
+        "service": "payment-service",
+        "scenario": "gradual_cpu_drift",
+        "feature": "cpu_cores_used",
+        "direction": "HIGH",
+        "deviation_score": 3.7500000000000036,
+        "value": 0.004851508474576255,
+        "baseline_median": 0.004474576271186439
+      },
+      {
+        "sample_id": "gradual-drift-payment-service-cpu-06",
+        "service": "payment-service",
+        "scenario": "gradual_cpu_drift",
+        "feature": "cpu_cores_used",
+        "direction": "HIGH",
+        "deviation_score": 4.500000000000003,
+        "value": 0.004926894915254218,
+        "baseline_median": 0.004474576271186439
+      },
+      {
+        "sample_id": "step-user-service-request_rate-down",
+        "service": "user-service",
+        "scenario": "sudden_down_request_rate",
+        "feature": "request_rate",
+        "direction": "LOW",
+        "deviation_score": 4.307320142652536,
+        "value": 0.0,
+        "baseline_median": 0.48474576271186437
+      },
+      {
+        "sample_id": "gradual-drift-user-service-cpu-01",
+        "service": "user-service",
+        "scenario": "gradual_cpu_drift",
+        "feature": "cpu_cores_used",
+        "direction": "HIGH",
+        "deviation_score": 0.7500000000000038,
+        "value": 0.004583861016949153,
+        "baseline_median": 0.0045084745762711854
+      },
+      {
+        "sample_id": "gradual-drift-user-service-cpu-02",
+        "service": "user-service",
+        "scenario": "gradual_cpu_drift",
+        "feature": "cpu_cores_used",
+        "direction": "HIGH",
+        "deviation_score": 1.499999999999999,
+        "value": 0.004659247457627119,
+        "baseline_median": 0.0045084745762711854
+      },
+      {
+        "sample_id": "gradual-drift-user-service-cpu-03",
+        "service": "user-service",
+        "scenario": "gradual_cpu_drift",
+        "feature": "cpu_cores_used",
+        "direction": "HIGH",
+        "deviation_score": 2.2500000000000027,
+        "value": 0.004734633898305087,
+        "baseline_median": 0.0045084745762711854
+      },
+      {
+        "sample_id": "gradual-drift-user-service-cpu-04",
+        "service": "user-service",
+        "scenario": "gradual_cpu_drift",
+        "feature": "cpu_cores_used",
+        "direction": "HIGH",
+        "deviation_score": 2.999999999999998,
+        "value": 0.004810020338983053,
+        "baseline_median": 0.0045084745762711854
+      },
+      {
+        "sample_id": "gradual-drift-user-service-cpu-05",
+        "service": "user-service",
+        "scenario": "gradual_cpu_drift",
+        "feature": "cpu_cores_used",
+        "direction": "HIGH",
+        "deviation_score": 3.7500000000000013,
+        "value": 0.004885406779661021,
+        "baseline_median": 0.0045084745762711854
+      },
+      {
+        "sample_id": "gradual-drift-user-service-cpu-06",
+        "service": "user-service",
+        "scenario": "gradual_cpu_drift",
+        "feature": "cpu_cores_used",
+        "direction": "HIGH",
+        "deviation_score": 4.4999999999999964,
+        "value": 0.004960793220338987,
+        "baseline_median": 0.0045084745762711854
+      },
+      {
+        "sample_id": "step-inventory-service-request_rate-down",
+        "service": "inventory-service",
+        "scenario": "sudden_down_request_rate",
+        "feature": "request_rate",
+        "direction": "LOW",
+        "deviation_score": 4.263162538222456,
+        "value": 0.0,
+        "baseline_median": 0.48474576271186437
+      },
+      {
+        "sample_id": "gradual-drift-inventory-service-cpu-01",
+        "service": "inventory-service",
+        "scenario": "gradual_cpu_drift",
+        "feature": "cpu_cores_used",
+        "direction": "HIGH",
+        "deviation_score": 0.7499999999999983,
+        "value": 0.004598912711864406,
+        "baseline_median": 0.004542372881355931
+      },
+      {
+        "sample_id": "gradual-drift-inventory-service-cpu-02",
+        "service": "inventory-service",
+        "scenario": "gradual_cpu_drift",
+        "feature": "cpu_cores_used",
+        "direction": "HIGH",
+        "deviation_score": 1.4999999999999967,
+        "value": 0.004655452542372881,
+        "baseline_median": 0.004542372881355931
+      },
+      {
+        "sample_id": "gradual-drift-inventory-service-cpu-03",
+        "service": "inventory-service",
+        "scenario": "gradual_cpu_drift",
+        "feature": "cpu_cores_used",
+        "direction": "HIGH",
+        "deviation_score": 2.249999999999995,
+        "value": 0.004711992372881356,
+        "baseline_median": 0.004542372881355931
+      },
+      {
+        "sample_id": "gradual-drift-inventory-service-cpu-04",
+        "service": "inventory-service",
+        "scenario": "gradual_cpu_drift",
+        "feature": "cpu_cores_used",
+        "direction": "HIGH",
+        "deviation_score": 3.000000000000005,
+        "value": 0.004768532203389832,
+        "baseline_median": 0.004542372881355931
+      },
+      {
+        "sample_id": "gradual-drift-inventory-service-cpu-05",
+        "service": "inventory-service",
+        "scenario": "gradual_cpu_drift",
+        "feature": "cpu_cores_used",
+        "direction": "HIGH",
+        "deviation_score": 3.7500000000000036,
+        "value": 0.004825072033898307,
+        "baseline_median": 0.004542372881355931
+      },
+      {
+        "sample_id": "gradual-drift-inventory-service-cpu-06",
+        "service": "inventory-service",
+        "scenario": "gradual_cpu_drift",
+        "feature": "cpu_cores_used",
+        "direction": "HIGH",
+        "deviation_score": 4.500000000000002,
+        "value": 0.0048816118644067815,
+        "baseline_median": 0.004542372881355931
+      }
+    ],
+    "interpretation": [
+      "Gradual CPU drift labels become positive before the configured 5.0 MAD threshold is crossed; this is threshold latency, not missing input.",
+      "Low request-rate steps remain below 5.0 MAD and low-direction request-rate deviations are not actionable; their positive labels express the benchmark's assumed anomaly definition.",
+      "Each miss pattern repeats once per service, so the four service copies are not independent scenario families."
+    ]
+  },
+  "holdout": {
+    "purpose": "Validate unchanged 5.0-threshold policy on deterministic episodes not used in F.28 development analysis.",
+    "seed": 2901,
+    "confusion": {
+      "status": "measured",
+      "tp": 24,
+      "fp": 0,
+      "tn": 40,
+      "fn": 24,
+      "precision": 1.0,
+      "recall": 0.5,
+      "f1": 0.666667,
+      "false_positive_rate": 0.0,
+      "sample_count": 88
+    },
+    "by_scenario": {
+      "bounded_noise_control": {
+        "status": "measured",
+        "tp": 0,
+        "fp": 0,
+        "tn": 24,
+        "fn": 0,
+        "precision": null,
+        "recall": null,
+        "f1": null,
+        "false_positive_rate": 0.0,
+        "sample_count": 24
+      },
+      "concurrent_latency_memory_step": {
+        "status": "measured",
+        "tp": 12,
+        "fp": 0,
+        "tn": 0,
+        "fn": 0,
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "false_positive_rate": null,
+        "sample_count": 12
+      },
+      "gradual_memory_drift": {
+        "status": "measured",
+        "tp": 12,
+        "fp": 0,
+        "tn": 4,
+        "fn": 24,
+        "precision": 1.0,
+        "recall": 0.333333,
+        "f1": 0.5,
+        "false_positive_rate": 0.0,
+        "sample_count": 40
+      },
+      "stable_center_control": {
+        "status": "measured",
+        "tp": 0,
+        "fp": 0,
+        "tn": 12,
+        "fn": 0,
+        "precision": null,
+        "recall": null,
+        "f1": null,
+        "false_positive_rate": 0.0,
+        "sample_count": 12
+      }
+    },
+    "episode_detection_delay": [
+      {
+        "episode_id": "holdout-inventory-service-concurrent_latency_memory_step",
+        "positive_point_count": 3,
+        "onset_at": "2026-10-22T05:57:05.111270+00:00",
+        "first_detected_at": "2026-10-22T05:57:05.111270+00:00",
+        "delay_seconds": 0.0,
+        "detected": true
+      },
+      {
+        "episode_id": "holdout-inventory-service-gradual_memory_drift",
+        "positive_point_count": 9,
+        "onset_at": "2026-10-22T05:52:35.111270+00:00",
+        "first_detected_at": "2026-10-22T05:55:35.111270+00:00",
+        "delay_seconds": 180.0,
+        "detected": true
+      },
+      {
+        "episode_id": "holdout-order-service-concurrent_latency_memory_step",
+        "positive_point_count": 3,
+        "onset_at": "2026-10-22T05:24:05.111270+00:00",
+        "first_detected_at": "2026-10-22T05:24:05.111270+00:00",
+        "delay_seconds": 0.0,
+        "detected": true
+      },
+      {
+        "episode_id": "holdout-order-service-gradual_memory_drift",
+        "positive_point_count": 9,
+        "onset_at": "2026-10-22T05:19:35.111270+00:00",
+        "first_detected_at": "2026-10-22T05:22:35.111270+00:00",
+        "delay_seconds": 180.0,
+        "detected": true
+      },
+      {
+        "episode_id": "holdout-payment-service-concurrent_latency_memory_step",
+        "positive_point_count": 3,
+        "onset_at": "2026-10-22T05:35:05.111270+00:00",
+        "first_detected_at": "2026-10-22T05:35:05.111270+00:00",
+        "delay_seconds": 0.0,
+        "detected": true
+      },
+      {
+        "episode_id": "holdout-payment-service-gradual_memory_drift",
+        "positive_point_count": 9,
+        "onset_at": "2026-10-22T05:30:35.111270+00:00",
+        "first_detected_at": "2026-10-22T05:33:35.111270+00:00",
+        "delay_seconds": 180.0,
+        "detected": true
+      },
+      {
+        "episode_id": "holdout-user-service-concurrent_latency_memory_step",
+        "positive_point_count": 3,
+        "onset_at": "2026-10-22T05:46:05.111270+00:00",
+        "first_detected_at": "2026-10-22T05:46:05.111270+00:00",
+        "delay_seconds": 0.0,
+        "detected": true
+      },
+      {
+        "episode_id": "holdout-user-service-gradual_memory_drift",
+        "positive_point_count": 9,
+        "onset_at": "2026-10-22T05:41:35.111270+00:00",
+        "first_detected_at": "2026-10-22T05:44:35.111270+00:00",
+        "delay_seconds": 180.0,
+        "detected": true
+      }
+    ],
+    "mean_detected_episode_delay_seconds": 90.0,
+    "assumptions": [
+      "Injected synthetic episodes are labeled anomalous by construction.",
+      "Stable-center and bounded-noise controls are assumed normal.",
+      "Scenario families and all their points remain wholly in holdout.",
+      "The holdout is small and synthetic; results do not establish live accuracy."
+    ],
+    "samples": [
+      {
+        "sample_id": "holdout-order-service-gradual_memory_drift-00",
+        "episode_id": "holdout-order-service-gradual_memory_drift",
+        "service": "order-service",
+        "scenario": "gradual_memory_drift",
+        "timestamp": "2026-10-22T05:19:05.111270+00:00",
+        "status": "evaluated",
+        "ground_truth_anomaly": false,
+        "predicted_anomaly": false,
+        "predicted_actionable": false,
+        "features": {
+          "request_rate": 0.48474576271186437,
+          "p95_latency_seconds": 0.0024181297709923665,
+          "memory_bytes": 48840704.0,
+          "cpu_cores_used": 0.0044745762711864406
+        },
+        "detector_output": {
+          "features": {
+            "request_rate": {
+              "value": 0.48474576271186437,
+              "baseline_median": 0.48474576271186437,
+              "direction": "NORMAL",
+              "deviation_score": 0.0,
+              "classification": "normal"
+            },
+            "p95_latency_seconds": {
+              "value": 0.0024181297709923665,
+              "baseline_median": 0.0024181297709923665,
+              "direction": "NORMAL",
+              "deviation_score": 0.0,
+              "classification": "normal"
+            },
+            "memory_bytes": {
+              "value": 48840704.0,
+              "baseline_median": 48840704.0,
+              "direction": "NORMAL",
+              "deviation_score": 0.0,
+              "classification": "normal"
+            },
+            "cpu_cores_used": {
+              "value": 0.0044745762711864406,
+              "baseline_median": 0.0044745762711864406,
+              "direction": "NORMAL",
+              "deviation_score": 0.0,
+              "classification": "normal"
+            }
+          },
+          "actionable_candidates": [],
+          "informational_deviations": [],
+          "operational_findings": []
+        }
+      },
+      {
+        "sample_id": "holdout-order-service-gradual_memory_drift-01",
+        "episode_id": "holdout-order-service-gradual_memory_drift",
+        "service": "order-service",
+        "scenario": "gradual_memory_drift",
+        "timestamp": "2026-10-22T05:19:35.111270+00:00",
+        "status": "evaluated",
+        "ground_truth_anomaly": true,
+        "predicted_anomaly": false,
+        "predicted_actionable": false,
+        "features": {
+          "request_rate": 0.48474576271186437,
+          "p95_latency_seconds": 0.0024181297709923665,
+          "memory_bytes": 48892172.92386295,
+          "cpu_cores_used": 0.0044745762711864406
+        },
+        "detector_output": {
+          "features": {
+            "request_rate": {
+              "value": 0.48474576271186437,
+              "baseline_median": 0.48474576271186437,
+              "direction": "NORMAL",
+              "deviation_score": 0.0,
+              "classification": "normal"
+            },
+            "p95_latency_seconds": {
+              "value": 0.0024181297709923665,
+              "baseline_median": 0.0024181297709923665,
+              "direction": "NORMAL",
+              "deviation_score": 0.0,
+              "classification": "normal"
+            },
+            "memory_bytes": {
+              "value": 48892172.92386295,
+              "baseline_median": 48840704.0,
+              "direction": "HIGH",
+              "deviation_score": 0.8000000000000097,
+              "classification": "normal"
+            },
+            "cpu_cores_used": {
+              "value": 0.0044745762711864406,
+              "baseline_median": 0.0044745762711864406,
+              "direction": "NORMAL",
+              "deviation_score": 0.0,
+              "classification": "normal"
+            }
+          },
+          "actionable_candidates": [],
+          "informational_deviations": [],
+          "operational_findings": []
+        }
+      },
+      {
+        "sample_id": "holdout-order-service-gradual_memory_drift-02",
+        "episode_id": "holdout-order-service-gradual_memory_drift",
+        "service": "order-service",
+        "scenario": "gradual_memory_drift",
+        "timestamp": "2026-10-22T05:20:05.111270+00:00",
+        "status": "evaluated",
+        "ground_truth_anomaly": true,
+        "predicted_anomaly": false,
+        "predicted_actionable": false,
+        "features": {
+          "request_rate": 0.48474576271186437,
+          "p95_latency_seconds": 0.0024181297709923665,
+          "memory_bytes": 48943641.8477259,
+          "cpu_cores_used": 0.0044745762711864406
+        },
+        "detector_output": {
+          "features": {
+            "request_rate": {
+              "value": 0.48474576271186437,
+              "baseline_median": 0.48474576271186437,
+              "direction": "NORMAL",
+              "deviation_score": 0.0,
+              "classification": "normal"
+            },
+            "p95_latency_seconds": {
+              "value": 0.0024181297709923665,
+              "baseline_median": 0.0024181297709923665,
+              "direction": "NORMAL",
+              "deviation_score": 0.0,
+              "classification": "normal"
+            },
+            "memory_bytes": {
+              "value": 48943641.8477259,
+              "baseline_median": 48840704.0,
+              "direction": "HIGH",
+              "deviation_score": 1.6000000000000194,
+              "classification": "normal"
+            },
+            "cpu_cores_used": {
+              "value": 0.0044745762711864406,
+              "baseline_median": 0.0044745762711864406,
+              "direction": "NORMAL",
+              "deviation_score": 0.0,
+              "classification": "normal"
+            }
+          },
+          "actionable_candidates": [],
+          "informational_deviations": [],
+          "operational_findings": []
+        }
+      },
+      {
+        "sample_id": "holdout-order-service-gradual_memory_drift-03",
+        "episode_id": "holdout-order-service-gradual_memory_drift",
+        "service": "order-service",
+        "scenario": "gradual_memory_drift",
+        "timestamp": "2026-10-22T05:20:35.111270+00:00",
+        "status": "evaluated",
+        "ground_truth_anomaly": true,
+        "predicted_anomaly": false,
+        "predicted_actionable": false,
+        "features": {
+          "request_rate": 0.48474576271186437,
+          "p95_latency_seconds": 0.0024181297709923665,
+          "memory_bytes": 48995110.77158885,
+          "cpu_cores_used": 0.0044745762711864406
+        },
+        "detector_output": {
+          "features": {
+            "request_rate": {
+              "value": 0.48474576271186437,
+              "baseline_median": 0.48474576271186437,
+              "direction": "NORMAL",
+              "deviation_score": 0.0,
+              "classification": "normal"
+            },
+            "p95_latency_seconds": {
+              "value": 0.0024181297709923665,
+              "baseline_median": 0.0024181297709923665,
+              "direction": "NORMAL",
+              "deviation_score": 0.0,
+              "classification": "normal"
+            },
+            "memory_bytes": {
+              "value": 48995110.77158885,
+              "baseline_median": 48840704.0,
+              "direction": "HIGH",
+              "deviation_score": 2.400000000000029,
+              "classification": "normal"
+            },
+            "cpu_cores_used": {
+              "value": 0.0044745762711864406,
+              "baseline_median": 0.0044745762711864406,
+              "direction": "NORMAL",
+              "deviation_score": 0.0,
+              "classification": "normal"
+            }
+          },
+          "actionable_candidates": [],
+          "informational_deviations": [],
+          "operational_findings": []
+        }
+      },
+      {
+        "sample_id": "holdout-order-service-gradual_memory_drift-04",
+        "episode_id": "holdout-order-service-gradual_memory_drift",
+        "service": "order-service",
+        "scenario": "gradual_memory_drift",
+        "timestamp": "2026-10-22T05:21:05.111270+00:00",
+        "status": "evaluated",
+        "ground_truth_anomaly": true,
+        "predicted_anomaly": false,
+        "predicted_actionable": false,
+        "features": {
+          "request_rate": 0.48474576271186437,
+          "p95_latency_seconds": 0.0024181297709923665,
+          "memory_bytes": 49046579.695451796,
+          "cpu_cores_used": 0.0044745762711864406
+        },
+        "detector_output": {
+          "features": {
+            "request_rate": {
+              "value": 0.48474576271186437,
+              "baseline_median": 0.48474576271186437,
+              "direction": "NORMAL",
+              "deviation_score": 0.0,
+              "classification": "normal"
+            },
+            "p95_latency_seconds": {
+              "value": 0.0024181297709923665,
+              "baseline_median": 0.0024181297709923665,
+              "direction": "NORMAL",
+              "deviation_score": 0.0,
+              "classification": "normal"
+            },
+            "memory_bytes": {
+              "value": 49046579.695451796,
+              "baseline_median": 48840704.0,
+              "direction": "HIGH",
+              "deviation_score": 3.200000000000039,
+              "classification": "normal"
+            },
+            "cpu_cores_used": {
+              "value": 0.0044745762711864406,
+              "baseline_median": 0.0044745762711864406,
+              "direction": "NORMAL",
+              "deviation_score": 0.0,
+              "classification": "normal"
+            }
+          },
+          "actionable_candidates": [],
+          "informational_deviations": [],
+          "operational_findings": []
+        }
+      },
+      {
+        "sample_id": "holdout-order-service-gradual_memory_drift-05",
+        "episode_id": "holdout-order-service-gradual_memory_drift",
+        "service": "order-service",
+        "scenario": "gradual_memory_drift",
+        "timestamp": "2026-10-22T05:21:35.111270+00:00",
+        "status": "evaluated",
+        "ground_truth_anomaly": true,
+        "predicted_anomaly": false,
+        "predicted_actionable": false,
+        "features": {
+          "request_rate": 0.48474576271186437,
+          "p95_latency_seconds": 0.0024181297709923665,
+          "memory_bytes": 49098048.619314745,
+          "cpu_cores_used": 0.0044745762711864406
+        },
+        "detector_output": {
+          "features": {
+            "request_rate": {
+              "value": 0.48474576271186437,
+              "baseline_median": 0.48474576271186437,
+              "direction": "NORMAL",
+              "deviation_score": 0.0,
+              "classification": "normal"
+            },
+            "p95_latency_seconds": {
+              "value": 0.0024181297709923665,
+              "baseline_median": 0.0024181297709923665,
+              "direction": "NORMAL",
+              "deviation_score": 0.0,
+              "classification": "normal"
+            },
+            "memory_bytes": {
+              "value": 49098048.619314745,
+              "baseline_median": 48840704.0,
+              "direction": "HIGH",
+              "deviation_score": 4.000000000000048,
+              "classification": "normal"
+            },
+            "cpu_cores_used": {
+              "value": 0.0044745762711864406,
+              "baseline_median": 0.0044745762711864406,
+              "direction": "NORMAL",
+              "deviation_score": 0.0,
+              "classification": "normal"
+            }
+          },
+          "actionable_candidates": [],
+          "informational_deviations": [],
+          "operational_findings": []
+        }
+      },
+      {
+        "sample_id": "holdout-order-service-gradual_memory_drift-06",
+        "episode_id": "holdout-order-service-gradual_memory_drift",
+        "service": "order-service",
+        "scenario": "gradual_memory_drift",
+        "timestamp": "2026-10-22T05:22:05.111270+00:00",
+        "status": "evaluated",
+        "ground_truth_anomaly": true,
+        "predicted_anomaly": false,
+        "predicted_actionable": false,
+        "features": {
+          "request_rate": 0.48474576271186437,
+          "p95_latency_seconds": 0.0024181297709923665,
+          "memory_bytes": 49149517.543177694,
+          "cpu_cores_used": 0.0044745762711864406
+        },
+        "detector_output": {
+          "features": {
+            "request_rate": {
+              "value": 0.48474576271186437,
+              "baseline_median": 0.48474576271186437,
+              "direction": "NORMAL",
+              "deviation_score": 0.0,
+              "classification": "normal"
+            },
+            "p95_latency_seconds": {
+              "value": 0.0024181297709923665,
+              "baseline_median": 0.0024181297709923665,
+              "direction": "NORMAL",
+              "deviation_score": 0.0,
+              "classification": "normal"
+            },
+            "memory_bytes": {
+              "value": 49149517.543177694,
+              "baseline_median": 48840704.0,
+              "direction": "HIGH",
+              "deviation_score": 4.800000000000058,
+              "classification": "normal"
+            },
+            "cpu_cores_used": {
+              "value": 0.0044745762711864406,
+              "baseline_median": 0.0044745762711864406,
+              "direction": "NORMAL",
+              "deviation_score": 0.0,
+              "classification": "normal"
+            }
+          },
+          "actionable_candidates": [],
+          "informational_deviations": [],
+          "operational_findings": []
+        }
+      },
+      {
+        "sample_id": "holdout-order-service-gradual_memory_drift-07",
+        "episode_id": "holdout-order-service-gradual_memory_drift",
+        "service": "order-service",
+        "scenario": "gradual_memory_drift",
+        "timestamp": "2026-10-22T05:22:35.111270+00:00",
+        "status": "evaluated",
+        "ground_truth_anomaly": true,
+        "predicted_anomaly": true,
+        "predicted_actionable": true,
+        "features": {
+          "request_rate": 0.48474576271186437,
+          "p95_latency_seconds": 0.0024181297709923665,
+          "memory_bytes": 49200986.467040636,
+          "cpu_cores_used": 0.0044745762711864406
+        },
+        "detector_output": {
+          "features": {
+            "request_rate": {
+              "value": 0.48474576271186437,
+              "baseline_median": 0.48474576271186437,
+              "direction": "NORMAL",
+              "deviation_score": 0.0,
+              "classification": "normal"
+            },
+            "p95_latency_seconds": {
+              "value": 0.0024181297709923665,
+              "baseline_median": 0.0024181297709923665,
+              "direction": "NORMAL",
+              "deviation_score": 0.0,
+              "classification": "normal"
+            },
+            "memory_bytes": {
+              "value": 49200986.467040636,
+              "baseline_median": 48840704.0,
+              "direction": "HIGH",
+              "deviation_score": 5.599999999999952,
+              "classification": "actionable_candidate"
+            },
+            "cpu_cores_used": {
+              "value": 0.0044745762711864406,
+              "baseline_median": 0.0044745762711864406,
+              "direction": "NORMAL",
+              "deviation_score": 0.0,
+              "classification": "normal"
+            }
+          },
+          "actionable_candidates": [
+            "memory_bytes"
+          ],
+          "informational_deviations": [],
+          "operational_findings": []
+        }
+      },
+      {
+        "sample_id": "holdout-order-service-gradual_memory_drift-08",
+        "episode_id": "holdout-order-service-gradual_memory_drift",
+        "service": "order-service",
+        "scenario": "gradual_memory_drift",
+        "timestamp": "2026-10-22T05:23:05.111270+00:00",
+        "status": "evaluated",
+        "ground_truth_anomaly": true,
+        "predicted_anomaly": true,
+        "predicted_actionable": true,
+        "features": {
+          "request_rate": 0.48474576271186437,
+          "p95_latency_seconds": 0.0024181297709923665,
+          "memory_bytes": 49252455.390903585,
+          "cpu_cores_used": 0.0044745762711864406
+        },
+        "detector_output": {
+          "features": {
+            "request_rate": {
+              "value": 0.48474576271186437,
+              "baseline_median": 0.48474576271186437,
+              "direction": "NORMAL",
+              "deviation_score": 0.0,
+              "classification": "normal"
+            },
+            "p95_latency_seconds": {
+              "value": 0.0024181297709923665,
+              "baseline_median": 0.0024181297709923665,
+              "direction": "NORMAL",
+              "deviation_score": 0.0,
+              "classification": "normal"
+            },
+            "memory_bytes": {
+              "value": 49252455.390903585,
+              "baseline_median": 48840704.0,
+              "direction": "HIGH",
+              "deviation_score": 6.399999999999961,
+              "classification": "actionable_candidate"
+            },
+            "cpu_cores_used": {
+              "value": 0.0044745762711864406,
+              "baseline_median": 0.0044745762711864406,
+              "direction": "NORMAL",
+              "deviation_score": 0.0,
+              "classification": "normal"
+            }
+          },
+          "actionable_candidates": [
+            "memory_bytes"
+          ],
+          "informational_deviations": [],
+          "operational_findings": []
+        }
+      },
+      {
+        "sample_id": "holdout-order-service-gradual_memory_drift-09",
+        "episode_id": "holdout-order-service-gradual_memory_drift",
+        "service": "order-service",
+        "scenario": "gradual_memory_drift",
+        "timestamp": "2026-10-22T05:23:35.111270+00:00",
+        "status": "evaluated",
+        "ground_truth_anomaly": true,
+        "predicted_anomaly": true,
+        "predicted_actionable": true,
+        "features": {
+          "request_rate": 0.48474576271186437,
+          "p95_latency_seconds": 0.0024181297709923665,
+          "memory_bytes": 49303924.31476653,
+          "cpu_cores_used": 0.0044745762711864406
+        },
+        "detector_output": {
+          "features": {
+            "request_rate": {
+              "value": 0.48474576271186437,
+              "baseline_median": 0.48474576271186437,
+              "direction": "NORMAL",
+              "deviation_score": 0.0,
+              "classification": "normal"
+            },
+            "p95_latency_seconds": {
+              "value": 0.0024181297709923665,
+              "baseline_median": 0.0024181297709923665,
+              "direction": "NORMAL",
+              "deviation_score": 0.0,
+              "classification": "normal"
+            },
+            "memory_bytes": {
+              "value": 49303924.31476653,
+              "baseline_median": 48840704.0,
+              "direction": "HIGH",
+              "deviation_score": 7.199999999999972,
+              "classification": "actionable_candidate"
+            },
+            "cpu_cores_used": {
+              "value": 0.0044745762711864406,
+              "baseline_median": 0.0044745762711864406,
+              "direction": "NORMAL",
+              "deviation_score": 0.0,
+              "classification": "normal"
+            }
+          },
+          "actionable_candidates": [
+            "memory_bytes"
+          ],
+          "informational_deviations": [],
+          "operational_findings": []
+        }
+      },
+      {
+        "sample_id": "holdout-order-service-concurrent_latency_memory_step-00",
+        "episode_id": "holdout-order-service-concurrent_latency_memory_step",
+        "service": "order-service",
+        "scenario": "concurrent_latency_memory_step",
+        "timestamp": "2026-10-22T05:24:05.111270+00:00",
+        "status": "evaluated",
+        "ground_truth_anomaly": true,
+        "predicted_anomaly": true,
+        "predicted_actionable": true,
+        "features": {
+          "request_rate": 0.48474576271186437,
+          "p95_latency_seconds": 0.0024484101153139865,
+          "memory_bytes": 49258889.00638646,
+          "cpu_cores_used": 0.0044745762711864406
+        },
+        "detector_output": {
+          "features": {
+            "request_rate": {
+              "value": 0.48474576271186437,
+              "baseline_median": 0.48474576271186437,
+              "direction": "NORMAL",
+              "deviation_score": 0.0,
+              "classification": "normal"
+            },
+            "p95_latency_seconds": {
+              "value": 0.0024484101153139865,
+              "baseline_median": 0.0024181297709923665,
+              "direction": "HIGH",
+              "deviation_score": 6.500000000000007,
+              "classification": "actionable_candidate"
+            },
+            "memory_bytes": {
+              "value": 49258889.00638646,
+              "baseline_median": 48840704.0,
+              "direction": "HIGH",
+              "deviation_score": 6.50000000000005,
+              "classification": "actionable_candidate"
+            },
+            "cpu_cores_used": {
+              "value": 0.0044745762711864406,
+              "baseline_median": 0.0044745762711864406,
+              "direction": "NORMAL",
+              "deviation_score": 0.0,
+              "classification": "normal"
+            }
+          },
+          "actionable_candidates": [
+            "p95_latency_seconds",
+            "memory_bytes"
+          ],
+          "informational_deviations": [],
+          "operational_findings": []
+        }
+      },
+      {
+        "sample_id": "holdout-order-service-concurrent_latency_memory_step-01",
+        "episode_id": "holdout-order-service-concurrent_latency_memory_step",
+        "service": "order-service",
+        "scenario": "concurrent_latency_memory_step",
+        "timestamp": "2026-10-22T05:24:35.111270+00:00",
+        "status": "evaluated",
+        "ground_truth_anomaly": true,
+        "predicted_anomaly": true,
+        "predicted_actionable": true,
+        "features": {
+          "request_rate": 0.48474576271186437,
+          "p95_latency_seconds": 0.0024484101153139865,
+          "memory_bytes": 49258889.00638646,
+          "cpu_cores_used": 0.0044745762711864406
+        },
+        "detector_output": {
+          "features": {
+            "request_rate": {
+              "value": 0.48474576271186437,
+              "baseline_median": 0.48474576271186437,
+              "direction": "NORMAL",
+              "deviation_score": 0.0,
+              "classification": "normal"
+            },
+            "p95_latency_seconds": {
+              "value": 0.0024484101153139865,
+              "baseline_median": 0.0024181297709923665,
+              "direction": "HIGH",
+              "deviation_score": 6.500000000000007,
+              "classification": "actionable_candidate"
+            },
+            "memory_bytes": {
+              "value": 49258889.00638646,
+              "baseline_median": 48840704.0,
+              "direction": "HIGH",
+              "deviation_score": 6.50000000000005,
+              "classification": "actionable_candidate"
+            },
+            "cpu_cores_used": {
+              "value": 0.0044745762711864406,
+              "baseline_median": 0.0044745762711864406,
+              "direction": "NORMAL",
+              "deviation_score": 0.0,
+              "classification": "normal"
+            }
+          },
+          "actionable_candidates": [
+            "p95_latency_seconds",
+            "memory_bytes"
+          ],
+          "informational_deviations": [],
+          "operational_findings": []
+        }
+      },
+      {
+        "sample_id": "holdout-order-service-concurrent_latency_memory_step-02",
+        "episode_id": "holdout-order-service-concurrent_latency_memory_step",
+        "service": "order-service",
+        "scenario": "concurrent_latency_memory_step",
+        "timestamp": "2026-10-22T05:25:05.111270+00:00",
+        "status": "evaluated",
+        "ground_truth_anomaly": true,
+        "predicted_anomaly": true,
+        "predicted_actionable": true,
+        "features": {
+          "request_rate": 0.48474576271186437,
+          "p95_latency_seconds": 0.0024484101153139865,
+          "memory_bytes": 49258889.00638646,
+          "cpu_cores_used": 0.0044745762711864406
+        },
+        "detector_output": {
+          "features": {
+            "request_rate": {
+              "value": 0.48474576271186437,
+              "baseline_median": 0.48474576271186437,
+              "direction": "NORMAL",
+              "deviation_score": 0.0,
+              "classification": "normal"
+            },
+            "p95_latency_seconds": {
+              "value": 0.0024484101153139865,
+              "baseline_median": 0.0024181297709923665,
+              "direction": "HIGH",
+              "deviation_score": 6.500000000000007,
+              "classification": "actionable_candidate"
+            },
+            "memory_bytes": {
+              "value": 49258889.00638646,
+              "baseline_median": 48840704.0,
+              "direction": "HIGH",
+              "deviation_score": 6.50000000000005,
+              "classification": "actionable_candidate"
+            },
+            "cpu_cores_used": {
+              "value": 0.0044745762711864406,
+              "baseline_median": 0.0044745762711864406,
+              "direction": "NORMAL",
+              "deviation_score": 0.0,
+              "classification": "normal"
+            }
+          },
+          "actionable_candidates": [
+            "p95_latency_seconds",
+            "memory_bytes"
+          ],
+          "informational_deviations": [],
+          "operational_findings": []
+        }
+      },
+      {
+        "sample_id": "holdout-order-service-stable_center_control-00",
+        "episode_id": "holdout-order-service-stable_center_control",
+        "service": "order-service",
+        "scenario": "stable_center_control",
+        "timestamp": "2026-10-22T05:25:35.111270+00:00",
+        "status": "evaluated",
+        "ground_truth_anomaly": false,
+        "predicted_anomaly": false,
+        "predicted_actionable": false,
+        "features": {
+          "request_rate": 0.48474576271186437,
+          "p95_latency_seconds": 0.0024181297709923665,
+          "memory_bytes": 48840704.0,
+          "cpu_cores_used": 0.0044745762711864406
+        },
+        "detector_output": {
+          "features": {
+            "request_rate": {
+              "value": 0.48474576271186437,
+              "baseline_median": 0.48474576271186437,
+              "direction": "NORMAL",
+              "deviation_score": 0.0,
+              "classification": "normal"
+            },
+            "p95_latency_seconds": {
+              "value": 0.0024181297709923665,
+              "baseline_median": 0.0024181297709923665,
+              "direction": "NORMAL",
+              "deviation_score": 0.0,
+              "classification": "normal"
+            },
+            "memory_bytes": {
+              "value": 48840704.0,
+              "baseline_median": 48840704.0,
+              "direction": "NORMAL",
+              "deviation_score": 0.0,
+              "classification": "normal"
+            },
+            "cpu_cores_used": {
+              "value": 0.0044745762711864406,
+              "baseline_median": 0.0044745762711864406,
+              "direction": "NORMAL",
+              "deviation_score": 0.0,
+              "classification": "normal"
+            }
+          },
+          "actionable_candidates": [],
+          "informational_deviations": [],
+          "operational_findings": []
+        }
+      },
+      {
+        "sample_id": "holdout-order-service-stable_center_control-01",
+        "episode_id": "holdout-order-service-stable_center_control",
+        "service": "order-service",
+        "scenario": "stable_center_control",
+        "timestamp": "2026-10-22T05:26:05.111270+00:00",
+        "status": "evaluated",
+        "ground_truth_anomaly": false,
+        "predicted_anomaly": false,
+        "predicted_actionable": false,
+        "features": {
+          "request_rate": 0.48474576271186437,
+          "p95_latency_seconds": 0.0024181297709923665,
+          "memory_bytes": 48840704.0,
+          "cpu_cores_used": 0.0044745762711864406
+        },
+        "detector_output": {
+          "features": {
+            "request_rate": {
+              "value": 0.48474576271186437,
+              "baseline_median": 0.48474576271186437,
+              "direction": "NORMAL",
+              "deviation_score": 0.0,
+              "classification": "normal"
+            },
+            "p95_latency_seconds": {
+              "value": 0.0024181297709923665,
+              "baseline_median": 0.0024181297709923665,
+              "direction": "NORMAL",
+              "deviation_score": 0.0,
+              "classification": "normal"
+            },
+            "memory_bytes": {
+              "value": 48840704.0,
+              "baseline_median": 48840704.0,
+              "direction": "NORMAL",
+              "deviation_score": 0.0,
+              "classification": "normal"
+            },
+            "cpu_cores_used": {
+              "value": 0.0044745762711864406,
+              "baseline_median": 0.0044745762711864406,
+              "direction": "NORMAL",
+              "deviation_score": 0.0,
+              "classification": "normal"
+            }
+          },
+          "actionable_candidates": [],
+          "informational_deviations": [],
+          "operational_findings": []
+        }
+      },
+      {
+        "sample_id": "holdout-order-service-stable_center_control-02",
+        "episode_id": "holdout-order-service-stable_center_control",
+        "service": "order-service",
+        "scenario": "stable_center_control",
+        "timestamp": "2026-10-22T05:26:35.111270+00:00",
+        "status": "evaluated",
+        "ground_truth_anomaly": false,
+        "predicted_anomaly": false,
+        "predicted_actionable": false,
+        "features": {
+          "request_rate": 0.48474576271186437,
+          "p95_latency_seconds": 0.0024181297709923665,
+          "memory_bytes": 48840704.0,
+          "cpu_cores_used": 0.0044745762711864406
+        },
+        "detector_output": {
+          "features": {
+            "request_rate": {
+              "value": 0.48474576271186437,
+              "baseline_median": 0.48474576271186437,
+              "direction": "NORMAL",
+              "deviation_score": 0.0,
+              "classification": "normal"
+            },
+            "p95_latency_seconds": {
+              "value": 0.0024181297709923665,
+              "baseline_median": 0.0024181297709923665,
+              "direction": "NORMAL",
+              "deviation_score": 0.0,
+              "classification": "normal"
+            },
+            "memory_bytes": {
+              "value": 48840704.0,
+              "baseline_median": 48840704.0,
+              "direction": "NORMAL",
+              "deviation_score": 0.0,
+              "classification": "normal"
+            },
+            "cpu_cores_used": {
+              "value": 0.0044745762711864406,
+              "baseline_median": 0.0044745762711864406,
+              "direction": "NORMAL",
+              "deviation_score": 0.0,
+              "classification": "normal"
+            }
+          },
+          "actionable_candidates": [],
+          "informational_deviations": [],
+          "operational_findings": []
+        }
+      },
+      {
+        "sample_id": "holdout-order-service-bounded_noise_control-00",
+        "episode_id": "holdout-order-service-bounded_noise_control",
+        "service": "order-service",
+        "scenario": "bounded_noise_control",
+        "timestamp": "2026-10-22T05:27:05.111270+00:00",
+        "status": "evaluated",
+        "ground_truth_anomaly": false,
+        "predicted_anomaly": false,
+        "predicted_actionable": false,
+        "features": {
+          "request_rate": 0.6324073304425712,
+          "p95_latency_seconds": 0.0024279146251383046,
+          "memory_bytes": 48768706.18445281,
+          "cpu_cores_used": 0.004388837414007581
+        },
+        "detector_output": {
+          "features": {
+            "request_rate": {
+              "value": 0.6324073304425712,
+              "baseline_median": 0.48474576271186437,
+              "direction": "HIGH",
+              "deviation_score": 1.3151748161009853,
+              "classification": "normal"
+            },
+            "p95_latency_seconds": {
+              "value": 0.0024279146251383046,
+              "baseline_median": 0.0024181297709923665,
+              "direction": "HIGH",
+              "deviation_score": 2.100423669990655,
+              "classification": "normal"
+            },
+            "memory_bytes": {
+              "value": 48768706.18445281,
+              "baseline_median": 48840704.0,
+              "direction": "LOW",
+              "deviation_score": 1.1190879488975773,
+              "classification": "normal"
+            },
+            "cpu_cores_used": {
+              "value": 0.004388837414007581,
+              "baseline_median": 0.0044745762711864406,
+              "direction": "LOW",
+              "deviation_score": 1.705986973409025,
+              "classification": "normal"
+            }
+          },
+          "actionable_candidates": [],
+          "informational_deviations": [],
+          "operational_findings": []
+        }
+      },
+      {
+        "sample_id": "holdout-order-service-bounded_noise_control-01",
+        "episode_id": "holdout-order-service-bounded_noise_control",
+        "service": "order-service",
+        "scenario": "bounded_noise_control",
+        "timestamp": "2026-10-22T05:27:35.111270+00:00",
+        "status": "evaluated",
+        "ground_truth_anomaly": false,
+        "predicted_anomaly": false,
+        "predicted_actionable": false,
+        "features": {
+          "request_rate": 0.09699096618449321,
+          "p95_latency_seconds": 0.002406575903533262,
+          "memory_bytes": 48868376.014521204,
+          "cpu_cores_used": 0.004465067770120645
+        },
+        "detector_output": {
+          "features": {
+            "request_rate": {
+              "value": 0.09699096618449321,
+              "baseline_median": 0.48474576271186437,
+              "direction": "LOW",
+              "deviation_score": 3.453609162170034,
+              "classification": "normal"
+            },
+            "p95_latency_seconds": {
+              "value": 0.002406575903533262,
+              "baseline_median": 0.0024181297709923665,
+              "direction": "LOW",
+              "deviation_score": 2.4801613114603573,
+              "classification": "normal"
+            },
+            "memory_bytes": {
+              "value": 48868376.014521204,
+              "baseline_median": 48840704.0,
+              "direction": "HIGH",
+              "deviation_score": 0.4301160769537605,
+              "classification": "normal"
+            },
+            "cpu_cores_used": {
+              "value": 0.004465067770120645,
+              "baseline_median": 0.0044745762711864406,
+              "direction": "LOW",
+              "deviation_score": 0.18919518510789105,
+              "classification": "normal"
+            }
+          },
+          "actionable_candidates": [],
+          "informational_deviations": [],
+          "operational_findings": []
+        }
+      },
+      {
+        "sample_id": "holdout-order-service-bounded_noise_control-02",
+        "episode_id": "holdout-order-service-bounded_noise_control",
+        "service": "order-service",
+        "scenario": "bounded_noise_control",
+        "timestamp": "2026-10-22T05:28:05.111270+00:00",
+        "status": "evaluated",
+        "ground_truth_anomaly": false,
+        "predicted_anomaly": false,
+        "predicted_actionable": false,
+        "features": {
+          "request_rate": 0.44813822071516585,
+          "p95_latency_seconds": 0.0024048102213086566,
+          "memory_bytes": 48954768.97554403,
+          "cpu_cores_used": 0.004338855084506548
+        },
+        "detector_output": {
+          "features": {
+            "request_rate": {
+              "value": 0.44813822071516585,
+              "baseline_median": 0.48474576271186437,
+              "direction": "LOW",
+              "deviation_score": 0.32605178214835545,
+              "classification": "normal"
+            },
+            "p95_latency_seconds": {
+              "value": 0.0024048102213086566,
+              "baseline_median": 0.0024181297709923665,
+              "direction": "LOW",
+              "deviation_score": 2.859183899117657,
+              "classification": "normal"
+            },
+            "memory_bytes": {
+              "value": 48954768.97554403,
+              "baseline_median": 48840704.0,
+              "direction": "HIGH",
+              "deviation_score": 1.7729529507593444,
+              "classification": "normal"
+            },
+            "cpu_cores_used": {
+              "value": 0.004338855084506548,
+              "baseline_median": 0.0044745762711864406,
+              "direction": "LOW",
+              "deviation_score": 2.7005092452830266,
+              "classification": "normal"
+            }
+          },
+          "actionable_candidates": [],
+          "informational_deviations": [],
+          "operational_findings": []
+        }
+      },
+      {
+        "sample_id": "holdout-order-service-bounded_noise_control-03",
+        "episode_id": "holdout-order-service-bounded_noise_control",
+        "service": "order-service",
+        "scenario": "bounded_noise_control",
+        "timestamp": "2026-10-22T05:28:35.111270+00:00",
+        "status": "evaluated",
+        "ground_truth_anomaly": false,
+        "predicted_anomaly": false,
+        "predicted_actionable": false,
+        "features": {
+          "request_rate": 0.34305961357556436,
+          "p95_latency_seconds": 0.0024160258306418574,
+          "memory_bytes": 48731275.96107053,
+          "cpu_cores_used": 0.004562342154556852
+        },
+        "detector_output": {
+          "features": {
+            "request_rate": {
+              "value": 0.34305961357556436,
+              "baseline_median": 0.48474576271186437,
+              "direction": "LOW",
+              "deviation_score": 1.2619536552275104,
+              "classification": "normal"
+            },
+            "p95_latency_seconds": {
+              "value": 0.0024160258306418574,
+              "baseline_median": 0.0024181297709923665,
+              "direction": "LOW",
+              "deviation_score": 0.451633314768644,
+              "classification": "normal"
+            },
+            "memory_bytes": {
+              "value": 48731275.96107053,
+              "baseline_median": 48840704.0,
+              "direction": "LOW",
+              "deviation_score": 1.7008793767805241,
+              "classification": "normal"
+            },
+            "cpu_cores_used": {
+              "value": 0.004562342154556852,
+              "baseline_median": 0.0044745762711864406,
+              "direction": "HIGH",
+              "deviation_score": 1.746319681253886,
+              "classification": "normal"
+            }
+          },
+          "actionable_candidates": [],
+          "informational_deviations": [],
+          "operational_findings": []
+        }
+      },
+      {
+        "sample_id": "holdout-order-service-bounded_noise_control-04",
+        "episode_id": "holdout-order-service-bounded_noise_control",
+        "service": "order-service",
+        "scenario": "bounded_noise_control",
+        "timestamp": "2026-10-22T05:29:05.111270+00:00",
+        "status": "evaluated",
+        "ground_truth_anomaly": false,
+        "predicted_anomaly": false,
+        "predicted_actionable": false,
+        "features": {
+          "request_rate": 0.17119066394504018,
+          "p95_latency_seconds": 0.002419416831669796,
+          "memory_bytes": 48715589.88576949,
+          "cpu_cores_used": 0.004302468548057119
+        },
+        "detector_output": {
+          "features": {
+            "request_rate": {
+              "value": 0.17119066394504018,
+              "baseline_median": 0.48474576271186437,
+              "direction": "LOW",
+              "deviation_score": 2.792735954898223,
+              "classification": "normal"
+            },
+            "p95_latency_seconds": {
+              "value": 0.002419416831669796,
+              "baseline_median": 0.0024181297709923665,
+              "direction": "HIGH",
+              "deviation_score": 0.2762813498563667,
+              "classification": "normal"
+            },
+            "memory_bytes": {
+              "value": 48715589.88576949,
+              "baseline_median": 48840704.0,
+              "direction": "LOW",
+              "deviation_score": 1.9446936883882449,
+              "classification": "normal"
+            },
+            "cpu_cores_used": {
+              "value": 0.004302468548057119,
+              "baseline_median": 0.0044745762711864406,
+              "direction": "LOW",
+              "deviation_score": 3.4245095321156938,
+              "classification": "normal"
+            }
+          },
+          "actionable_candidates": [],
+          "informational_deviations": [],
+          "operational_findings": []
+        }
+      },
+      {
+        "sample_id": "holdout-order-service-bounded_noise_control-05",
+        "episode_id": "holdout-order-service-bounded_noise_control",
+        "service": "order-service",
+        "scenario": "bounded_noise_control",
+        "timestamp": "2026-10-22T05:29:35.111270+00:00",
+        "status": "evaluated",
+        "ground_truth_anomaly": false,
+        "predicted_anomaly": false,
+        "predicted_actionable": false,
+        "features": {
+          "request_rate": 0.1502472668284685,
+          "p95_latency_seconds": 0.0024178665009008567,
+          "memory_bytes": 48590003.97162916,
+          "cpu_cores_used": 0.004569828802154394
+        },
+        "detector_output": {
+          "features": {
+            "request_rate": {
+              "value": 0.1502472668284685,
+              "baseline_median": 0.48474576271186437,
+              "direction": "LOW",
+              "deviation_score": 2.9792721597795766,
+              "classification": "normal"
+            },
+            "p95_latency_seconds": {
+              "value": 0.0024178665009008567,
+              "baseline_median": 0.0024181297709923665,
+              "direction": "LOW",
+              "deviation_score": 0.056513742929669944,
+              "classification": "normal"
+            },
+            "memory_bytes": {
+              "value": 48590003.97162916,
+              "baseline_median": 48840704.0,
+              "direction": "LOW",
+              "deviation_score": 3.896720732508916,
+              "classification": "normal"
+            },
+            "cpu_cores_used": {
+              "value": 0.004569828802154394,
+              "baseline_median": 0.0044745762711864406,
+              "direction": "HIGH",
+              "deviation_score": 1.8952850826618641,
+              "classification": "normal"
+            }
+          },
+          "actionable_candidates": [],
+          "informational_deviations": [],
+          "operational_findings": []
+        }
+      },
+      {
+        "sample_id": "holdout-payment-service-gradual_memory_drift-00",
+        "episode_id": "holdout-payment-service-gradual_memory_drift",
+        "service": "payment-service",
+        "scenario": "gradual_memory_drift",
+        "timestamp": "2026-10-22T05:30:05.111270+00:00",
+        "status": "evaluated",
+        "ground_truth_anomaly": false,
+        "predicted_anomaly": false,
+        "predicted_actionable": false,
+        "features": {
+          "request_rate": 0.48474576271186437,
+          "p95_latency_seconds": 0.002425,
+          "memory_bytes": 48795648.0,
+          "cpu_cores_used": 0.004474576271186439
+        },
+        "detector_output": {
+          "features": {
+            "request_rate": {
+              "value": 0.48474576271186437,
+              "baseline_median": 0.48474576271186437,
+              "direction": "NORMAL",
+              "deviation_score": 0.0,
+              "classification": "normal"
+            },
+            "p95_latency_seconds": {
+              "value": 0.002425,
+              "baseline_median": 0.002425,
+              "direction": "NORMAL",
+              "deviation_score": 0.0,
+              "classification": "normal"
+            },
+            "memory_bytes": {
+              "value": 48795648.0,
+              "baseline_median": 48795648.0,
+              "direction": "NORMAL",
+              "deviation_score": 0.0,
+              "classification": "normal"
+            },
+            "cpu_cores_used": {
+              "value": 0.004474576271186439,
+              "baseline_median": 0.004474576271186439,
+              "direction": "NORMAL",
+              "deviation_score": 0.0,
+              "classification": "normal"
+            }
+          },
+          "actionable_candidates": [],
+          "informational_deviations": [],
+          "operational_findings": []
+        }
+      },
+      {
+        "sample_id": "holdout-payment-service-gradual_memory_drift-01",
+        "episode_id": "holdout-payment-service-gradual_memory_drift",
+        "service": "payment-service",
+        "scenario": "gradual_memory_drift",
+        "timestamp": "2026-10-22T05:30:35.111270+00:00",
+        "status": "evaluated",
+        "ground_truth_anomaly": true,
+        "predicted_anomaly": false,
+        "predicted_actionable": false,
+        "features": {
+          "request_rate": 0.48474576271186437,
+          "p95_latency_seconds": 0.002425,
+          "memory_bytes": 48844719.68622086,
+          "cpu_cores_used": 0.004474576271186439
+        },
+        "detector_output": {
+          "features": {
+            "request_rate": {
+              "value": 0.48474576271186437,
+              "baseline_median": 0.48474576271186437,
+              "direction": "NORMAL",
+              "deviation_score": 0.0,
+              "classification": "normal"
+            },
+            "p95_latency_seconds": {
+              "value": 0.002425,
+              "baseline_median": 0.002425,
+              "direction": "NORMAL",
+              "deviation_score": 0.0,
+              "classification": "normal"
+            },
+            "memory_bytes": {
+              "value": 48844719.68622086,
+              "baseline_median": 48795648.0,
+              "direction": "HIGH",
+              "deviation_score": 0.8000000000000606,
+              "classification": "normal"
+            },
+            "cpu_cores_used": {
+              "value": 0.004474576271186439,
+              "baseline_median": 0.004474576271186439,
+              "direction": "NORMAL",
+              "deviation_score": 0.0,
+              "classification": "normal"
+            }
+          },
+          "actionable_candidates": [],
+          "informational_deviations": [],
+          "operational_findings": []
+        }
+      },
+      {
+        "sample_id": "holdout-payment-service-gradual_memory_drift-02",
+        "episode_id": "holdout-payment-service-gradual_memory_drift",
+        "service": "payment-service",
+        "scenario": "gradual_memory_drift",
+        "timestamp": "2026-10-22T05:31:05.111270+00:00",
+        "status": "evaluated",
+        "ground_truth_anomaly": true,
+        "predicted_anomaly": false,
+        "predicted_actionable": false,
+        "features": {
+          "request_rate": 0.48474576271186437,
+          "p95_latency_seconds": 0.002425,
+          "memory_bytes": 48893791.37244172,
+          "cpu_cores_used": 0.004474576271186439
+        },
+        "detector_output": {
+          "features": {
+            "request_rate": {
+              "value": 0.48474576271186437,
+              "baseline_median": 0.48474576271186437,
+              "direction": "NORMAL",
+              "deviation_score": 0.0,
+              "classification": "normal"
+            },
+            "p95_latency_seconds": {
+              "value": 0.002425,
+              "baseline_median": 0.002425,
+              "direction": "NORMAL",
+              "deviation_score": 0.0,
+              "classification": "normal"
+            },
+            "memory_bytes": {
+              "value": 48893791.37244172,
+              "baseline_median": 48795648.0,
+              "direction": "HIGH",
+              "deviation_score": 1.5999999999999996,
+              "classification": "normal"
+            },
+            "cpu_cores_used": {
+              "value": 0.004474576271186439,
+              "baseline_median": 0.004474576271186439,
+              "direction": "NORMAL",
+              "deviation_score": 0.0,
+              "classification": "normal"
+            }
+          },
+          "actionable_candidates": [],
+          "informational_deviations": [],
+          "operational_findings": []
+        }
+      },
+      {
+        "sample_id": "holdout-payment-service-gradual_memory_drift-03",
+        "episode_id": "holdout-payment-service-gradual_memory_drift",
+        "service": "payment-service",
+        "scenario": "gradual_memory_drift",
+        "timestamp": "2026-10-22T05:31:35.111270+00:00",
+        "status": "evaluated",
+        "ground_truth_anomaly": true,
+        "predicted_anomaly": false,
+        "predicted_actionable": false,
+        "features": {
+          "request_rate": 0.48474576271186437,
+          "p95_latency_seconds": 0.002425,
+          "memory_bytes": 48942863.05866258,
+          "cpu_cores_used": 0.004474576271186439
+        },
+        "detector_output": {
+          "features": {
+            "request_rate": {
+              "value": 0.48474576271186437,
+              "baseline_median": 0.48474576271186437,
+              "direction": "NORMAL",
+              "deviation_score": 0.0,
+              "classification": "normal"
+            },
+            "p95_latency_seconds": {
+              "value": 0.002425,
+              "baseline_median": 0.002425,
+              "direction": "NORMAL",
+              "deviation_score": 0.0,
+              "classification": "normal"
+            },
+            "memory_bytes": {
+              "value": 48942863.05866258,
+              "baseline_median": 48795648.0,
+              "direction": "HIGH",
+              "deviation_score": 2.4000000000000603,
+              "classification": "normal"
+            },
+            "cpu_cores_used": {
+              "value": 0.004474576271186439,
+              "baseline_median": 0.004474576271186439,
+              "direction": "NORMAL",
+              "deviation_score": 0.0,
+              "classification": "normal"
+            }
+          },
+          "actionable_candidates": [],
+          "informational_deviations": [],
+          "operational_findings": []
+        }
+      },
+      {
+        "sample_id": "holdout-payment-service-gradual_memory_drift-04",
+        "episode_id": "holdout-payment-service-gradual_memory_drift",
+        "service": "payment-service",
+        "scenario": "gradual_memory_drift",
+        "timestamp": "2026-10-22T05:32:05.111270+00:00",
+        "status": "evaluated",
+        "ground_truth_anomaly": true,
+        "predicted_anomaly": false,
+        "predicted_actionable": false,
+        "features": {
+          "request_rate": 0.48474576271186437,
+          "p95_latency_seconds": 0.002425,
+          "memory_bytes": 48991934.74488343,
+          "cpu_cores_used": 0.004474576271186439
+        },
+        "detector_output": {
+          "features": {
+            "request_rate": {
+              "value": 0.48474576271186437,
+              "baseline_median": 0.48474576271186437,
+              "direction": "NORMAL",
+              "deviation_score": 0.0,
+              "classification": "normal"
+            },
+            "p95_latency_seconds": {
+              "value": 0.002425,
+              "baseline_median": 0.002425,
+              "direction": "NORMAL",
+              "deviation_score": 0.0,
+              "classification": "normal"
+            },
+            "memory_bytes": {
+              "value": 48991934.74488343,
+              "baseline_median": 48795648.0,
+              "direction": "HIGH",
+              "deviation_score": 3.1999999999999993,
+              "classification": "normal"
+            },
+            "cpu_cores_used": {
+              "value": 0.004474576271186439,
+              "baseline_median": 0.004474576271186439,
+              "direction": "NORMAL",
+              "deviation_score": 0.0,
+              "classification": "normal"
+            }
+          },
+          "actionable_candidates": [],
+          "informational_deviations": [],
+          "operational_findings": []
+        }
+      },
+      {
+        "sample_id": "holdout-payment-service-gradual_memory_drift-05",
+        "episode_id": "holdout-payment-service-gradual_memory_drift",
+        "service": "payment-service",
+        "scenario": "gradual_memory_drift",
+        "timestamp": "2026-10-22T05:32:35.111270+00:00",
+        "status": "evaluated",
+        "ground_truth_anomaly": true,
+        "predicted_anomaly": false,
+        "predicted_actionable": false,
+        "features": {
+          "request_rate": 0.48474576271186437,
+          "p95_latency_seconds": 0.002425,
+          "memory_bytes": 49041006.431104295,
+          "cpu_cores_used": 0.004474576271186439
+        },
+        "detector_output": {
+          "features": {
+            "request_rate": {
+              "value": 0.48474576271186437,
+              "baseline_median": 0.48474576271186437,
+              "direction": "NORMAL",
+              "deviation_score": 0.0,
+              "classification": "normal"
+            },
+            "p95_latency_seconds": {
+              "value": 0.002425,
+              "baseline_median": 0.002425,
+              "direction": "NORMAL",
+              "deviation_score": 0.0,
+              "classification": "normal"
+            },
+            "memory_bytes": {
+              "value": 49041006.431104295,
+              "baseline_median": 48795648.0,
+              "direction": "HIGH",
+              "deviation_score": 4.0000000000000595,
+              "classification": "normal"
+            },
+            "cpu_cores_used": {
+              "value": 0.004474576271186439,
+              "baseline_median": 0.004474576271186439,
+              "direction": "NORMAL",
+              "deviation_score": 0.0,
+              "classification": "normal"
+            }
+          },
+          "actionable_candidates": [],
+          "informational_deviations": [],
+          "operational_findings": []
+        }
+      },
+      {
+        "sample_id": "holdout-payment-service-gradual_memory_drift-06",
+        "episode_id": "holdout-payment-service-gradual_memory_drift",
+        "service": "payment-service",
+        "scenario": "gradual_memory_drift",
+        "timestamp": "2026-10-22T05:33:05.111270+00:00",
+        "status": "evaluated",
+        "ground_truth_anomaly": true,
+        "predicted_anomaly": false,
+        "predicted_actionable": false,
+        "features": {
+          "request_rate": 0.48474576271186437,
+          "p95_latency_seconds": 0.002425,
+          "memory_bytes": 49090078.11732515,
+          "cpu_cores_used": 0.004474576271186439
+        },
+        "detector_output": {
+          "features": {
+            "request_rate": {
+              "value": 0.48474576271186437,
+              "baseline_median": 0.48474576271186437,
+              "direction": "NORMAL",
+              "deviation_score": 0.0,
+              "classification": "normal"
+            },
+            "p95_latency_seconds": {
+              "value": 0.002425,
+              "baseline_median": 0.002425,
+              "direction": "NORMAL",
+              "deviation_score": 0.0,
+              "classification": "normal"
+            },
+            "memory_bytes": {
+              "value": 49090078.11732515,
+              "baseline_median": 48795648.0,
+              "direction": "HIGH",
+              "deviation_score": 4.799999999999999,
+              "classification": "normal"
+            },
+            "cpu_cores_used": {
+              "value": 0.004474576271186439,
+              "baseline_median": 0.004474576271186439,
+              "direction": "NORMAL",
+              "deviation_score": 0.0,
+              "classification": "normal"
+            }
+          },
+          "actionable_candidates": [],
+          "informational_deviations": [],
+          "operational_findings": []
+        }
+      },
+      {
+        "sample_id": "holdout-payment-service-gradual_memory_drift-07",
+        "episode_id": "holdout-payment-service-gradual_memory_drift",
+        "service": "payment-service",
+        "scenario": "gradual_memory_drift",
+        "timestamp": "2026-10-22T05:33:35.111270+00:00",
+        "status": "evaluated",
+        "ground_truth_anomaly": true,
+        "predicted_anomaly": true,
+        "predicted_actionable": true,
+        "features": {
+          "request_rate": 0.48474576271186437,
+          "p95_latency_seconds": 0.002425,
+          "memory_bytes": 49139149.80354601,
+          "cpu_cores_used": 0.004474576271186439
+        },
+        "detector_output": {
+          "features": {
+            "request_rate": {
+              "value": 0.48474576271186437,
+              "baseline_median": 0.48474576271186437,
+              "direction": "NORMAL",
+              "deviation_score": 0.0,
+              "classification": "normal"
+            },
+            "p95_latency_seconds": {
+              "value": 0.002425,
+              "baseline_median": 0.002425,
+              "direction": "NORMAL",
+              "deviation_score": 0.0,
+              "classification": "normal"
+            },
+            "memory_bytes": {
+              "value": 49139149.80354601,
+              "baseline_median": 48795648.0,
+              "direction": "HIGH",
+              "deviation_score": 5.600000000000059,
+              "classification": "actionable_candidate"
+            },
+            "cpu_cores_used": {
+              "value": 0.004474576271186439,
+              "baseline_median": 0.004474576271186439,
+              "direction": "NORMAL",
+              "deviation_score": 0.0,
+              "classification": "normal"
+            }
+          },
+          "actionable_candidates": [
+            "memory_bytes"
+          ],
+          "informational_deviations": [],
+          "operational_findings": []
+        }
+      },
+      {
+        "sample_id": "holdout-payment-service-gradual_memory_drift-08",
+        "episode_id": "holdout-payment-service-gradual_memory_drift",
+        "service": "payment-service",
+        "scenario": "gradual_memory_drift",
+        "timestamp": "2026-10-22T05:34:05.111270+00:00",
+        "status": "evaluated",
+        "ground_truth_anomaly": true,
+        "predicted_anomaly": true,
+        "predicted_actionable": true,
+        "features": {
+          "request_rate": 0.48474576271186437,
+          "p95_latency_seconds": 0.002425,
+          "memory_bytes": 49188221.489766866,
+          "cpu_cores_used": 0.004474576271186439
+        },
+        "detector_output": {
+          "features": {
+            "request_rate": {
+              "value": 0.48474576271186437,
+              "baseline_median": 0.48474576271186437,
+              "direction": "NORMAL",
+              "deviation_score": 0.0,
+              "classification": "normal"
+            },
+            "p95_latency_seconds": {
+              "value": 0.002425,
+              "baseline_median": 0.002425,
+              "direction": "NORMAL",
+              "deviation_score": 0.0,
+              "classification": "normal"
+            },
+            "memory_bytes": {
+              "value": 49188221.489766866,
+              "baseline_median": 48795648.0,
+              "direction": "HIGH",
+              "deviation_score": 6.399999999999999,
+              "classification": "actionable_candidate"
+            },
+            "cpu_cores_used": {
+              "value": 0.004474576271186439,
+              "baseline_median": 0.004474576271186439,
+              "direction": "NORMAL",
+              "deviation_score": 0.0,
+              "classification": "normal"
+            }
+          },
+          "actionable_candidates": [
+            "memory_bytes"
+          ],
+          "informational_deviations": [],
+          "operational_findings": []
+        }
+      },
+      {
+        "sample_id": "holdout-payment-service-gradual_memory_drift-09",
+        "episode_id": "holdout-payment-service-gradual_memory_drift",
+        "service": "payment-service",
+        "scenario": "gradual_memory_drift",
+        "timestamp": "2026-10-22T05:34:35.111270+00:00",
+        "status": "evaluated",
+        "ground_truth_anomaly": true,
+        "predicted_anomaly": true,
+        "predicted_actionable": true,
+        "features": {
+          "request_rate": 0.48474576271186437,
+          "p95_latency_seconds": 0.002425,
+          "memory_bytes": 49237293.17598773,
+          "cpu_cores_used": 0.004474576271186439
+        },
+        "detector_output": {
+          "features": {
+            "request_rate": {
+              "value": 0.48474576271186437,
+              "baseline_median": 0.48474576271186437,
+              "direction": "NORMAL",
+              "deviation_score": 0.0,
+              "classification": "normal"
+            },
+            "p95_latency_seconds": {
+              "value": 0.002425,
+              "baseline_median": 0.002425,
+              "direction": "NORMAL",
+              "deviation_score": 0.0,
+              "classification": "normal"
+            },
+            "memory_bytes": {
+              "value": 49237293.17598773,
+              "baseline_median": 48795648.0,
+              "direction": "HIGH",
+              "deviation_score": 7.200000000000059,
+              "classification": "actionable_candidate"
+            },
+            "cpu_cores_used": {
+              "value": 0.004474576271186439,
+              "baseline_median": 0.004474576271186439,
+              "direction": "NORMAL",
+              "deviation_score": 0.0,
+              "classification": "normal"
+            }
+          },
+          "actionable_candidates": [
+            "memory_bytes"
+          ],
+          "informational_deviations": [],
+          "operational_findings": []
+        }
+      },
+      {
+        "sample_id": "holdout-payment-service-concurrent_latency_memory_step-00",
+        "episode_id": "holdout-payment-service-concurrent_latency_memory_step",
+        "service": "payment-service",
+        "scenario": "concurrent_latency_memory_step",
+        "timestamp": "2026-10-22T05:35:05.111270+00:00",
+        "status": "evaluated",
+        "ground_truth_anomaly": true,
+        "predicted_anomaly": true,
+        "predicted_actionable": true,
+        "features": {
+          "request_rate": 0.48474576271186437,
+          "p95_latency_seconds": 0.0024694228706618406,
+          "memory_bytes": 49194355.45054448,
+          "cpu_cores_used": 0.004474576271186439
+        },
+        "detector_output": {
+          "features": {
+            "request_rate": {
+              "value": 0.48474576271186437,
+              "baseline_median": 0.48474576271186437,
+              "direction": "NORMAL",
+              "deviation_score": 0.0,
+              "classification": "normal"
+            },
+            "p95_latency_seconds": {
+              "value": 0.0024694228706618406,
+              "baseline_median": 0.002425,
+              "direction": "HIGH",
+              "deviation_score": 6.500000000000002,
+              "classification": "actionable_candidate"
+            },
+            "memory_bytes": {
+              "value": 49194355.45054448,
+              "baseline_median": 48795648.0,
+              "direction": "HIGH",
+              "deviation_score": 6.5000000000000515,
+              "classification": "actionable_candidate"
+            },
+            "cpu_cores_used": {
+              "value": 0.004474576271186439,
+              "baseline_median": 0.004474576271186439,
+              "direction": "NORMAL",
+              "deviation_score": 0.0,
+              "classification": "normal"
+            }
+          },
+          "actionable_candidates": [
+            "p95_latency_seconds",
+            "memory_bytes"
+          ],
+          "informational_deviations": [],
+          "operational_findings": []
+        }
+      },
+      {
+        "sample_id": "holdout-payment-service-concurrent_latency_memory_step-01",
+        "episode_id": "holdout-payment-service-concurrent_latency_memory_step",
+        "service": "payment-service",
+        "scenario": "concurrent_latency_memory_step",
+        "timestamp": "2026-10-22T05:35:35.111270+00:00",
+        "status": "evaluated",
+        "ground_truth_anomaly": true,
+        "predicted_anomaly": true,
+        "predicted_actionable": true,
+        "features": {
+          "request_rate": 0.48474576271186437,
+          "p95_latency_seconds": 0.0024694228706618406,
+          "memory_bytes": 49194355.45054448,
+          "cpu_cores_used": 0.004474576271186439
+        },
+        "detector_output": {
+          "features": {
+            "request_rate": {
+              "value": 0.48474576271186437,
+              "baseline_median": 0.48474576271186437,
+              "direction": "NORMAL",
+              "deviation_score": 0.0,
+              "classification": "normal"
+            },
+            "p95_latency_seconds": {
+              "value": 0.0024694228706618406,
+              "baseline_median": 0.002425,
+              "direction": "HIGH",
+              "deviation_score": 6.500000000000002,
+              "classification": "actionable_candidate"
+            },
+            "memory_bytes": {
+              "value": 49194355.45054448,
+              "baseline_median": 48795648.0,
+              "direction": "HIGH",
+              "deviation_score": 6.5000000000000515,
+              "classification": "actionable_candidate"
+            },
+            "cpu_cores_used": {
+              "value": 0.004474576271186439,
+              "baseline_median": 0.004474576271186439,
+              "direction": "NORMAL",
+              "deviation_score": 0.0,
+              "classification": "normal"
+            }
+          },
+          "actionable_candidates": [
+            "p95_latency_seconds",
+            "memory_bytes"
+          ],
+          "informational_deviations": [],
+          "operational_findings": []
+        }
+      },
+      {
+        "sample_id": "holdout-payment-service-concurrent_latency_memory_step-02",
+        "episode_id": "holdout-payment-service-concurrent_latency_memory_step",
+        "service": "payment-service",
+        "scenario": "concurrent_latency_memory_step",
+        "timestamp": "2026-10-22T05:36:05.111270+00:00",
+        "status": "evaluated",
+        "ground_truth_anomaly": true,
+        "predicted_anomaly": true,
+        "predicted_actionable": true,
+        "features": {
+          "request_rate": 0.48474576271186437,
+          "p95_latency_seconds": 0.0024694228706618406,
+          "memory_bytes": 49194355.45054448,
+          "cpu_cores_used": 0.004474576271186439
+        },
+        "detector_output": {
+          "features": {
+            "request_rate": {
+              "value": 0.48474576271186437,
+              "baseline_median": 0.48474576271186437,
+              "direction": "NORMAL",
+              "deviation_score": 0.0,
+              "classification": "normal"
+            },
+            "p95_latency_seconds": {
+              "value": 0.0024694228706618406,
+              "baseline_median": 0.002425,
+              "direction": "HIGH",
+              "deviation_score": 6.500000000000002,
+              "classification": "actionable_candidate"
+            },
+            "memory_bytes": {
+              "value": 49194355.45054448,
+              "baseline_median": 48795648.0,
+              "direction": "HIGH",
+              "deviation_score": 6.5000000000000515,
+              "classification": "actionable_candidate"
+            },
+            "cpu_cores_used": {
+              "value": 0.004474576271186439,
+              "baseline_median": 0.004474576271186439,
+              "direction": "NORMAL",
+              "deviation_score": 0.0,
+              "classification": "normal"
+            }
+          },
+          "actionable_candidates": [
+            "p95_latency_seconds",
+            "memory_bytes"
+          ],
+          "informational_deviations": [],
+          "operational_findings": []
+        }
+      },
+      {
+        "sample_id": "holdout-payment-service-stable_center_control-00",
+        "episode_id": "holdout-payment-service-stable_center_control",
+        "service": "payment-service",
+        "scenario": "stable_center_control",
+        "timestamp": "2026-10-22T05:36:35.111270+00:00",
+        "status": "evaluated",
+        "ground_truth_anomaly": false,
+        "predicted_anomaly": false,
+        "predicted_actionable": false,
+        "features": {
+          "request_rate": 0.48474576271186437,
+          "p95_latency_seconds": 0.002425,
+          "memory_bytes": 48795648.0,
+          "cpu_cores_used": 0.004474576271186439
+        },
+        "detector_output": {
+          "features": {
+            "request_rate": {
+              "value": 0.48474576271186437,
+              "baseline_median": 0.48474576271186437,
+              "direction": "NORMAL",
+              "deviation_score": 0.0,
+              "classification": "normal"
+            },
+            "p95_latency_seconds": {
+              "value": 0.002425,
+              "baseline_median": 0.002425,
+              "direction": "NORMAL",
+              "deviation_score": 0.0,
+              "classification": "normal"
+            },
+            "memory_bytes": {
+              "value": 48795648.0,
+              "baseline_median": 48795648.0,
+              "direction": "NORMAL",
+              "deviation_score": 0.0,
+              "classification": "normal"
+            },
+            "cpu_cores_used": {
+              "value": 0.004474576271186439,
+              "baseline_median": 0.004474576271186439,
+              "direction": "NORMAL",
+              "deviation_score": 0.0,
+              "classification": "normal"
+            }
+          },
+          "actionable_candidates": [],
+          "informational_deviations": [],
+          "operational_findings": []
+        }
+      },
+      {
+        "sample_id": "holdout-payment-service-stable_center_control-01",
+        "episode_id": "holdout-payment-service-stable_center_control",
+        "service": "payment-service",
+        "scenario": "stable_center_control",
+        "timestamp": "2026-10-22T05:37:05.111270+00:00",
+        "status": "evaluated",
+        "ground_truth_anomaly": false,
+        "predicted_anomaly": false,
+        "predicted_actionable": false,
+        "features": {
+          "request_rate": 0.48474576271186437,
+          "p95_latency_seconds": 0.002425,
+          "memory_bytes": 48795648.0,
+          "cpu_cores_used": 0.004474576271186439
+        },
+        "detector_output": {
+          "features": {
+            "request_rate": {
+              "value": 0.48474576271186437,
+              "baseline_median": 0.48474576271186437,
+              "direction": "NORMAL",
+              "deviation_score": 0.0,
+              "classification": "normal"
+            },
+            "p95_latency_seconds": {
+              "value": 0.002425,
+              "baseline_median": 0.002425,
+              "direction": "NORMAL",
+              "deviation_score": 0.0,
+              "classification": "normal"
+            },
+            "memory_bytes": {
+              "value": 48795648.0,
+              "baseline_median": 48795648.0,
+              "direction": "NORMAL",
+              "deviation_score": 0.0,
+              "classification": "normal"
+            },
+            "cpu_cores_used": {
+              "value": 0.004474576271186439,
+              "baseline_median": 0.004474576271186439,
+              "direction": "NORMAL",
+              "deviation_score": 0.0,
+              "classification": "normal"
+            }
+          },
+          "actionable_candidates": [],
+          "informational_deviations": [],
+          "operational_findings": []
+        }
+      },
+      {
+        "sample_id": "holdout-payment-service-stable_center_control-02",
+        "episode_id": "holdout-payment-service-stable_center_control",
+        "service": "payment-service",
+        "scenario": "stable_center_control",
+        "timestamp": "2026-10-22T05:37:35.111270+00:00",
+        "status": "evaluated",
+        "ground_truth_anomaly": false,
+        "predicted_anomaly": false,
+        "predicted_actionable": false,
+        "features": {
+          "request_rate": 0.48474576271186437,
+          "p95_latency_seconds": 0.002425,
+          "memory_bytes": 48795648.0,
+          "cpu_cores_used": 0.004474576271186439
+        },
+        "detector_output": {
+          "features": {
+            "request_rate": {
+              "value": 0.48474576271186437,
+              "baseline_median": 0.48474576271186437,
+              "direction": "NORMAL",
+              "deviation_score": 0.0,
+              "classification": "normal"
+            },
+            "p95_latency_seconds": {
+              "value": 0.002425,
+              "baseline_median": 0.002425,
+              "direction": "NORMAL",
+              "deviation_score": 0.0,
+              "classification": "normal"
+            },
+            "memory_bytes": {
+              "value": 48795648.0,
+              "baseline_median": 48795648.0,
+              "direction": "NORMAL",
+              "deviation_score": 0.0,
+              "classification": "normal"
+            },
+            "cpu_cores_used": {
+              "value": 0.004474576271186439,
+              "baseline_median": 0.004474576271186439,
+              "direction": "NORMAL",
+              "deviation_score": 0.0,
+              "classification": "normal"
+            }
+          },
+          "actionable_candidates": [],
+          "informational_deviations": [],
+          "operational_findings": []
+        }
+      },
+      {
+        "sample_id": "holdout-payment-service-bounded_noise_control-00",
+        "episode_id": "holdout-payment-service-bounded_noise_control",
+        "service": "payment-service",
+        "scenario": "bounded_noise_control",
+        "timestamp": "2026-10-22T05:38:05.111270+00:00",
+        "status": "evaluated",
+        "ground_truth_anomaly": false,
+        "predicted_anomaly": false,
+        "predicted_actionable": false,
+        "features": {
+          "request_rate": 0.5392093440994847,
+          "p95_latency_seconds": 0.002433081852053324,
+          "memory_bytes": 48816029.14751853,
+          "cpu_cores_used": 0.0043087093593901565
+        },
+        "detector_output": {
+          "features": {
+            "request_rate": {
+              "value": 0.5392093440994847,
+              "baseline_median": 0.48474576271186437,
+              "direction": "HIGH",
+              "deviation_score": 0.48084112514594834,
+              "classification": "normal"
+            },
+            "p95_latency_seconds": {
+              "value": 0.002433081852053324,
+              "baseline_median": 0.002425,
+              "direction": "HIGH",
+              "deviation_score": 1.182544882038206,
+              "classification": "normal"
+            },
+            "memory_bytes": {
+              "value": 48816029.14751853,
+              "baseline_median": 48795648.0,
+              "direction": "HIGH",
+              "deviation_score": 0.33226732705781514,
+              "classification": "normal"
+            },
+            "cpu_cores_used": {
+              "value": 0.0043087093593901565,
+              "baseline_median": 0.004474576271186439,
+              "direction": "LOW",
+              "deviation_score": 1.6501665648153645,
+              "classification": "normal"
+            }
+          },
+          "actionable_candidates": [],
+          "informational_deviations": [],
+          "operational_findings": []
+        }
+      },
+      {
+        "sample_id": "holdout-payment-service-bounded_noise_control-01",
+        "episode_id": "holdout-payment-service-bounded_noise_control",
+        "service": "payment-service",
+        "scenario": "bounded_noise_control",
+        "timestamp": "2026-10-22T05:38:35.111270+00:00",
+        "status": "evaluated",
+        "ground_truth_anomaly": false,
+        "predicted_anomaly": false,
+        "predicted_actionable": false,
+        "features": {
+          "request_rate": 0.15047908735177778,
+          "p95_latency_seconds": 0.0024375546077789368,
+          "memory_bytes": 48735282.62658039,
+          "cpu_cores_used": 0.0046033993400546895
+        },
+        "detector_output": {
+          "features": {
+            "request_rate": {
+              "value": 0.15047908735177778,
+              "baseline_median": 0.48474576271186437,
+              "direction": "LOW",
+              "deviation_score": 2.9511310160641293,
+              "classification": "normal"
+            },
+            "p95_latency_seconds": {
+              "value": 0.0024375546077789368,
+              "baseline_median": 0.002425,
+              "direction": "HIGH",
+              "deviation_score": 1.8370030875376895,
+              "classification": "normal"
+            },
+            "memory_bytes": {
+              "value": 48735282.62658039,
+              "baseline_median": 48795648.0,
+              "direction": "LOW",
+              "deviation_score": 0.984117368992369,
+              "classification": "normal"
+            },
+            "cpu_cores_used": {
+              "value": 0.0046033993400546895,
+              "baseline_median": 0.004474576271186439,
+              "direction": "HIGH",
+              "deviation_score": 1.2816270509960683,
+              "classification": "normal"
+            }
+          },
+          "actionable_candidates": [],
+          "informational_deviations": [],
+          "operational_findings": []
+        }
+      },
+      {
+        "sample_id": "holdout-payment-service-bounded_noise_control-02",
+        "episode_id": "holdout-payment-service-bounded_noise_control",
+        "service": "payment-service",
+        "scenario": "bounded_noise_control",
+        "timestamp": "2026-10-22T05:39:05.111270+00:00",
+        "status": "evaluated",
+        "ground_truth_anomaly": false,
+        "predicted_anomaly": false,
+        "predicted_actionable": false,
+        "features": {
+          "request_rate": 0.48213605131918114,
+          "p95_latency_seconds": 0.002452172060692762,
+          "memory_bytes": 48644213.775916085,
+          "cpu_cores_used": 0.004400993746159309
+        },
+        "detector_output": {
+          "features": {
+            "request_rate": {
+              "value": 0.48213605131918114,
+              "baseline_median": 0.48474576271186437,
+              "direction": "LOW",
+              "deviation_score": 0.023040287296443498,
+              "classification": "normal"
+            },
+            "p95_latency_seconds": {
+              "value": 0.002452172060692762,
+              "baseline_median": 0.002425,
+              "direction": "HIGH",
+              "deviation_score": 3.9758437910827764,
+              "classification": "normal"
+            },
+            "memory_bytes": {
+              "value": 48644213.775916085,
+              "baseline_median": 48795648.0,
+              "direction": "LOW",
+              "deviation_score": 2.468783703944491,
+              "classification": "normal"
+            },
+            "cpu_cores_used": {
+              "value": 0.004400993746159309,
+              "baseline_median": 0.004474576271186439,
+              "direction": "LOW",
+              "deviation_score": 0.7320533145489011,
+              "classification": "normal"
+            }
+          },
+          "actionable_candidates": [],
+          "informational_deviations": [],
+          "operational_findings": []
+        }
+      },
+      {
+        "sample_id": "holdout-payment-service-bounded_noise_control-03",
+        "episode_id": "holdout-payment-service-bounded_noise_control",
+        "service": "payment-service",
+        "scenario": "bounded_noise_control",
+        "timestamp": "2026-10-22T05:39:35.111270+00:00",
+        "status": "evaluated",
+        "ground_truth_anomaly": false,
+        "predicted_anomaly": false,
+        "predicted_actionable": false,
+        "features": {
+          "request_rate": 0.47213431229611613,
+          "p95_latency_seconds": 0.0024116670456344903,
+          "memory_bytes": 48619841.02165917,
+          "cpu_cores_used": 0.004253622326489953
+        },
+        "detector_output": {
+          "features": {
+            "request_rate": {
+              "value": 0.47213431229611613,
+              "baseline_median": 0.48474576271186437,
+              "direction": "LOW",
+              "deviation_score": 0.11134236591002256,
+              "classification": "normal"
+            },
+            "p95_latency_seconds": {
+              "value": 0.0024116670456344903,
+              "baseline_median": 0.002425,
+              "direction": "LOW",
+              "deviation_score": 1.9508915584390374,
+              "classification": "normal"
+            },
+            "memory_bytes": {
+              "value": 48619841.02165917,
+              "baseline_median": 48795648.0,
+              "direction": "LOW",
+              "deviation_score": 2.8661249185457818,
+              "classification": "normal"
+            },
+            "cpu_cores_used": {
+              "value": 0.004253622326489953,
+              "baseline_median": 0.004474576271186439,
+              "direction": "LOW",
+              "deviation_score": 2.198213061023404,
+              "classification": "normal"
+            }
+          },
+          "actionable_candidates": [],
+          "informational_deviations": [],
+          "operational_findings": []
+        }
+      },
+      {
+        "sample_id": "holdout-payment-service-bounded_noise_control-04",
+        "episode_id": "holdout-payment-service-bounded_noise_control",
+        "service": "payment-service",
+        "scenario": "bounded_noise_control",
+        "timestamp": "2026-10-22T05:40:05.111270+00:00",
+        "status": "evaluated",
+        "ground_truth_anomaly": false,
+        "predicted_anomaly": false,
+        "predicted_actionable": false,
+        "features": {
+          "request_rate": 0.3757570020852985,
+          "p95_latency_seconds": 0.002434192644541909,
+          "memory_bytes": 48731101.71735288,
+          "cpu_cores_used": 0.004392419992682581
+        },
+        "detector_output": {
+          "features": {
+            "request_rate": {
+              "value": 0.3757570020852985,
+              "baseline_median": 0.48474576271186437,
+              "direction": "LOW",
+              "deviation_score": 0.9622260775500963,
+              "classification": "normal"
+            },
+            "p95_latency_seconds": {
+              "value": 0.002434192644541909,
+              "baseline_median": 0.002425,
+              "direction": "HIGH",
+              "deviation_score": 1.3450771783133588,
+              "classification": "normal"
+            },
+            "memory_bytes": {
+              "value": 48731101.71735288,
+              "baseline_median": 48795648.0,
+              "direction": "LOW",
+              "deviation_score": 1.0522773944488115,
+              "classification": "normal"
+            },
+            "cpu_cores_used": {
+              "value": 0.004392419992682581,
+              "baseline_median": 0.004474576271186439,
+              "direction": "LOW",
+              "deviation_score": 0.817351347586639,
+              "classification": "normal"
+            }
+          },
+          "actionable_candidates": [],
+          "informational_deviations": [],
+          "operational_findings": []
+        }
+      },
+      {
+        "sample_id": "holdout-payment-service-bounded_noise_control-05",
+        "episode_id": "holdout-payment-service-bounded_noise_control",
+        "service": "payment-service",
+        "scenario": "bounded_noise_control",
+        "timestamp": "2026-10-22T05:40:35.111270+00:00",
+        "status": "evaluated",
+        "ground_truth_anomaly": false,
+        "predicted_anomaly": false,
+        "predicted_actionable": false,
+        "features": {
+          "request_rate": 0.8443626598078187,
+          "p95_latency_seconds": 0.0024343567692344885,
+          "memory_bytes": 48758240.194167815,
+          "cpu_cores_used": 0.004661794270106742
+        },
+        "detector_output": {
+          "features": {
+            "request_rate": {
+              "value": 0.8443626598078187,
+              "baseline_median": 0.48474576271186437,
+              "direction": "HIGH",
+              "deviation_score": 3.1749398224557077,
+              "classification": "normal"
+            },
+            "p95_latency_seconds": {
+              "value": 0.0024343567692344885,
+              "baseline_median": 0.002425,
+              "direction": "HIGH",
+              "deviation_score": 1.3690920716751187,
+              "classification": "normal"
+            },
+            "memory_bytes": {
+              "value": 48758240.194167815,
+              "baseline_median": 48795648.0,
+              "direction": "LOW",
+              "deviation_score": 0.609847489875486,
+              "classification": "normal"
+            },
+            "cpu_cores_used": {
+              "value": 0.004661794270106742,
+              "baseline_median": 0.004474576271186439,
+              "direction": "HIGH",
+              "deviation_score": 1.8625829516218666,
+              "classification": "normal"
+            }
+          },
+          "actionable_candidates": [],
+          "informational_deviations": [],
+          "operational_findings": []
+        }
+      },
+      {
+        "sample_id": "holdout-user-service-gradual_memory_drift-00",
+        "episode_id": "holdout-user-service-gradual_memory_drift",
+        "service": "user-service",
+        "scenario": "gradual_memory_drift",
+        "timestamp": "2026-10-22T05:41:05.111270+00:00",
+        "status": "evaluated",
+        "ground_truth_anomaly": false,
+        "predicted_anomaly": false,
+        "predicted_actionable": false,
+        "features": {
+          "request_rate": 0.48474576271186437,
+          "p95_latency_seconds": 0.0024187734962406015,
+          "memory_bytes": 48386048.0,
+          "cpu_cores_used": 0.0045084745762711854
+        },
+        "detector_output": {
+          "features": {
+            "request_rate": {
+              "value": 0.48474576271186437,
+              "baseline_median": 0.48474576271186437,
+              "direction": "NORMAL",
+              "deviation_score": 0.0,
+              "classification": "normal"
+            },
+            "p95_latency_seconds": {
+              "value": 0.0024187734962406015,
+              "baseline_median": 0.0024187734962406015,
+              "direction": "NORMAL",
+              "deviation_score": 0.0,
+              "classification": "normal"
+            },
+            "memory_bytes": {
+              "value": 48386048.0,
+              "baseline_median": 48386048.0,
+              "direction": "NORMAL",
+              "deviation_score": 0.0,
+              "classification": "normal"
+            },
+            "cpu_cores_used": {
+              "value": 0.0045084745762711854,
+              "baseline_median": 0.0045084745762711854,
+              "direction": "NORMAL",
+              "deviation_score": 0.0,
+              "classification": "normal"
+            }
+          },
+          "actionable_candidates": [],
+          "informational_deviations": [],
+          "operational_findings": []
+        }
+      },
+      {
+        "sample_id": "holdout-user-service-gradual_memory_drift-01",
+        "episode_id": "holdout-user-service-gradual_memory_drift",
+        "service": "user-service",
+        "scenario": "gradual_memory_drift",
+        "timestamp": "2026-10-22T05:41:35.111270+00:00",
+        "status": "evaluated",
+        "ground_truth_anomaly": true,
+        "predicted_anomaly": false,
+        "predicted_actionable": false,
+        "features": {
+          "request_rate": 0.48474576271186437,
+          "p95_latency_seconds": 0.0024187734962406015,
+          "memory_bytes": 48480557.11972345,
+          "cpu_cores_used": 0.0045084745762711854
+        },
+        "detector_output": {
+          "features": {
+            "request_rate": {
+              "value": 0.48474576271186437,
+              "baseline_median": 0.48474576271186437,
+              "direction": "NORMAL",
+              "deviation_score": 0.0,
+              "classification": "normal"
+            },
+            "p95_latency_seconds": {
+              "value": 0.0024187734962406015,
+              "baseline_median": 0.0024187734962406015,
+              "direction": "NORMAL",
+              "deviation_score": 0.0,
+              "classification": "normal"
+            },
+            "memory_bytes": {
+              "value": 48480557.11972345,
+              "baseline_median": 48386048.0,
+              "direction": "HIGH",
+              "deviation_score": 0.7999999999999718,
+              "classification": "normal"
+            },
+            "cpu_cores_used": {
+              "value": 0.0045084745762711854,
+              "baseline_median": 0.0045084745762711854,
+              "direction": "NORMAL",
+              "deviation_score": 0.0,
+              "classification": "normal"
+            }
+          },
+          "actionable_candidates": [],
+          "informational_deviations": [],
+          "operational_findings": []
+        }
+      },
+      {
+        "sample_id": "holdout-user-service-gradual_memory_drift-02",
+        "episode_id": "holdout-user-service-gradual_memory_drift",
+        "service": "user-service",
+        "scenario": "gradual_memory_drift",
+        "timestamp": "2026-10-22T05:42:05.111270+00:00",
+        "status": "evaluated",
+        "ground_truth_anomaly": true,
+        "predicted_anomaly": false,
+        "predicted_actionable": false,
+        "features": {
+          "request_rate": 0.48474576271186437,
+          "p95_latency_seconds": 0.0024187734962406015,
+          "memory_bytes": 48575066.2394469,
+          "cpu_cores_used": 0.0045084745762711854
+        },
+        "detector_output": {
+          "features": {
+            "request_rate": {
+              "value": 0.48474576271186437,
+              "baseline_median": 0.48474576271186437,
+              "direction": "NORMAL",
+              "deviation_score": 0.0,
+              "classification": "normal"
+            },
+            "p95_latency_seconds": {
+              "value": 0.0024187734962406015,
+              "baseline_median": 0.0024187734962406015,
+              "direction": "NORMAL",
+              "deviation_score": 0.0,
+              "classification": "normal"
+            },
+            "memory_bytes": {
+              "value": 48575066.2394469,
+              "baseline_median": 48386048.0,
+              "direction": "HIGH",
+              "deviation_score": 1.6000000000000068,
+              "classification": "normal"
+            },
+            "cpu_cores_used": {
+              "value": 0.0045084745762711854,
+              "baseline_median": 0.0045084745762711854,
+              "direction": "NORMAL",
+              "deviation_score": 0.0,
+              "classification": "normal"
+            }
+          },
+          "actionable_candidates": [],
+          "informational_deviations": [],
+          "operational_findings": []
+        }
+      },
+      {
+        "sample_id": "holdout-user-service-gradual_memory_drift-03",
+        "episode_id": "holdout-user-service-gradual_memory_drift",
+        "service": "user-service",
+        "scenario": "gradual_memory_drift",
+        "timestamp": "2026-10-22T05:42:35.111270+00:00",
+        "status": "evaluated",
+        "ground_truth_anomaly": true,
+        "predicted_anomaly": false,
+        "predicted_actionable": false,
+        "features": {
+          "request_rate": 0.48474576271186437,
+          "p95_latency_seconds": 0.0024187734962406015,
+          "memory_bytes": 48669575.35917035,
+          "cpu_cores_used": 0.0045084745762711854
+        },
+        "detector_output": {
+          "features": {
+            "request_rate": {
+              "value": 0.48474576271186437,
+              "baseline_median": 0.48474576271186437,
+              "direction": "NORMAL",
+              "deviation_score": 0.0,
+              "classification": "normal"
+            },
+            "p95_latency_seconds": {
+              "value": 0.0024187734962406015,
+              "baseline_median": 0.0024187734962406015,
+              "direction": "NORMAL",
+              "deviation_score": 0.0,
+              "classification": "normal"
+            },
+            "memory_bytes": {
+              "value": 48669575.35917035,
+              "baseline_median": 48386048.0,
+              "direction": "HIGH",
+              "deviation_score": 2.3999999999999786,
+              "classification": "normal"
+            },
+            "cpu_cores_used": {
+              "value": 0.0045084745762711854,
+              "baseline_median": 0.0045084745762711854,
+              "direction": "NORMAL",
+              "deviation_score": 0.0,
+              "classification": "normal"
+            }
+          },
+          "actionable_candidates": [],
+          "informational_deviations": [],
+          "operational_findings": []
+        }
+      },
+      {
+        "sample_id": "holdout-user-service-gradual_memory_drift-04",
+        "episode_id": "holdout-user-service-gradual_memory_drift",
+        "service": "user-service",
+        "scenario": "gradual_memory_drift",
+        "timestamp": "2026-10-22T05:43:05.111270+00:00",
+        "status": "evaluated",
+        "ground_truth_anomaly": true,
+        "predicted_anomaly": false,
+        "predicted_actionable": false,
+        "features": {
+          "request_rate": 0.48474576271186437,
+          "p95_latency_seconds": 0.0024187734962406015,
+          "memory_bytes": 48764084.4788938,
+          "cpu_cores_used": 0.0045084745762711854
+        },
+        "detector_output": {
+          "features": {
+            "request_rate": {
+              "value": 0.48474576271186437,
+              "baseline_median": 0.48474576271186437,
+              "direction": "NORMAL",
+              "deviation_score": 0.0,
+              "classification": "normal"
+            },
+            "p95_latency_seconds": {
+              "value": 0.0024187734962406015,
+              "baseline_median": 0.0024187734962406015,
+              "direction": "NORMAL",
+              "deviation_score": 0.0,
+              "classification": "normal"
+            },
+            "memory_bytes": {
+              "value": 48764084.4788938,
+              "baseline_median": 48386048.0,
+              "direction": "HIGH",
+              "deviation_score": 3.2000000000000135,
+              "classification": "normal"
+            },
+            "cpu_cores_used": {
+              "value": 0.0045084745762711854,
+              "baseline_median": 0.0045084745762711854,
+              "direction": "NORMAL",
+              "deviation_score": 0.0,
+              "classification": "normal"
+            }
+          },
+          "actionable_candidates": [],
+          "informational_deviations": [],
+          "operational_findings": []
+        }
+      },
+      {
+        "sample_id": "holdout-user-service-gradual_memory_drift-05",
+        "episode_id": "holdout-user-service-gradual_memory_drift",
+        "service": "user-service",
+        "scenario": "gradual_memory_drift",
+        "timestamp": "2026-10-22T05:43:35.111270+00:00",
+        "status": "evaluated",
+        "ground_truth_anomaly": true,
+        "predicted_anomaly": false,
+        "predicted_actionable": false,
+        "features": {
+          "request_rate": 0.48474576271186437,
+          "p95_latency_seconds": 0.0024187734962406015,
+          "memory_bytes": 48858593.59861725,
+          "cpu_cores_used": 0.0045084745762711854
+        },
+        "detector_output": {
+          "features": {
+            "request_rate": {
+              "value": 0.48474576271186437,
+              "baseline_median": 0.48474576271186437,
+              "direction": "NORMAL",
+              "deviation_score": 0.0,
+              "classification": "normal"
+            },
+            "p95_latency_seconds": {
+              "value": 0.0024187734962406015,
+              "baseline_median": 0.0024187734962406015,
+              "direction": "NORMAL",
+              "deviation_score": 0.0,
+              "classification": "normal"
+            },
+            "memory_bytes": {
+              "value": 48858593.59861725,
+              "baseline_median": 48386048.0,
+              "direction": "HIGH",
+              "deviation_score": 3.9999999999999853,
+              "classification": "normal"
+            },
+            "cpu_cores_used": {
+              "value": 0.0045084745762711854,
+              "baseline_median": 0.0045084745762711854,
+              "direction": "NORMAL",
+              "deviation_score": 0.0,
+              "classification": "normal"
+            }
+          },
+          "actionable_candidates": [],
+          "informational_deviations": [],
+          "operational_findings": []
+        }
+      },
+      {
+        "sample_id": "holdout-user-service-gradual_memory_drift-06",
+        "episode_id": "holdout-user-service-gradual_memory_drift",
+        "service": "user-service",
+        "scenario": "gradual_memory_drift",
+        "timestamp": "2026-10-22T05:44:05.111270+00:00",
+        "status": "evaluated",
+        "ground_truth_anomaly": true,
+        "predicted_anomaly": false,
+        "predicted_actionable": false,
+        "features": {
+          "request_rate": 0.48474576271186437,
+          "p95_latency_seconds": 0.0024187734962406015,
+          "memory_bytes": 48953102.7183407,
+          "cpu_cores_used": 0.0045084745762711854
+        },
+        "detector_output": {
+          "features": {
+            "request_rate": {
+              "value": 0.48474576271186437,
+              "baseline_median": 0.48474576271186437,
+              "direction": "NORMAL",
+              "deviation_score": 0.0,
+              "classification": "normal"
+            },
+            "p95_latency_seconds": {
+              "value": 0.0024187734962406015,
+              "baseline_median": 0.0024187734962406015,
+              "direction": "NORMAL",
+              "deviation_score": 0.0,
+              "classification": "normal"
+            },
+            "memory_bytes": {
+              "value": 48953102.7183407,
+              "baseline_median": 48386048.0,
+              "direction": "HIGH",
+              "deviation_score": 4.80000000000002,
+              "classification": "normal"
+            },
+            "cpu_cores_used": {
+              "value": 0.0045084745762711854,
+              "baseline_median": 0.0045084745762711854,
+              "direction": "NORMAL",
+              "deviation_score": 0.0,
+              "classification": "normal"
+            }
+          },
+          "actionable_candidates": [],
+          "informational_deviations": [],
+          "operational_findings": []
+        }
+      },
+      {
+        "sample_id": "holdout-user-service-gradual_memory_drift-07",
+        "episode_id": "holdout-user-service-gradual_memory_drift",
+        "service": "user-service",
+        "scenario": "gradual_memory_drift",
+        "timestamp": "2026-10-22T05:44:35.111270+00:00",
+        "status": "evaluated",
+        "ground_truth_anomaly": true,
+        "predicted_anomaly": true,
+        "predicted_actionable": true,
+        "features": {
+          "request_rate": 0.48474576271186437,
+          "p95_latency_seconds": 0.0024187734962406015,
+          "memory_bytes": 49047611.83806415,
+          "cpu_cores_used": 0.0045084745762711854
+        },
+        "detector_output": {
+          "features": {
+            "request_rate": {
+              "value": 0.48474576271186437,
+              "baseline_median": 0.48474576271186437,
+              "direction": "NORMAL",
+              "deviation_score": 0.0,
+              "classification": "normal"
+            },
+            "p95_latency_seconds": {
+              "value": 0.0024187734962406015,
+              "baseline_median": 0.0024187734962406015,
+              "direction": "NORMAL",
+              "deviation_score": 0.0,
+              "classification": "normal"
+            },
+            "memory_bytes": {
+              "value": 49047611.83806415,
+              "baseline_median": 48386048.0,
+              "direction": "HIGH",
+              "deviation_score": 5.599999999999992,
+              "classification": "actionable_candidate"
+            },
+            "cpu_cores_used": {
+              "value": 0.0045084745762711854,
+              "baseline_median": 0.0045084745762711854,
+              "direction": "NORMAL",
+              "deviation_score": 0.0,
+              "classification": "normal"
+            }
+          },
+          "actionable_candidates": [
+            "memory_bytes"
+          ],
+          "informational_deviations": [],
+          "operational_findings": []
+        }
+      },
+      {
+        "sample_id": "holdout-user-service-gradual_memory_drift-08",
+        "episode_id": "holdout-user-service-gradual_memory_drift",
+        "service": "user-service",
+        "scenario": "gradual_memory_drift",
+        "timestamp": "2026-10-22T05:45:05.111270+00:00",
+        "status": "evaluated",
+        "ground_truth_anomaly": true,
+        "predicted_anomaly": true,
+        "predicted_actionable": true,
+        "features": {
+          "request_rate": 0.48474576271186437,
+          "p95_latency_seconds": 0.0024187734962406015,
+          "memory_bytes": 49142120.9577876,
+          "cpu_cores_used": 0.0045084745762711854
+        },
+        "detector_output": {
+          "features": {
+            "request_rate": {
+              "value": 0.48474576271186437,
+              "baseline_median": 0.48474576271186437,
+              "direction": "NORMAL",
+              "deviation_score": 0.0,
+              "classification": "normal"
+            },
+            "p95_latency_seconds": {
+              "value": 0.0024187734962406015,
+              "baseline_median": 0.0024187734962406015,
+              "direction": "NORMAL",
+              "deviation_score": 0.0,
+              "classification": "normal"
+            },
+            "memory_bytes": {
+              "value": 49142120.9577876,
+              "baseline_median": 48386048.0,
+              "direction": "HIGH",
+              "deviation_score": 6.400000000000027,
+              "classification": "actionable_candidate"
+            },
+            "cpu_cores_used": {
+              "value": 0.0045084745762711854,
+              "baseline_median": 0.0045084745762711854,
+              "direction": "NORMAL",
+              "deviation_score": 0.0,
+              "classification": "normal"
+            }
+          },
+          "actionable_candidates": [
+            "memory_bytes"
+          ],
+          "informational_deviations": [],
+          "operational_findings": []
+        }
+      },
+      {
+        "sample_id": "holdout-user-service-gradual_memory_drift-09",
+        "episode_id": "holdout-user-service-gradual_memory_drift",
+        "service": "user-service",
+        "scenario": "gradual_memory_drift",
+        "timestamp": "2026-10-22T05:45:35.111270+00:00",
+        "status": "evaluated",
+        "ground_truth_anomaly": true,
+        "predicted_anomaly": true,
+        "predicted_actionable": true,
+        "features": {
+          "request_rate": 0.48474576271186437,
+          "p95_latency_seconds": 0.0024187734962406015,
+          "memory_bytes": 49236630.07751105,
+          "cpu_cores_used": 0.0045084745762711854
+        },
+        "detector_output": {
+          "features": {
+            "request_rate": {
+              "value": 0.48474576271186437,
+              "baseline_median": 0.48474576271186437,
+              "direction": "NORMAL",
+              "deviation_score": 0.0,
+              "classification": "normal"
+            },
+            "p95_latency_seconds": {
+              "value": 0.0024187734962406015,
+              "baseline_median": 0.0024187734962406015,
+              "direction": "NORMAL",
+              "deviation_score": 0.0,
+              "classification": "normal"
+            },
+            "memory_bytes": {
+              "value": 49236630.07751105,
+              "baseline_median": 48386048.0,
+              "direction": "HIGH",
+              "deviation_score": 7.199999999999998,
+              "classification": "actionable_candidate"
+            },
+            "cpu_cores_used": {
+              "value": 0.0045084745762711854,
+              "baseline_median": 0.0045084745762711854,
+              "direction": "NORMAL",
+              "deviation_score": 0.0,
+              "classification": "normal"
+            }
+          },
+          "actionable_candidates": [
+            "memory_bytes"
+          ],
+          "informational_deviations": [],
+          "operational_findings": []
+        }
+      },
+      {
+        "sample_id": "holdout-user-service-concurrent_latency_memory_step-00",
+        "episode_id": "holdout-user-service-concurrent_latency_memory_step",
+        "service": "user-service",
+        "scenario": "concurrent_latency_memory_step",
+        "timestamp": "2026-10-22T05:46:05.111270+00:00",
+        "status": "evaluated",
+        "ground_truth_anomaly": true,
+        "predicted_anomaly": true,
+        "predicted_actionable": true,
+        "features": {
+          "request_rate": 0.48474576271186437,
+          "p95_latency_seconds": 0.002430233604498653,
+          "memory_bytes": 49153934.59775303,
+          "cpu_cores_used": 0.0045084745762711854
+        },
+        "detector_output": {
+          "features": {
+            "request_rate": {
+              "value": 0.48474576271186437,
+              "baseline_median": 0.48474576271186437,
+              "direction": "NORMAL",
+              "deviation_score": 0.0,
+              "classification": "normal"
+            },
+            "p95_latency_seconds": {
+              "value": 0.002430233604498653,
+              "baseline_median": 0.0024187734962406015,
+              "direction": "HIGH",
+              "deviation_score": 6.499999999999986,
+              "classification": "actionable_candidate"
+            },
+            "memory_bytes": {
+              "value": 49153934.59775303,
+              "baseline_median": 48386048.0,
+              "direction": "HIGH",
+              "deviation_score": 6.500000000000015,
+              "classification": "actionable_candidate"
+            },
+            "cpu_cores_used": {
+              "value": 0.0045084745762711854,
+              "baseline_median": 0.0045084745762711854,
+              "direction": "NORMAL",
+              "deviation_score": 0.0,
+              "classification": "normal"
+            }
+          },
+          "actionable_candidates": [
+            "p95_latency_seconds",
+            "memory_bytes"
+          ],
+          "informational_deviations": [],
+          "operational_findings": []
+        }
+      },
+      {
+        "sample_id": "holdout-user-service-concurrent_latency_memory_step-01",
+        "episode_id": "holdout-user-service-concurrent_latency_memory_step",
+        "service": "user-service",
+        "scenario": "concurrent_latency_memory_step",
+        "timestamp": "2026-10-22T05:46:35.111270+00:00",
+        "status": "evaluated",
+        "ground_truth_anomaly": true,
+        "predicted_anomaly": true,
+        "predicted_actionable": true,
+        "features": {
+          "request_rate": 0.48474576271186437,
+          "p95_latency_seconds": 0.002430233604498653,
+          "memory_bytes": 49153934.59775303,
+          "cpu_cores_used": 0.0045084745762711854
+        },
+        "detector_output": {
+          "features": {
+            "request_rate": {
+              "value": 0.48474576271186437,
+              "baseline_median": 0.48474576271186437,
+              "direction": "NORMAL",
+              "deviation_score": 0.0,
+              "classification": "normal"
+            },
+            "p95_latency_seconds": {
+              "value": 0.002430233604498653,
+              "baseline_median": 0.0024187734962406015,
+              "direction": "HIGH",
+              "deviation_score": 6.499999999999986,
+              "classification": "actionable_candidate"
+            },
+            "memory_bytes": {
+              "value": 49153934.59775303,
+              "baseline_median": 48386048.0,
+              "direction": "HIGH",
+              "deviation_score": 6.500000000000015,
+              "classification": "actionable_candidate"
+            },
+            "cpu_cores_used": {
+              "value": 0.0045084745762711854,
+              "baseline_median": 0.0045084745762711854,
+              "direction": "NORMAL",
+              "deviation_score": 0.0,
+              "classification": "normal"
+            }
+          },
+          "actionable_candidates": [
+            "p95_latency_seconds",
+            "memory_bytes"
+          ],
+          "informational_deviations": [],
+          "operational_findings": []
+        }
+      },
+      {
+        "sample_id": "holdout-user-service-concurrent_latency_memory_step-02",
+        "episode_id": "holdout-user-service-concurrent_latency_memory_step",
+        "service": "user-service",
+        "scenario": "concurrent_latency_memory_step",
+        "timestamp": "2026-10-22T05:47:05.111270+00:00",
+        "status": "evaluated",
+        "ground_truth_anomaly": true,
+        "predicted_anomaly": true,
+        "predicted_actionable": true,
+        "features": {
+          "request_rate": 0.48474576271186437,
+          "p95_latency_seconds": 0.002430233604498653,
+          "memory_bytes": 49153934.59775303,
+          "cpu_cores_used": 0.0045084745762711854
+        },
+        "detector_output": {
+          "features": {
+            "request_rate": {
+              "value": 0.48474576271186437,
+              "baseline_median": 0.48474576271186437,
+              "direction": "NORMAL",
+              "deviation_score": 0.0,
+              "classification": "normal"
+            },
+            "p95_latency_seconds": {
+              "value": 0.002430233604498653,
+              "baseline_median": 0.0024187734962406015,
+              "direction": "HIGH",
+              "deviation_score": 6.499999999999986,
+              "classification": "actionable_candidate"
+            },
+            "memory_bytes": {
+              "value": 49153934.59775303,
+              "baseline_median": 48386048.0,
+              "direction": "HIGH",
+              "deviation_score": 6.500000000000015,
+              "classification": "actionable_candidate"
+            },
+            "cpu_cores_used": {
+              "value": 0.0045084745762711854,
+              "baseline_median": 0.0045084745762711854,
+              "direction": "NORMAL",
+              "deviation_score": 0.0,
+              "classification": "normal"
+            }
+          },
+          "actionable_candidates": [
+            "p95_latency_seconds",
+            "memory_bytes"
+          ],
+          "informational_deviations": [],
+          "operational_findings": []
+        }
+      },
+      {
+        "sample_id": "holdout-user-service-stable_center_control-00",
+        "episode_id": "holdout-user-service-stable_center_control",
+        "service": "user-service",
+        "scenario": "stable_center_control",
+        "timestamp": "2026-10-22T05:47:35.111270+00:00",
+        "status": "evaluated",
+        "ground_truth_anomaly": false,
+        "predicted_anomaly": false,
+        "predicted_actionable": false,
+        "features": {
+          "request_rate": 0.48474576271186437,
+          "p95_latency_seconds": 0.0024187734962406015,
+          "memory_bytes": 48386048.0,
+          "cpu_cores_used": 0.0045084745762711854
+        },
+        "detector_output": {
+          "features": {
+            "request_rate": {
+              "value": 0.48474576271186437,
+              "baseline_median": 0.48474576271186437,
+              "direction": "NORMAL",
+              "deviation_score": 0.0,
+              "classification": "normal"
+            },
+            "p95_latency_seconds": {
+              "value": 0.0024187734962406015,
+              "baseline_median": 0.0024187734962406015,
+              "direction": "NORMAL",
+              "deviation_score": 0.0,
+              "classification": "normal"
+            },
+            "memory_bytes": {
+              "value": 48386048.0,
+              "baseline_median": 48386048.0,
+              "direction": "NORMAL",
+              "deviation_score": 0.0,
+              "classification": "normal"
+            },
+            "cpu_cores_used": {
+              "value": 0.0045084745762711854,
+              "baseline_median": 0.0045084745762711854,
+              "direction": "NORMAL",
+              "deviation_score": 0.0,
+              "classification": "normal"
+            }
+          },
+          "actionable_candidates": [],
+          "informational_deviations": [],
+          "operational_findings": []
+        }
+      },
+      {
+        "sample_id": "holdout-user-service-stable_center_control-01",
+        "episode_id": "holdout-user-service-stable_center_control",
+        "service": "user-service",
+        "scenario": "stable_center_control",
+        "timestamp": "2026-10-22T05:48:05.111270+00:00",
+        "status": "evaluated",
+        "ground_truth_anomaly": false,
+        "predicted_anomaly": false,
+        "predicted_actionable": false,
+        "features": {
+          "request_rate": 0.48474576271186437,
+          "p95_latency_seconds": 0.0024187734962406015,
+          "memory_bytes": 48386048.0,
+          "cpu_cores_used": 0.0045084745762711854
+        },
+        "detector_output": {
+          "features": {
+            "request_rate": {
+              "value": 0.48474576271186437,
+              "baseline_median": 0.48474576271186437,
+              "direction": "NORMAL",
+              "deviation_score": 0.0,
+              "classification": "normal"
+            },
+            "p95_latency_seconds": {
+              "value": 0.0024187734962406015,
+              "baseline_median": 0.0024187734962406015,
+              "direction": "NORMAL",
+              "deviation_score": 0.0,
+              "classification": "normal"
+            },
+            "memory_bytes": {
+              "value": 48386048.0,
+              "baseline_median": 48386048.0,
+              "direction": "NORMAL",
+              "deviation_score": 0.0,
+              "classification": "normal"
+            },
+            "cpu_cores_used": {
+              "value": 0.0045084745762711854,
+              "baseline_median": 0.0045084745762711854,
+              "direction": "NORMAL",
+              "deviation_score": 0.0,
+              "classification": "normal"
+            }
+          },
+          "actionable_candidates": [],
+          "informational_deviations": [],
+          "operational_findings": []
+        }
+      },
+      {
+        "sample_id": "holdout-user-service-stable_center_control-02",
+        "episode_id": "holdout-user-service-stable_center_control",
+        "service": "user-service",
+        "scenario": "stable_center_control",
+        "timestamp": "2026-10-22T05:48:35.111270+00:00",
+        "status": "evaluated",
+        "ground_truth_anomaly": false,
+        "predicted_anomaly": false,
+        "predicted_actionable": false,
+        "features": {
+          "request_rate": 0.48474576271186437,
+          "p95_latency_seconds": 0.0024187734962406015,
+          "memory_bytes": 48386048.0,
+          "cpu_cores_used": 0.0045084745762711854
+        },
+        "detector_output": {
+          "features": {
+            "request_rate": {
+              "value": 0.48474576271186437,
+              "baseline_median": 0.48474576271186437,
+              "direction": "NORMAL",
+              "deviation_score": 0.0,
+              "classification": "normal"
+            },
+            "p95_latency_seconds": {
+              "value": 0.0024187734962406015,
+              "baseline_median": 0.0024187734962406015,
+              "direction": "NORMAL",
+              "deviation_score": 0.0,
+              "classification": "normal"
+            },
+            "memory_bytes": {
+              "value": 48386048.0,
+              "baseline_median": 48386048.0,
+              "direction": "NORMAL",
+              "deviation_score": 0.0,
+              "classification": "normal"
+            },
+            "cpu_cores_used": {
+              "value": 0.0045084745762711854,
+              "baseline_median": 0.0045084745762711854,
+              "direction": "NORMAL",
+              "deviation_score": 0.0,
+              "classification": "normal"
+            }
+          },
+          "actionable_candidates": [],
+          "informational_deviations": [],
+          "operational_findings": []
+        }
+      },
+      {
+        "sample_id": "holdout-user-service-bounded_noise_control-00",
+        "episode_id": "holdout-user-service-bounded_noise_control",
+        "service": "user-service",
+        "scenario": "bounded_noise_control",
+        "timestamp": "2026-10-22T05:49:05.111270+00:00",
+        "status": "evaluated",
+        "ground_truth_anomaly": false,
+        "predicted_anomaly": false,
+        "predicted_actionable": false,
+        "features": {
+          "request_rate": 0.4191377515855155,
+          "p95_latency_seconds": 0.002420586916171682,
+          "memory_bytes": 48251086.689468354,
+          "cpu_cores_used": 0.0044302929324584
+        },
+        "detector_output": {
+          "features": {
+            "request_rate": {
+              "value": 0.4191377515855155,
+              "baseline_median": 0.48474576271186437,
+              "direction": "LOW",
+              "deviation_score": 0.5829750966010407,
+              "classification": "normal"
+            },
+            "p95_latency_seconds": {
+              "value": 0.002420586916171682,
+              "baseline_median": 0.0024187734962406015,
+              "direction": "HIGH",
+              "deviation_score": 1.028544345882831,
+              "classification": "normal"
+            },
+            "memory_bytes": {
+              "value": 48251086.689468354,
+              "baseline_median": 48386048.0,
+              "direction": "LOW",
+              "deviation_score": 1.1424193637741298,
+              "classification": "normal"
+            },
+            "cpu_cores_used": {
+              "value": 0.0044302929324584,
+              "baseline_median": 0.0045084745762711854,
+              "direction": "LOW",
+              "deviation_score": 0.7778087456080998,
+              "classification": "normal"
+            }
+          },
+          "actionable_candidates": [],
+          "informational_deviations": [],
+          "operational_findings": []
+        }
+      },
+      {
+        "sample_id": "holdout-user-service-bounded_noise_control-01",
+        "episode_id": "holdout-user-service-bounded_noise_control",
+        "service": "user-service",
+        "scenario": "bounded_noise_control",
+        "timestamp": "2026-10-22T05:49:35.111270+00:00",
+        "status": "evaluated",
+        "ground_truth_anomaly": false,
+        "predicted_anomaly": false,
+        "predicted_actionable": false,
+        "features": {
+          "request_rate": 0.4707393860265223,
+          "p95_latency_seconds": 0.002422274646724822,
+          "memory_bytes": 48777290.41746332,
+          "cpu_cores_used": 0.004406490802167719
+        },
+        "detector_output": {
+          "features": {
+            "request_rate": {
+              "value": 0.4707393860265223,
+              "baseline_median": 0.48474576271186437,
+              "direction": "LOW",
+              "deviation_score": 0.12445688660555271,
+              "classification": "normal"
+            },
+            "p95_latency_seconds": {
+              "value": 0.002422274646724822,
+              "baseline_median": 0.0024187734962406015,
+              "direction": "HIGH",
+              "deviation_score": 1.985799578415391,
+              "classification": "normal"
+            },
+            "memory_bytes": {
+              "value": 48777290.41746332,
+              "baseline_median": 48386048.0,
+              "direction": "HIGH",
+              "deviation_score": 3.311785517487924,
+              "classification": "normal"
+            },
+            "cpu_cores_used": {
+              "value": 0.004406490802167719,
+              "baseline_median": 0.0045084745762711854,
+              "direction": "LOW",
+              "deviation_score": 1.0146099204276995,
+              "classification": "normal"
+            }
+          },
+          "actionable_candidates": [],
+          "informational_deviations": [],
+          "operational_findings": []
+        }
+      },
+      {
+        "sample_id": "holdout-user-service-bounded_noise_control-02",
+        "episode_id": "holdout-user-service-bounded_noise_control",
+        "service": "user-service",
+        "scenario": "bounded_noise_control",
+        "timestamp": "2026-10-22T05:50:05.111270+00:00",
+        "status": "evaluated",
+        "ground_truth_anomaly": false,
+        "predicted_anomaly": false,
+        "predicted_actionable": false,
+        "features": {
+          "request_rate": 0.5768479096154304,
+          "p95_latency_seconds": 0.0024214095125334118,
+          "memory_bytes": 48734005.29989953,
+          "cpu_cores_used": 0.004593860681943267
+        },
+        "detector_output": {
+          "features": {
+            "request_rate": {
+              "value": 0.5768479096154304,
+              "baseline_median": 0.48474576271186437,
+              "direction": "HIGH",
+              "deviation_score": 0.8183948433502485,
+              "classification": "normal"
+            },
+            "p95_latency_seconds": {
+              "value": 0.0024214095125334118,
+              "baseline_median": 0.0024187734962406015,
+              "direction": "HIGH",
+              "deviation_score": 1.4951085554736432,
+              "classification": "normal"
+            },
+            "memory_bytes": {
+              "value": 48734005.29989953,
+              "baseline_median": 48386048.0,
+              "direction": "HIGH",
+              "deviation_score": 2.945386019192362,
+              "classification": "normal"
+            },
+            "cpu_cores_used": {
+              "value": 0.004593860681943267,
+              "baseline_median": 0.0045084745762711854,
+              "direction": "HIGH",
+              "deviation_score": 0.8494840541367739,
+              "classification": "normal"
+            }
+          },
+          "actionable_candidates": [],
+          "informational_deviations": [],
+          "operational_findings": []
+        }
+      },
+      {
+        "sample_id": "holdout-user-service-bounded_noise_control-03",
+        "episode_id": "holdout-user-service-bounded_noise_control",
+        "service": "user-service",
+        "scenario": "bounded_noise_control",
+        "timestamp": "2026-10-22T05:50:35.111270+00:00",
+        "status": "evaluated",
+        "ground_truth_anomaly": false,
+        "predicted_anomaly": false,
+        "predicted_actionable": false,
+        "features": {
+          "request_rate": 0.5562799482135193,
+          "p95_latency_seconds": 0.002416953915227444,
+          "memory_bytes": 48312646.953755386,
+          "cpu_cores_used": 0.004377248104109339
+        },
+        "detector_output": {
+          "features": {
+            "request_rate": {
+              "value": 0.5562799482135193,
+              "baseline_median": 0.48474576271186437,
+              "direction": "HIGH",
+              "deviation_score": 0.6356334841913205,
+              "classification": "normal"
+            },
+            "p95_latency_seconds": {
+              "value": 0.002416953915227444,
+              "baseline_median": 0.0024187734962406015,
+              "direction": "LOW",
+              "deviation_score": 1.032038818412889,
+              "classification": "normal"
+            },
+            "memory_bytes": {
+              "value": 48312646.953755386,
+              "baseline_median": 48386048.0,
+              "direction": "LOW",
+              "deviation_score": 0.6213245575402497,
+              "classification": "normal"
+            },
+            "cpu_cores_used": {
+              "value": 0.004377248104109339,
+              "baseline_median": 0.0045084745762711854,
+              "direction": "LOW",
+              "deviation_score": 1.3055378823601897,
+              "classification": "normal"
+            }
+          },
+          "actionable_candidates": [],
+          "informational_deviations": [],
+          "operational_findings": []
+        }
+      },
+      {
+        "sample_id": "holdout-user-service-bounded_noise_control-04",
+        "episode_id": "holdout-user-service-bounded_noise_control",
+        "service": "user-service",
+        "scenario": "bounded_noise_control",
+        "timestamp": "2026-10-22T05:51:05.111270+00:00",
+        "status": "evaluated",
+        "ground_truth_anomaly": false,
+        "predicted_anomaly": false,
+        "predicted_actionable": false,
+        "features": {
+          "request_rate": 0.37629919093572006,
+          "p95_latency_seconds": 0.0024130138092239677,
+          "memory_bytes": 48535037.19117648,
+          "cpu_cores_used": 0.0044406637156249665
+        },
+        "detector_output": {
+          "features": {
+            "request_rate": {
+              "value": 0.37629919093572006,
+              "baseline_median": 0.48474576271186437,
+              "direction": "LOW",
+              "deviation_score": 0.9636269957261198,
+              "classification": "normal"
+            },
+            "p95_latency_seconds": {
+              "value": 0.0024130138092239677,
+              "baseline_median": 0.0024187734962406015,
+              "direction": "LOW",
+              "deviation_score": 3.266807325473333,
+              "classification": "normal"
+            },
+            "memory_bytes": {
+              "value": 48535037.19117648,
+              "baseline_median": 48386048.0,
+              "direction": "HIGH",
+              "deviation_score": 1.2611624496129021,
+              "classification": "normal"
+            },
+            "cpu_cores_used": {
+              "value": 0.0044406637156249665,
+              "baseline_median": 0.0045084745762711854,
+              "direction": "LOW",
+              "deviation_score": 0.674632533745931,
+              "classification": "normal"
+            }
+          },
+          "actionable_candidates": [],
+          "informational_deviations": [],
+          "operational_findings": []
+        }
+      },
+      {
+        "sample_id": "holdout-user-service-bounded_noise_control-05",
+        "episode_id": "holdout-user-service-bounded_noise_control",
+        "service": "user-service",
+        "scenario": "bounded_noise_control",
+        "timestamp": "2026-10-22T05:51:35.111270+00:00",
+        "status": "evaluated",
+        "ground_truth_anomaly": false,
+        "predicted_anomaly": false,
+        "predicted_actionable": false,
+        "features": {
+          "request_rate": 0.55845937501972,
+          "p95_latency_seconds": 0.00242201116055814,
+          "memory_bytes": 48818435.7411972,
+          "cpu_cores_used": 0.004469564052529921
+        },
+        "detector_output": {
+          "features": {
+            "request_rate": {
+              "value": 0.55845937501972,
+              "baseline_median": 0.48474576271186437,
+              "direction": "HIGH",
+              "deviation_score": 0.654999283139758,
+              "classification": "normal"
+            },
+            "p95_latency_seconds": {
+              "value": 0.00242201116055814,
+              "baseline_median": 0.0024187734962406015,
+              "direction": "HIGH",
+              "deviation_score": 1.8363542115071705,
+              "classification": "normal"
+            },
+            "memory_bytes": {
+              "value": 48818435.7411972,
+              "baseline_median": 48386048.0,
+              "direction": "HIGH",
+              "deviation_score": 3.6600721070088458,
+              "classification": "normal"
+            },
+            "cpu_cores_used": {
+              "value": 0.004469564052529921,
+              "baseline_median": 0.0045084745762711854,
+              "direction": "LOW",
+              "deviation_score": 0.3871106334706886,
+              "classification": "normal"
+            }
+          },
+          "actionable_candidates": [],
+          "informational_deviations": [],
+          "operational_findings": []
+        }
+      },
+      {
+        "sample_id": "holdout-inventory-service-gradual_memory_drift-00",
+        "episode_id": "holdout-inventory-service-gradual_memory_drift",
+        "service": "inventory-service",
+        "scenario": "gradual_memory_drift",
+        "timestamp": "2026-10-22T05:52:05.111270+00:00",
+        "status": "evaluated",
+        "ground_truth_anomaly": false,
+        "predicted_anomaly": false,
+        "predicted_actionable": false,
+        "features": {
+          "request_rate": 0.48474576271186437,
+          "p95_latency_seconds": 0.0024197540705563096,
+          "memory_bytes": 49991680.0,
+          "cpu_cores_used": 0.004542372881355931
+        },
+        "detector_output": {
+          "features": {
+            "request_rate": {
+              "value": 0.48474576271186437,
+              "baseline_median": 0.48474576271186437,
+              "direction": "NORMAL",
+              "deviation_score": 0.0,
+              "classification": "normal"
+            },
+            "p95_latency_seconds": {
+              "value": 0.0024197540705563096,
+              "baseline_median": 0.0024197540705563096,
+              "direction": "NORMAL",
+              "deviation_score": 0.0,
+              "classification": "normal"
+            },
+            "memory_bytes": {
+              "value": 49991680.0,
+              "baseline_median": 49991680.0,
+              "direction": "NORMAL",
+              "deviation_score": 0.0,
+              "classification": "normal"
+            },
+            "cpu_cores_used": {
+              "value": 0.004542372881355931,
+              "baseline_median": 0.004542372881355931,
+              "direction": "NORMAL",
+              "deviation_score": 0.0,
+              "classification": "normal"
+            }
+          },
+          "actionable_candidates": [],
+          "informational_deviations": [],
+          "operational_findings": []
+        }
+      },
+      {
+        "sample_id": "holdout-inventory-service-gradual_memory_drift-01",
+        "episode_id": "holdout-inventory-service-gradual_memory_drift",
+        "service": "inventory-service",
+        "scenario": "gradual_memory_drift",
+        "timestamp": "2026-10-22T05:52:35.111270+00:00",
+        "status": "evaluated",
+        "ground_truth_anomaly": true,
+        "predicted_anomaly": false,
+        "predicted_actionable": false,
+        "features": {
+          "request_rate": 0.48474576271186437,
+          "p95_latency_seconds": 0.0024197540705563096,
+          "memory_bytes": 50030758.12025958,
+          "cpu_cores_used": 0.004542372881355931
+        },
+        "detector_output": {
+          "features": {
+            "request_rate": {
+              "value": 0.48474576271186437,
+              "baseline_median": 0.48474576271186437,
+              "direction": "NORMAL",
+              "deviation_score": 0.0,
+              "classification": "normal"
+            },
+            "p95_latency_seconds": {
+              "value": 0.0024197540705563096,
+              "baseline_median": 0.0024197540705563096,
+              "direction": "NORMAL",
+              "deviation_score": 0.0,
+              "classification": "normal"
+            },
+            "memory_bytes": {
+              "value": 50030758.12025958,
+              "baseline_median": 49991680.0,
+              "direction": "HIGH",
+              "deviation_score": 0.8000000000000553,
+              "classification": "normal"
+            },
+            "cpu_cores_used": {
+              "value": 0.004542372881355931,
+              "baseline_median": 0.004542372881355931,
+              "direction": "NORMAL",
+              "deviation_score": 0.0,
+              "classification": "normal"
+            }
+          },
+          "actionable_candidates": [],
+          "informational_deviations": [],
+          "operational_findings": []
+        }
+      },
+      {
+        "sample_id": "holdout-inventory-service-gradual_memory_drift-02",
+        "episode_id": "holdout-inventory-service-gradual_memory_drift",
+        "service": "inventory-service",
+        "scenario": "gradual_memory_drift",
+        "timestamp": "2026-10-22T05:53:05.111270+00:00",
+        "status": "evaluated",
+        "ground_truth_anomaly": true,
+        "predicted_anomaly": false,
+        "predicted_actionable": false,
+        "features": {
+          "request_rate": 0.48474576271186437,
+          "p95_latency_seconds": 0.0024197540705563096,
+          "memory_bytes": 50069836.24051916,
+          "cpu_cores_used": 0.004542372881355931
+        },
+        "detector_output": {
+          "features": {
+            "request_rate": {
+              "value": 0.48474576271186437,
+              "baseline_median": 0.48474576271186437,
+              "direction": "NORMAL",
+              "deviation_score": 0.0,
+              "classification": "normal"
+            },
+            "p95_latency_seconds": {
+              "value": 0.0024197540705563096,
+              "baseline_median": 0.0024197540705563096,
+              "direction": "NORMAL",
+              "deviation_score": 0.0,
+              "classification": "normal"
+            },
+            "memory_bytes": {
+              "value": 50069836.24051916,
+              "baseline_median": 49991680.0,
+              "direction": "HIGH",
+              "deviation_score": 1.5999999999999581,
+              "classification": "normal"
+            },
+            "cpu_cores_used": {
+              "value": 0.004542372881355931,
+              "baseline_median": 0.004542372881355931,
+              "direction": "NORMAL",
+              "deviation_score": 0.0,
+              "classification": "normal"
+            }
+          },
+          "actionable_candidates": [],
+          "informational_deviations": [],
+          "operational_findings": []
+        }
+      },
+      {
+        "sample_id": "holdout-inventory-service-gradual_memory_drift-03",
+        "episode_id": "holdout-inventory-service-gradual_memory_drift",
+        "service": "inventory-service",
+        "scenario": "gradual_memory_drift",
+        "timestamp": "2026-10-22T05:53:35.111270+00:00",
+        "status": "evaluated",
+        "ground_truth_anomaly": true,
+        "predicted_anomaly": false,
+        "predicted_actionable": false,
+        "features": {
+          "request_rate": 0.48474576271186437,
+          "p95_latency_seconds": 0.0024197540705563096,
+          "memory_bytes": 50108914.36077874,
+          "cpu_cores_used": 0.004542372881355931
+        },
+        "detector_output": {
+          "features": {
+            "request_rate": {
+              "value": 0.48474576271186437,
+              "baseline_median": 0.48474576271186437,
+              "direction": "NORMAL",
+              "deviation_score": 0.0,
+              "classification": "normal"
+            },
+            "p95_latency_seconds": {
+              "value": 0.0024197540705563096,
+              "baseline_median": 0.0024197540705563096,
+              "direction": "NORMAL",
+              "deviation_score": 0.0,
+              "classification": "normal"
+            },
+            "memory_bytes": {
+              "value": 50108914.36077874,
+              "baseline_median": 49991680.0,
+              "direction": "HIGH",
+              "deviation_score": 2.4000000000000132,
+              "classification": "normal"
+            },
+            "cpu_cores_used": {
+              "value": 0.004542372881355931,
+              "baseline_median": 0.004542372881355931,
+              "direction": "NORMAL",
+              "deviation_score": 0.0,
+              "classification": "normal"
+            }
+          },
+          "actionable_candidates": [],
+          "informational_deviations": [],
+          "operational_findings": []
+        }
+      },
+      {
+        "sample_id": "holdout-inventory-service-gradual_memory_drift-04",
+        "episode_id": "holdout-inventory-service-gradual_memory_drift",
+        "service": "inventory-service",
+        "scenario": "gradual_memory_drift",
+        "timestamp": "2026-10-22T05:54:05.111270+00:00",
+        "status": "evaluated",
+        "ground_truth_anomaly": true,
+        "predicted_anomaly": false,
+        "predicted_actionable": false,
+        "features": {
+          "request_rate": 0.48474576271186437,
+          "p95_latency_seconds": 0.0024197540705563096,
+          "memory_bytes": 50147992.481038325,
+          "cpu_cores_used": 0.004542372881355931
+        },
+        "detector_output": {
+          "features": {
+            "request_rate": {
+              "value": 0.48474576271186437,
+              "baseline_median": 0.48474576271186437,
+              "direction": "NORMAL",
+              "deviation_score": 0.0,
+              "classification": "normal"
+            },
+            "p95_latency_seconds": {
+              "value": 0.0024197540705563096,
+              "baseline_median": 0.0024197540705563096,
+              "direction": "NORMAL",
+              "deviation_score": 0.0,
+              "classification": "normal"
+            },
+            "memory_bytes": {
+              "value": 50147992.481038325,
+              "baseline_median": 49991680.0,
+              "direction": "HIGH",
+              "deviation_score": 3.2000000000000686,
+              "classification": "normal"
+            },
+            "cpu_cores_used": {
+              "value": 0.004542372881355931,
+              "baseline_median": 0.004542372881355931,
+              "direction": "NORMAL",
+              "deviation_score": 0.0,
+              "classification": "normal"
+            }
+          },
+          "actionable_candidates": [],
+          "informational_deviations": [],
+          "operational_findings": []
+        }
+      },
+      {
+        "sample_id": "holdout-inventory-service-gradual_memory_drift-05",
+        "episode_id": "holdout-inventory-service-gradual_memory_drift",
+        "service": "inventory-service",
+        "scenario": "gradual_memory_drift",
+        "timestamp": "2026-10-22T05:54:35.111270+00:00",
+        "status": "evaluated",
+        "ground_truth_anomaly": true,
+        "predicted_anomaly": false,
+        "predicted_actionable": false,
+        "features": {
+          "request_rate": 0.48474576271186437,
+          "p95_latency_seconds": 0.0024197540705563096,
+          "memory_bytes": 50187070.6012979,
+          "cpu_cores_used": 0.004542372881355931
+        },
+        "detector_output": {
+          "features": {
+            "request_rate": {
+              "value": 0.48474576271186437,
+              "baseline_median": 0.48474576271186437,
+              "direction": "NORMAL",
+              "deviation_score": 0.0,
+              "classification": "normal"
+            },
+            "p95_latency_seconds": {
+              "value": 0.0024197540705563096,
+              "baseline_median": 0.0024197540705563096,
+              "direction": "NORMAL",
+              "deviation_score": 0.0,
+              "classification": "normal"
+            },
+            "memory_bytes": {
+              "value": 50187070.6012979,
+              "baseline_median": 49991680.0,
+              "direction": "HIGH",
+              "deviation_score": 3.9999999999999716,
+              "classification": "normal"
+            },
+            "cpu_cores_used": {
+              "value": 0.004542372881355931,
+              "baseline_median": 0.004542372881355931,
+              "direction": "NORMAL",
+              "deviation_score": 0.0,
+              "classification": "normal"
+            }
+          },
+          "actionable_candidates": [],
+          "informational_deviations": [],
+          "operational_findings": []
+        }
+      },
+      {
+        "sample_id": "holdout-inventory-service-gradual_memory_drift-06",
+        "episode_id": "holdout-inventory-service-gradual_memory_drift",
+        "service": "inventory-service",
+        "scenario": "gradual_memory_drift",
+        "timestamp": "2026-10-22T05:55:05.111270+00:00",
+        "status": "evaluated",
+        "ground_truth_anomaly": true,
+        "predicted_anomaly": false,
+        "predicted_actionable": false,
+        "features": {
+          "request_rate": 0.48474576271186437,
+          "p95_latency_seconds": 0.0024197540705563096,
+          "memory_bytes": 50226148.72155748,
+          "cpu_cores_used": 0.004542372881355931
+        },
+        "detector_output": {
+          "features": {
+            "request_rate": {
+              "value": 0.48474576271186437,
+              "baseline_median": 0.48474576271186437,
+              "direction": "NORMAL",
+              "deviation_score": 0.0,
+              "classification": "normal"
+            },
+            "p95_latency_seconds": {
+              "value": 0.0024197540705563096,
+              "baseline_median": 0.0024197540705563096,
+              "direction": "NORMAL",
+              "deviation_score": 0.0,
+              "classification": "normal"
+            },
+            "memory_bytes": {
+              "value": 50226148.72155748,
+              "baseline_median": 49991680.0,
+              "direction": "HIGH",
+              "deviation_score": 4.8000000000000265,
+              "classification": "normal"
+            },
+            "cpu_cores_used": {
+              "value": 0.004542372881355931,
+              "baseline_median": 0.004542372881355931,
+              "direction": "NORMAL",
+              "deviation_score": 0.0,
+              "classification": "normal"
+            }
+          },
+          "actionable_candidates": [],
+          "informational_deviations": [],
+          "operational_findings": []
+        }
+      },
+      {
+        "sample_id": "holdout-inventory-service-gradual_memory_drift-07",
+        "episode_id": "holdout-inventory-service-gradual_memory_drift",
+        "service": "inventory-service",
+        "scenario": "gradual_memory_drift",
+        "timestamp": "2026-10-22T05:55:35.111270+00:00",
+        "status": "evaluated",
+        "ground_truth_anomaly": true,
+        "predicted_anomaly": true,
+        "predicted_actionable": true,
+        "features": {
+          "request_rate": 0.48474576271186437,
+          "p95_latency_seconds": 0.0024197540705563096,
+          "memory_bytes": 50265226.84181706,
+          "cpu_cores_used": 0.004542372881355931
+        },
+        "detector_output": {
+          "features": {
+            "request_rate": {
+              "value": 0.48474576271186437,
+              "baseline_median": 0.48474576271186437,
+              "direction": "NORMAL",
+              "deviation_score": 0.0,
+              "classification": "normal"
+            },
+            "p95_latency_seconds": {
+              "value": 0.0024197540705563096,
+              "baseline_median": 0.0024197540705563096,
+              "direction": "NORMAL",
+              "deviation_score": 0.0,
+              "classification": "normal"
+            },
+            "memory_bytes": {
+              "value": 50265226.84181706,
+              "baseline_median": 49991680.0,
+              "direction": "HIGH",
+              "deviation_score": 5.5999999999999295,
+              "classification": "actionable_candidate"
+            },
+            "cpu_cores_used": {
+              "value": 0.004542372881355931,
+              "baseline_median": 0.004542372881355931,
+              "direction": "NORMAL",
+              "deviation_score": 0.0,
+              "classification": "normal"
+            }
+          },
+          "actionable_candidates": [
+            "memory_bytes"
+          ],
+          "informational_deviations": [],
+          "operational_findings": []
+        }
+      },
+      {
+        "sample_id": "holdout-inventory-service-gradual_memory_drift-08",
+        "episode_id": "holdout-inventory-service-gradual_memory_drift",
+        "service": "inventory-service",
+        "scenario": "gradual_memory_drift",
+        "timestamp": "2026-10-22T05:56:05.111270+00:00",
+        "status": "evaluated",
+        "ground_truth_anomaly": true,
+        "predicted_anomaly": true,
+        "predicted_actionable": true,
+        "features": {
+          "request_rate": 0.48474576271186437,
+          "p95_latency_seconds": 0.0024197540705563096,
+          "memory_bytes": 50304304.96207664,
+          "cpu_cores_used": 0.004542372881355931
+        },
+        "detector_output": {
+          "features": {
+            "request_rate": {
+              "value": 0.48474576271186437,
+              "baseline_median": 0.48474576271186437,
+              "direction": "NORMAL",
+              "deviation_score": 0.0,
+              "classification": "normal"
+            },
+            "p95_latency_seconds": {
+              "value": 0.0024197540705563096,
+              "baseline_median": 0.0024197540705563096,
+              "direction": "NORMAL",
+              "deviation_score": 0.0,
+              "classification": "normal"
+            },
+            "memory_bytes": {
+              "value": 50304304.96207664,
+              "baseline_median": 49991680.0,
+              "direction": "HIGH",
+              "deviation_score": 6.399999999999984,
+              "classification": "actionable_candidate"
+            },
+            "cpu_cores_used": {
+              "value": 0.004542372881355931,
+              "baseline_median": 0.004542372881355931,
+              "direction": "NORMAL",
+              "deviation_score": 0.0,
+              "classification": "normal"
+            }
+          },
+          "actionable_candidates": [
+            "memory_bytes"
+          ],
+          "informational_deviations": [],
+          "operational_findings": []
+        }
+      },
+      {
+        "sample_id": "holdout-inventory-service-gradual_memory_drift-09",
+        "episode_id": "holdout-inventory-service-gradual_memory_drift",
+        "service": "inventory-service",
+        "scenario": "gradual_memory_drift",
+        "timestamp": "2026-10-22T05:56:35.111270+00:00",
+        "status": "evaluated",
+        "ground_truth_anomaly": true,
+        "predicted_anomaly": true,
+        "predicted_actionable": true,
+        "features": {
+          "request_rate": 0.48474576271186437,
+          "p95_latency_seconds": 0.0024197540705563096,
+          "memory_bytes": 50343383.082336225,
+          "cpu_cores_used": 0.004542372881355931
+        },
+        "detector_output": {
+          "features": {
+            "request_rate": {
+              "value": 0.48474576271186437,
+              "baseline_median": 0.48474576271186437,
+              "direction": "NORMAL",
+              "deviation_score": 0.0,
+              "classification": "normal"
+            },
+            "p95_latency_seconds": {
+              "value": 0.0024197540705563096,
+              "baseline_median": 0.0024197540705563096,
+              "direction": "NORMAL",
+              "deviation_score": 0.0,
+              "classification": "normal"
+            },
+            "memory_bytes": {
+              "value": 50343383.082336225,
+              "baseline_median": 49991680.0,
+              "direction": "HIGH",
+              "deviation_score": 7.20000000000004,
+              "classification": "actionable_candidate"
+            },
+            "cpu_cores_used": {
+              "value": 0.004542372881355931,
+              "baseline_median": 0.004542372881355931,
+              "direction": "NORMAL",
+              "deviation_score": 0.0,
+              "classification": "normal"
+            }
+          },
+          "actionable_candidates": [
+            "memory_bytes"
+          ],
+          "informational_deviations": [],
+          "operational_findings": []
+        }
+      },
+      {
+        "sample_id": "holdout-inventory-service-concurrent_latency_memory_step-00",
+        "episode_id": "holdout-inventory-service-concurrent_latency_memory_step",
+        "service": "inventory-service",
+        "scenario": "concurrent_latency_memory_step",
+        "timestamp": "2026-10-22T05:57:05.111270+00:00",
+        "status": "evaluated",
+        "ground_truth_anomaly": true,
+        "predicted_anomaly": true,
+        "predicted_actionable": true,
+        "features": {
+          "request_rate": 0.48474576271186437,
+          "p95_latency_seconds": 0.0024274779013455433,
+          "memory_bytes": 50309189.72710909,
+          "cpu_cores_used": 0.004542372881355931
+        },
+        "detector_output": {
+          "features": {
+            "request_rate": {
+              "value": 0.48474576271186437,
+              "baseline_median": 0.48474576271186437,
+              "direction": "NORMAL",
+              "deviation_score": 0.0,
+              "classification": "normal"
+            },
+            "p95_latency_seconds": {
+              "value": 0.0024274779013455433,
+              "baseline_median": 0.0024197540705563096,
+              "direction": "HIGH",
+              "deviation_score": 6.500000000000042,
+              "classification": "actionable_candidate"
+            },
+            "memory_bytes": {
+              "value": 50309189.72710909,
+              "baseline_median": 49991680.0,
+              "direction": "HIGH",
+              "deviation_score": 6.499999999999992,
+              "classification": "actionable_candidate"
+            },
+            "cpu_cores_used": {
+              "value": 0.004542372881355931,
+              "baseline_median": 0.004542372881355931,
+              "direction": "NORMAL",
+              "deviation_score": 0.0,
+              "classification": "normal"
+            }
+          },
+          "actionable_candidates": [
+            "p95_latency_seconds",
+            "memory_bytes"
+          ],
+          "informational_deviations": [],
+          "operational_findings": []
+        }
+      },
+      {
+        "sample_id": "holdout-inventory-service-concurrent_latency_memory_step-01",
+        "episode_id": "holdout-inventory-service-concurrent_latency_memory_step",
+        "service": "inventory-service",
+        "scenario": "concurrent_latency_memory_step",
+        "timestamp": "2026-10-22T05:57:35.111270+00:00",
+        "status": "evaluated",
+        "ground_truth_anomaly": true,
+        "predicted_anomaly": true,
+        "predicted_actionable": true,
+        "features": {
+          "request_rate": 0.48474576271186437,
+          "p95_latency_seconds": 0.0024274779013455433,
+          "memory_bytes": 50309189.72710909,
+          "cpu_cores_used": 0.004542372881355931
+        },
+        "detector_output": {
+          "features": {
+            "request_rate": {
+              "value": 0.48474576271186437,
+              "baseline_median": 0.48474576271186437,
+              "direction": "NORMAL",
+              "deviation_score": 0.0,
+              "classification": "normal"
+            },
+            "p95_latency_seconds": {
+              "value": 0.0024274779013455433,
+              "baseline_median": 0.0024197540705563096,
+              "direction": "HIGH",
+              "deviation_score": 6.500000000000042,
+              "classification": "actionable_candidate"
+            },
+            "memory_bytes": {
+              "value": 50309189.72710909,
+              "baseline_median": 49991680.0,
+              "direction": "HIGH",
+              "deviation_score": 6.499999999999992,
+              "classification": "actionable_candidate"
+            },
+            "cpu_cores_used": {
+              "value": 0.004542372881355931,
+              "baseline_median": 0.004542372881355931,
+              "direction": "NORMAL",
+              "deviation_score": 0.0,
+              "classification": "normal"
+            }
+          },
+          "actionable_candidates": [
+            "p95_latency_seconds",
+            "memory_bytes"
+          ],
+          "informational_deviations": [],
+          "operational_findings": []
+        }
+      },
+      {
+        "sample_id": "holdout-inventory-service-concurrent_latency_memory_step-02",
+        "episode_id": "holdout-inventory-service-concurrent_latency_memory_step",
+        "service": "inventory-service",
+        "scenario": "concurrent_latency_memory_step",
+        "timestamp": "2026-10-22T05:58:05.111270+00:00",
+        "status": "evaluated",
+        "ground_truth_anomaly": true,
+        "predicted_anomaly": true,
+        "predicted_actionable": true,
+        "features": {
+          "request_rate": 0.48474576271186437,
+          "p95_latency_seconds": 0.0024274779013455433,
+          "memory_bytes": 50309189.72710909,
+          "cpu_cores_used": 0.004542372881355931
+        },
+        "detector_output": {
+          "features": {
+            "request_rate": {
+              "value": 0.48474576271186437,
+              "baseline_median": 0.48474576271186437,
+              "direction": "NORMAL",
+              "deviation_score": 0.0,
+              "classification": "normal"
+            },
+            "p95_latency_seconds": {
+              "value": 0.0024274779013455433,
+              "baseline_median": 0.0024197540705563096,
+              "direction": "HIGH",
+              "deviation_score": 6.500000000000042,
+              "classification": "actionable_candidate"
+            },
+            "memory_bytes": {
+              "value": 50309189.72710909,
+              "baseline_median": 49991680.0,
+              "direction": "HIGH",
+              "deviation_score": 6.499999999999992,
+              "classification": "actionable_candidate"
+            },
+            "cpu_cores_used": {
+              "value": 0.004542372881355931,
+              "baseline_median": 0.004542372881355931,
+              "direction": "NORMAL",
+              "deviation_score": 0.0,
+              "classification": "normal"
+            }
+          },
+          "actionable_candidates": [
+            "p95_latency_seconds",
+            "memory_bytes"
+          ],
+          "informational_deviations": [],
+          "operational_findings": []
+        }
+      },
+      {
+        "sample_id": "holdout-inventory-service-stable_center_control-00",
+        "episode_id": "holdout-inventory-service-stable_center_control",
+        "service": "inventory-service",
+        "scenario": "stable_center_control",
+        "timestamp": "2026-10-22T05:58:35.111270+00:00",
+        "status": "evaluated",
+        "ground_truth_anomaly": false,
+        "predicted_anomaly": false,
+        "predicted_actionable": false,
+        "features": {
+          "request_rate": 0.48474576271186437,
+          "p95_latency_seconds": 0.0024197540705563096,
+          "memory_bytes": 49991680.0,
+          "cpu_cores_used": 0.004542372881355931
+        },
+        "detector_output": {
+          "features": {
+            "request_rate": {
+              "value": 0.48474576271186437,
+              "baseline_median": 0.48474576271186437,
+              "direction": "NORMAL",
+              "deviation_score": 0.0,
+              "classification": "normal"
+            },
+            "p95_latency_seconds": {
+              "value": 0.0024197540705563096,
+              "baseline_median": 0.0024197540705563096,
+              "direction": "NORMAL",
+              "deviation_score": 0.0,
+              "classification": "normal"
+            },
+            "memory_bytes": {
+              "value": 49991680.0,
+              "baseline_median": 49991680.0,
+              "direction": "NORMAL",
+              "deviation_score": 0.0,
+              "classification": "normal"
+            },
+            "cpu_cores_used": {
+              "value": 0.004542372881355931,
+              "baseline_median": 0.004542372881355931,
+              "direction": "NORMAL",
+              "deviation_score": 0.0,
+              "classification": "normal"
+            }
+          },
+          "actionable_candidates": [],
+          "informational_deviations": [],
+          "operational_findings": []
+        }
+      },
+      {
+        "sample_id": "holdout-inventory-service-stable_center_control-01",
+        "episode_id": "holdout-inventory-service-stable_center_control",
+        "service": "inventory-service",
+        "scenario": "stable_center_control",
+        "timestamp": "2026-10-22T05:59:05.111270+00:00",
+        "status": "evaluated",
+        "ground_truth_anomaly": false,
+        "predicted_anomaly": false,
+        "predicted_actionable": false,
+        "features": {
+          "request_rate": 0.48474576271186437,
+          "p95_latency_seconds": 0.0024197540705563096,
+          "memory_bytes": 49991680.0,
+          "cpu_cores_used": 0.004542372881355931
+        },
+        "detector_output": {
+          "features": {
+            "request_rate": {
+              "value": 0.48474576271186437,
+              "baseline_median": 0.48474576271186437,
+              "direction": "NORMAL",
+              "deviation_score": 0.0,
+              "classification": "normal"
+            },
+            "p95_latency_seconds": {
+              "value": 0.0024197540705563096,
+              "baseline_median": 0.0024197540705563096,
+              "direction": "NORMAL",
+              "deviation_score": 0.0,
+              "classification": "normal"
+            },
+            "memory_bytes": {
+              "value": 49991680.0,
+              "baseline_median": 49991680.0,
+              "direction": "NORMAL",
+              "deviation_score": 0.0,
+              "classification": "normal"
+            },
+            "cpu_cores_used": {
+              "value": 0.004542372881355931,
+              "baseline_median": 0.004542372881355931,
+              "direction": "NORMAL",
+              "deviation_score": 0.0,
+              "classification": "normal"
+            }
+          },
+          "actionable_candidates": [],
+          "informational_deviations": [],
+          "operational_findings": []
+        }
+      },
+      {
+        "sample_id": "holdout-inventory-service-stable_center_control-02",
+        "episode_id": "holdout-inventory-service-stable_center_control",
+        "service": "inventory-service",
+        "scenario": "stable_center_control",
+        "timestamp": "2026-10-22T05:59:35.111270+00:00",
+        "status": "evaluated",
+        "ground_truth_anomaly": false,
+        "predicted_anomaly": false,
+        "predicted_actionable": false,
+        "features": {
+          "request_rate": 0.48474576271186437,
+          "p95_latency_seconds": 0.0024197540705563096,
+          "memory_bytes": 49991680.0,
+          "cpu_cores_used": 0.004542372881355931
+        },
+        "detector_output": {
+          "features": {
+            "request_rate": {
+              "value": 0.48474576271186437,
+              "baseline_median": 0.48474576271186437,
+              "direction": "NORMAL",
+              "deviation_score": 0.0,
+              "classification": "normal"
+            },
+            "p95_latency_seconds": {
+              "value": 0.0024197540705563096,
+              "baseline_median": 0.0024197540705563096,
+              "direction": "NORMAL",
+              "deviation_score": 0.0,
+              "classification": "normal"
+            },
+            "memory_bytes": {
+              "value": 49991680.0,
+              "baseline_median": 49991680.0,
+              "direction": "NORMAL",
+              "deviation_score": 0.0,
+              "classification": "normal"
+            },
+            "cpu_cores_used": {
+              "value": 0.004542372881355931,
+              "baseline_median": 0.004542372881355931,
+              "direction": "NORMAL",
+              "deviation_score": 0.0,
+              "classification": "normal"
+            }
+          },
+          "actionable_candidates": [],
+          "informational_deviations": [],
+          "operational_findings": []
+        }
+      },
+      {
+        "sample_id": "holdout-inventory-service-bounded_noise_control-00",
+        "episode_id": "holdout-inventory-service-bounded_noise_control",
+        "service": "inventory-service",
+        "scenario": "bounded_noise_control",
+        "timestamp": "2026-10-22T06:00:05.111270+00:00",
+        "status": "evaluated",
+        "ground_truth_anomaly": false,
+        "predicted_anomaly": false,
+        "predicted_actionable": false,
+        "features": {
+          "request_rate": 0.32151536095577726,
+          "p95_latency_seconds": 0.002418906214431583,
+          "memory_bytes": 49976131.4046158,
+          "cpu_cores_used": 0.0045242411112545065
+        },
+        "detector_output": {
+          "features": {
+            "request_rate": {
+              "value": 0.32151536095577726,
+              "baseline_median": 0.48474576271186437,
+              "direction": "LOW",
+              "deviation_score": 1.4355519684639004,
+              "classification": "normal"
+            },
+            "p95_latency_seconds": {
+              "value": 0.002418906214431583,
+              "baseline_median": 0.0024197540705563096,
+              "direction": "LOW",
+              "deviation_score": 0.713514441357945,
+              "classification": "normal"
+            },
+            "memory_bytes": {
+              "value": 49976131.4046158,
+              "baseline_median": 49991680.0,
+              "direction": "LOW",
+              "deviation_score": 0.3183079489170883,
+              "classification": "normal"
+            },
+            "cpu_cores_used": {
+              "value": 0.0045242411112545065,
+              "baseline_median": 0.004542372881355931,
+              "direction": "LOW",
+              "deviation_score": 0.24051765726517568,
+              "classification": "normal"
+            }
+          },
+          "actionable_candidates": [],
+          "informational_deviations": [],
+          "operational_findings": []
+        }
+      },
+      {
+        "sample_id": "holdout-inventory-service-bounded_noise_control-01",
+        "episode_id": "holdout-inventory-service-bounded_noise_control",
+        "service": "inventory-service",
+        "scenario": "bounded_noise_control",
+        "timestamp": "2026-10-22T06:00:35.111270+00:00",
+        "status": "evaluated",
+        "ground_truth_anomaly": false,
+        "predicted_anomaly": false,
+        "predicted_actionable": false,
+        "features": {
+          "request_rate": 0.6894916855196309,
+          "p95_latency_seconds": 0.002422347045287029,
+          "memory_bytes": 49879084.21123249,
+          "cpu_cores_used": 0.00444464868738847
+        },
+        "detector_output": {
+          "features": {
+            "request_rate": {
+              "value": 0.6894916855196309,
+              "baseline_median": 0.48474576271186437,
+              "direction": "HIGH",
+              "deviation_score": 1.8006658646889362,
+              "classification": "normal"
+            },
+            "p95_latency_seconds": {
+              "value": 0.002422347045287029,
+              "baseline_median": 0.0024197540705563096,
+              "direction": "HIGH",
+              "deviation_score": 2.1821213086606384,
+              "classification": "normal"
+            },
+            "memory_bytes": {
+              "value": 49879084.21123249,
+              "baseline_median": 49991680.0,
+              "direction": "LOW",
+              "deviation_score": 2.305040017679058,
+              "classification": "normal"
+            },
+            "cpu_cores_used": {
+              "value": 0.00444464868738847,
+              "baseline_median": 0.004542372881355931,
+              "direction": "LOW",
+              "deviation_score": 1.2963099608975626,
+              "classification": "normal"
+            }
+          },
+          "actionable_candidates": [],
+          "informational_deviations": [],
+          "operational_findings": []
+        }
+      },
+      {
+        "sample_id": "holdout-inventory-service-bounded_noise_control-02",
+        "episode_id": "holdout-inventory-service-bounded_noise_control",
+        "service": "inventory-service",
+        "scenario": "bounded_noise_control",
+        "timestamp": "2026-10-22T06:01:05.111270+00:00",
+        "status": "evaluated",
+        "ground_truth_anomaly": false,
+        "predicted_anomaly": false,
+        "predicted_actionable": false,
+        "features": {
+          "request_rate": 0.5366668654254256,
+          "p95_latency_seconds": 0.0024220215312065353,
+          "memory_bytes": 50023033.11460156,
+          "cpu_cores_used": 0.004574391028290428
+        },
+        "detector_output": {
+          "features": {
+            "request_rate": {
+              "value": 0.5366668654254256,
+              "baseline_median": 0.48474576271186437,
+              "direction": "HIGH",
+              "deviation_score": 0.456627199366001,
+              "classification": "normal"
+            },
+            "p95_latency_seconds": {
+              "value": 0.0024220215312065353,
+              "baseline_median": 0.0024197540705563096,
+              "direction": "HIGH",
+              "deviation_score": 1.908184504379751,
+              "classification": "normal"
+            },
+            "memory_bytes": {
+              "value": 50023033.11460156,
+              "baseline_median": 49991680.0,
+              "direction": "HIGH",
+              "deviation_score": 0.6418551228829588,
+              "classification": "normal"
+            },
+            "cpu_cores_used": {
+              "value": 0.004574391028290428,
+              "baseline_median": 0.004542372881355931,
+              "direction": "HIGH",
+              "deviation_score": 0.4247202367766734,
+              "classification": "normal"
+            }
+          },
+          "actionable_candidates": [],
+          "informational_deviations": [],
+          "operational_findings": []
+        }
+      },
+      {
+        "sample_id": "holdout-inventory-service-bounded_noise_control-03",
+        "episode_id": "holdout-inventory-service-bounded_noise_control",
+        "service": "inventory-service",
+        "scenario": "bounded_noise_control",
+        "timestamp": "2026-10-22T06:01:35.111270+00:00",
+        "status": "evaluated",
+        "ground_truth_anomaly": false,
+        "predicted_anomaly": false,
+        "predicted_actionable": false,
+        "features": {
+          "request_rate": 0.3746500701947979,
+          "p95_latency_seconds": 0.0024188830984019616,
+          "memory_bytes": 49817945.47203795,
+          "cpu_cores_used": 0.004715415673123796
+        },
+        "detector_output": {
+          "features": {
+            "request_rate": {
+              "value": 0.3746500701947979,
+              "baseline_median": 0.48474576271186437,
+              "direction": "LOW",
+              "deviation_score": 0.9682515414526769,
+              "classification": "normal"
+            },
+            "p95_latency_seconds": {
+              "value": 0.0024188830984019616,
+              "baseline_median": 0.0024197540705563096,
+              "direction": "LOW",
+              "deviation_score": 0.732967766610454,
+              "classification": "normal"
+            },
+            "memory_bytes": {
+              "value": 49817945.47203795,
+              "baseline_median": 49991680.0,
+              "direction": "LOW",
+              "deviation_score": 3.5566608999205176,
+              "classification": "normal"
+            },
+            "cpu_cores_used": {
+              "value": 0.004715415673123796,
+              "baseline_median": 0.004542372881355931,
+              "direction": "HIGH",
+              "deviation_score": 2.2954100261486445,
+              "classification": "normal"
+            }
+          },
+          "actionable_candidates": [],
+          "informational_deviations": [],
+          "operational_findings": []
+        }
+      },
+      {
+        "sample_id": "holdout-inventory-service-bounded_noise_control-04",
+        "episode_id": "holdout-inventory-service-bounded_noise_control",
+        "service": "inventory-service",
+        "scenario": "bounded_noise_control",
+        "timestamp": "2026-10-22T06:02:05.111270+00:00",
+        "status": "evaluated",
+        "ground_truth_anomaly": false,
+        "predicted_anomaly": false,
+        "predicted_actionable": false,
+        "features": {
+          "request_rate": 0.3444213770127986,
+          "p95_latency_seconds": 0.0024204310293809753,
+          "memory_bytes": 49964620.02476208,
+          "cpu_cores_used": 0.004673349133029287
+        },
+        "detector_output": {
+          "features": {
+            "request_rate": {
+              "value": 0.3444213770127986,
+              "baseline_median": 0.48474576271186437,
+              "direction": "LOW",
+              "deviation_score": 1.2341018949080012,
+              "classification": "normal"
+            },
+            "p95_latency_seconds": {
+              "value": 0.0024204310293809753,
+              "baseline_median": 0.0024197540705563096,
+              "direction": "HIGH",
+              "deviation_score": 0.5696955928217398,
+              "classification": "normal"
+            },
+            "memory_bytes": {
+              "value": 49964620.02476208,
+              "baseline_median": 49991680.0,
+              "direction": "LOW",
+              "deviation_score": 0.55396677338976,
+              "classification": "normal"
+            },
+            "cpu_cores_used": {
+              "value": 0.004673349133029287,
+              "baseline_median": 0.004542372881355931,
+              "direction": "HIGH",
+              "deviation_score": 1.7373980054696498,
+              "classification": "normal"
+            }
+          },
+          "actionable_candidates": [],
+          "informational_deviations": [],
+          "operational_findings": []
+        }
+      },
+      {
+        "sample_id": "holdout-inventory-service-bounded_noise_control-05",
+        "episode_id": "holdout-inventory-service-bounded_noise_control",
+        "service": "inventory-service",
+        "scenario": "bounded_noise_control",
+        "timestamp": "2026-10-22T06:02:35.111270+00:00",
+        "status": "evaluated",
+        "ground_truth_anomaly": false,
+        "predicted_anomaly": false,
+        "predicted_actionable": false,
+        "features": {
+          "request_rate": 0.45458633138668403,
+          "p95_latency_seconds": 0.0024227859036090663,
+          "memory_bytes": 49899947.82327071,
+          "cpu_cores_used": 0.004606718371465631
+        },
+        "detector_output": {
+          "features": {
+            "request_rate": {
+              "value": 0.45458633138668403,
+              "baseline_median": 0.48474576271186437,
+              "direction": "LOW",
+              "deviation_score": 0.26524122063554195,
+              "classification": "normal"
+            },
+            "p95_latency_seconds": {
+              "value": 0.0024227859036090663,
+              "baseline_median": 0.0024197540705563096,
+              "direction": "HIGH",
+              "deviation_score": 2.551443109083663,
+              "classification": "normal"
+            },
+            "memory_bytes": {
+              "value": 49899947.82327071,
+              "baseline_median": 49991680.0,
+              "direction": "LOW",
+              "deviation_score": 1.8779240376958068,
+              "classification": "normal"
+            },
+            "cpu_cores_used": {
+              "value": 0.004606718371465631,
+              "baseline_median": 0.004542372881355931,
+              "direction": "HIGH",
+              "deviation_score": 0.8535419570287004,
+              "classification": "normal"
+            }
+          },
+          "actionable_candidates": [],
+          "informational_deviations": [],
+          "operational_findings": []
+        }
+      }
+    ]
+  },
+  "decision": {
+    "production_detector_changed": false,
+    "reason": "No detector change is justified by assumed synthetic labels and repeated narrow scenario families; changing the threshold would require independently reviewed operational labels and false-positive acceptance criteria."
+  }
+}

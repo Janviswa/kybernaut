@@ -1,0 +1,474 @@
+{
+  "reference_version": 1,
+  "scenario_matrix": "benchmark/scenarios.json",
+  "scenario_category_semantics": "Expected categories are scenario metadata for fixture organization and deterministic classification evaluation. They are not verified root-cause-analysis ground truth.",
+  "evidence_builder": "scripts/run_synthetic_benchmark.py::_evidence_for",
+  "evidence_scope": "Synthetic fixture content only. Matrix variants are contextual labels and are not established by this evidence builder.",
+  "cases": [
+    {
+      "scenario_id": "cpu-spike-1",
+      "scenario_category_metadata": "cpu_spike",
+      "expected_outcome_metadata": "classified_as_expected_category",
+      "variant_metadata": "baseline 300m burn",
+      "directly_supplied_synthetic_evidence": [
+        "Namespace kybernaut-lab.",
+        "Deployment summary named demo-web.",
+        "No Kubernetes incidents.",
+        "Telemetry status evaluated with cpu_cores_used as an actionable candidate."
+      ],
+      "reasonable_hypotheses_for_review": [
+        "The synthetic telemetry candidate is consistent with elevated CPU usage."
+      ],
+      "unsupported_conclusions": [
+        "The cause of CPU use is known.",
+        "Customer impact or a live workload condition has been observed.",
+        "The matrix variant was actually exercised."
+      ],
+      "rca_ground_truth": false
+    },
+    {
+      "scenario_id": "cpu-spike-2",
+      "scenario_category_metadata": "cpu_spike",
+      "expected_outcome_metadata": "classified_as_expected_category",
+      "variant_metadata": "repeat after cleanup and 10 min idle",
+      "directly_supplied_synthetic_evidence": [
+        "Namespace kybernaut-lab.",
+        "Deployment summary named demo-web.",
+        "No Kubernetes incidents.",
+        "Telemetry status evaluated with cpu_cores_used as an actionable candidate."
+      ],
+      "reasonable_hypotheses_for_review": [
+        "The synthetic telemetry candidate is consistent with elevated CPU usage."
+      ],
+      "unsupported_conclusions": [
+        "The cause of CPU use is known.",
+        "A cleanup or 10-minute idle interval occurred.",
+        "Customer impact or a live workload condition has been observed."
+      ],
+      "rca_ground_truth": false
+    },
+    {
+      "scenario_id": "cpu-spike-3",
+      "scenario_category_metadata": "cpu_spike",
+      "expected_outcome_metadata": "classified_as_expected_category",
+      "variant_metadata": "run with 2 demo-web replicas healthy",
+      "directly_supplied_synthetic_evidence": [
+        "Namespace kybernaut-lab.",
+        "Deployment summary named demo-web.",
+        "No Kubernetes incidents.",
+        "Telemetry status evaluated with cpu_cores_used as an actionable candidate."
+      ],
+      "reasonable_hypotheses_for_review": [
+        "The synthetic telemetry candidate is consistent with elevated CPU usage."
+      ],
+      "unsupported_conclusions": [
+        "The cause of CPU use is known.",
+        "Two healthy replicas were observed.",
+        "Customer impact or a live workload condition has been observed."
+      ],
+      "rca_ground_truth": false
+    },
+    {
+      "scenario_id": "cpu-spike-4",
+      "scenario_category_metadata": "cpu_spike",
+      "expected_outcome_metadata": "classified_as_expected_category",
+      "variant_metadata": "run during a separately confirmed low-traffic window",
+      "directly_supplied_synthetic_evidence": [
+        "Namespace kybernaut-lab.",
+        "Deployment summary named demo-web.",
+        "No Kubernetes incidents.",
+        "Telemetry status evaluated with cpu_cores_used as an actionable candidate."
+      ],
+      "reasonable_hypotheses_for_review": [
+        "The synthetic telemetry candidate is consistent with elevated CPU usage."
+      ],
+      "unsupported_conclusions": [
+        "The cause of CPU use is known.",
+        "A low-traffic window was independently confirmed.",
+        "Customer impact or a live workload condition has been observed."
+      ],
+      "rca_ground_truth": false
+    },
+    {
+      "scenario_id": "memory-leak-1",
+      "scenario_category_metadata": "memory_leak",
+      "expected_outcome_metadata": "classified_as_expected_category",
+      "variant_metadata": "baseline 1MiB/s growth to the configured 96Mi limit",
+      "directly_supplied_synthetic_evidence": [
+        "Namespace kybernaut-lab and deployment summary named demo-web.",
+        "Synthetic Pod container-failure evidence says it previously terminated with reason OOMKilled.",
+        "Fixture severity is high.",
+        "Telemetry status is unavailable with no actionable candidates."
+      ],
+      "reasonable_hypotheses_for_review": [
+        "The OOMKilled symptom is consistent with memory pressure or another condition that caused the container to be killed."
+      ],
+      "unsupported_conclusions": [
+        "A causal memory leak occurred; OOMKilled alone does not establish a memory leak.",
+        "A memory-growth rate or 96Mi limit was observed.",
+        "The matrix variant was actually exercised."
+      ],
+      "rca_ground_truth": false
+    },
+    {
+      "scenario_id": "memory-leak-2",
+      "scenario_category_metadata": "memory_leak",
+      "expected_outcome_metadata": "classified_as_expected_category",
+      "variant_metadata": "repeat after simulator cleanup",
+      "directly_supplied_synthetic_evidence": [
+        "Namespace kybernaut-lab and deployment summary named demo-web.",
+        "Synthetic Pod container-failure evidence says it previously terminated with reason OOMKilled.",
+        "Fixture severity is high.",
+        "Telemetry status is unavailable with no actionable candidates."
+      ],
+      "reasonable_hypotheses_for_review": [
+        "The OOMKilled symptom is consistent with memory pressure or another condition that caused the container to be killed."
+      ],
+      "unsupported_conclusions": [
+        "A causal memory leak occurred; OOMKilled alone does not establish a memory leak.",
+        "Simulator cleanup or a repeat run occurred.",
+        "A memory-growth rate or 96Mi limit was observed."
+      ],
+      "rca_ground_truth": false
+    },
+    {
+      "scenario_id": "memory-leak-3",
+      "scenario_category_metadata": "memory_leak",
+      "expected_outcome_metadata": "classified_as_expected_category",
+      "variant_metadata": "run with 2 demo-web replicas healthy",
+      "directly_supplied_synthetic_evidence": [
+        "Namespace kybernaut-lab and deployment summary named demo-web.",
+        "Synthetic Pod container-failure evidence says it previously terminated with reason OOMKilled.",
+        "Fixture severity is high.",
+        "Telemetry status is unavailable with no actionable candidates."
+      ],
+      "reasonable_hypotheses_for_review": [
+        "The OOMKilled symptom is consistent with memory pressure or another condition that caused the container to be killed."
+      ],
+      "unsupported_conclusions": [
+        "A causal memory leak occurred; OOMKilled alone does not establish a memory leak.",
+        "Two healthy replicas were observed.",
+        "A memory-growth rate or 96Mi limit was observed."
+      ],
+      "rca_ground_truth": false
+    },
+    {
+      "scenario_id": "memory-leak-4",
+      "scenario_category_metadata": "memory_leak",
+      "expected_outcome_metadata": "classified_as_expected_category",
+      "variant_metadata": "repeat after a failed attempt is cleaned up",
+      "directly_supplied_synthetic_evidence": [
+        "Namespace kybernaut-lab and deployment summary named demo-web.",
+        "Synthetic Pod container-failure evidence says it previously terminated with reason OOMKilled.",
+        "Fixture severity is high.",
+        "Telemetry status is unavailable with no actionable candidates."
+      ],
+      "reasonable_hypotheses_for_review": [
+        "The OOMKilled symptom is consistent with memory pressure or another condition that caused the container to be killed."
+      ],
+      "unsupported_conclusions": [
+        "A causal memory leak occurred; OOMKilled alone does not establish a memory leak.",
+        "A failed attempt, cleanup, or repeat run occurred.",
+        "A memory-growth rate or 96Mi limit was observed."
+      ],
+      "rca_ground_truth": false
+    },
+    {
+      "scenario_id": "pod-crash-1",
+      "scenario_category_metadata": "pod_crash",
+      "expected_outcome_metadata": "classified_as_expected_category",
+      "variant_metadata": "signal PID 1 in the first Ready demo-web Pod returned by the API",
+      "directly_supplied_synthetic_evidence": [
+        "Namespace kybernaut-lab and deployment summary named demo-web.",
+        "Synthetic Pod container-failure evidence says the container is waiting with reason CrashLoopBackOff.",
+        "Fixture severity is high.",
+        "Telemetry status is unavailable with no actionable candidates."
+      ],
+      "reasonable_hypotheses_for_review": [
+        "The status text is consistent with repeated container startup or execution failure."
+      ],
+      "unsupported_conclusions": [
+        "The root cause of the repeated failure is known.",
+        "PID 1 was signaled or the stated live scenario occurred.",
+        "Restart counts, timing, or customer impact were observed."
+      ],
+      "rca_ground_truth": false
+    },
+    {
+      "scenario_id": "pod-crash-2",
+      "scenario_category_metadata": "pod_crash",
+      "expected_outcome_metadata": "classified_as_expected_category",
+      "variant_metadata": "repeat after recovery; simulator again selects the first Ready Pod",
+      "directly_supplied_synthetic_evidence": [
+        "Namespace kybernaut-lab and deployment summary named demo-web.",
+        "Synthetic Pod container-failure evidence says the container is waiting with reason CrashLoopBackOff.",
+        "Fixture severity is high.",
+        "Telemetry status is unavailable with no actionable candidates."
+      ],
+      "reasonable_hypotheses_for_review": [
+        "The status text is consistent with repeated container startup or execution failure."
+      ],
+      "unsupported_conclusions": [
+        "The root cause of the repeated failure is known.",
+        "A recovery, repeat run, or first-Ready-Pod selection occurred.",
+        "Restart counts, timing, or customer impact were observed."
+      ],
+      "rca_ground_truth": false
+    },
+    {
+      "scenario_id": "pod-crash-3",
+      "scenario_category_metadata": "pod_crash",
+      "expected_outcome_metadata": "classified_as_expected_category",
+      "variant_metadata": "run during a separately confirmed low-traffic window",
+      "directly_supplied_synthetic_evidence": [
+        "Namespace kybernaut-lab and deployment summary named demo-web.",
+        "Synthetic Pod container-failure evidence says the container is waiting with reason CrashLoopBackOff.",
+        "Fixture severity is high.",
+        "Telemetry status is unavailable with no actionable candidates."
+      ],
+      "reasonable_hypotheses_for_review": [
+        "The status text is consistent with repeated container startup or execution failure."
+      ],
+      "unsupported_conclusions": [
+        "The root cause of the repeated failure is known.",
+        "A low-traffic window was independently confirmed.",
+        "Restart counts, timing, or customer impact were observed."
+      ],
+      "rca_ground_truth": false
+    },
+    {
+      "scenario_id": "pod-crash-4",
+      "scenario_category_metadata": "pod_crash",
+      "expected_outcome_metadata": "classified_as_expected_category",
+      "variant_metadata": "independent repeat after recovery",
+      "directly_supplied_synthetic_evidence": [
+        "Namespace kybernaut-lab and deployment summary named demo-web.",
+        "Synthetic Pod container-failure evidence says the container is waiting with reason CrashLoopBackOff.",
+        "Fixture severity is high.",
+        "Telemetry status is unavailable with no actionable candidates."
+      ],
+      "reasonable_hypotheses_for_review": [
+        "The status text is consistent with repeated container startup or execution failure."
+      ],
+      "unsupported_conclusions": [
+        "The root cause of the repeated failure is known.",
+        "A recovery or independent repeat occurred.",
+        "Restart counts, timing, or customer impact were observed."
+      ],
+      "rca_ground_truth": false
+    },
+    {
+      "scenario_id": "disk-full-1",
+      "scenario_category_metadata": "disk_full",
+      "expected_outcome_metadata": "classified_as_expected_category",
+      "variant_metadata": "baseline 5MiB every 2s until the configured 40Mi emptyDir limit",
+      "directly_supplied_synthetic_evidence": [
+        "Namespace kybernaut-lab and deployment summary named demo-web.",
+        "Synthetic Kubernetes warning says EmptyDir volume scratch usage exceeds the 40Mi limit.",
+        "Fixture severity is high.",
+        "Telemetry status is unavailable with no actionable candidates."
+      ],
+      "reasonable_hypotheses_for_review": [
+        "The fixture warning is consistent with the stated EmptyDir storage limit being exceeded."
+      ],
+      "unsupported_conclusions": [
+        "The node filesystem is generally full or other workloads are affected.",
+        "A 5MiB-per-2-second fill procedure or observed time series occurred.",
+        "The matrix variant was actually exercised."
+      ],
+      "rca_ground_truth": false
+    },
+    {
+      "scenario_id": "disk-full-2",
+      "scenario_category_metadata": "disk_full",
+      "expected_outcome_metadata": "classified_as_expected_category",
+      "variant_metadata": "repeat after simulator cleanup",
+      "directly_supplied_synthetic_evidence": [
+        "Namespace kybernaut-lab and deployment summary named demo-web.",
+        "Synthetic Kubernetes warning says EmptyDir volume scratch usage exceeds the 40Mi limit.",
+        "Fixture severity is high.",
+        "Telemetry status is unavailable with no actionable candidates."
+      ],
+      "reasonable_hypotheses_for_review": [
+        "The fixture warning is consistent with the stated EmptyDir storage limit being exceeded."
+      ],
+      "unsupported_conclusions": [
+        "The node filesystem is generally full or other workloads are affected.",
+        "Simulator cleanup or a repeat run occurred.",
+        "A storage time series was observed."
+      ],
+      "rca_ground_truth": false
+    },
+    {
+      "scenario_id": "disk-full-3",
+      "scenario_category_metadata": "disk_full",
+      "expected_outcome_metadata": "classified_as_expected_category",
+      "variant_metadata": "run with 2 demo-web replicas healthy",
+      "directly_supplied_synthetic_evidence": [
+        "Namespace kybernaut-lab and deployment summary named demo-web.",
+        "Synthetic Kubernetes warning says EmptyDir volume scratch usage exceeds the 40Mi limit.",
+        "Fixture severity is high.",
+        "Telemetry status is unavailable with no actionable candidates."
+      ],
+      "reasonable_hypotheses_for_review": [
+        "The fixture warning is consistent with the stated EmptyDir storage limit being exceeded."
+      ],
+      "unsupported_conclusions": [
+        "The node filesystem is generally full or other workloads are affected.",
+        "Two healthy replicas were observed.",
+        "A storage time series was observed."
+      ],
+      "rca_ground_truth": false
+    },
+    {
+      "scenario_id": "disk-full-4",
+      "scenario_category_metadata": "disk_full",
+      "expected_outcome_metadata": "classified_as_expected_category",
+      "variant_metadata": "run during a separately confirmed low-traffic window",
+      "directly_supplied_synthetic_evidence": [
+        "Namespace kybernaut-lab and deployment summary named demo-web.",
+        "Synthetic Kubernetes warning says EmptyDir volume scratch usage exceeds the 40Mi limit.",
+        "Fixture severity is high.",
+        "Telemetry status is unavailable with no actionable candidates."
+      ],
+      "reasonable_hypotheses_for_review": [
+        "The fixture warning is consistent with the stated EmptyDir storage limit being exceeded."
+      ],
+      "unsupported_conclusions": [
+        "The node filesystem is generally full or other workloads are affected.",
+        "A low-traffic window was independently confirmed.",
+        "A storage time series was observed."
+      ],
+      "rca_ground_truth": false
+    },
+    {
+      "scenario_id": "deployment-failure-1",
+      "scenario_category_metadata": "deployment_failure",
+      "expected_outcome_metadata": "classified_as_expected_category",
+      "variant_metadata": "set the configured demo-web container to the intentionally missing image tag",
+      "directly_supplied_synthetic_evidence": [
+        "Namespace kybernaut-lab and deployment summary named demo-web.",
+        "Synthetic Pod container-failure evidence says the container is waiting with reason ImagePullBackOff.",
+        "Fixture severity is high.",
+        "Telemetry status is unavailable with no actionable candidates."
+      ],
+      "reasonable_hypotheses_for_review": [
+        "The status is consistent with the container image not being pulled successfully."
+      ],
+      "unsupported_conclusions": [
+        "A deployment update caused the pull failure.",
+        "A registry outage, invalid credentials, or a particular image-tag error is established.",
+        "The intentionally missing image variant was actually deployed."
+      ],
+      "rca_ground_truth": false
+    },
+    {
+      "scenario_id": "deployment-failure-2",
+      "scenario_category_metadata": "deployment_failure",
+      "expected_outcome_metadata": "classified_as_expected_category",
+      "variant_metadata": "repeat after the healthy image has been restored and verified",
+      "directly_supplied_synthetic_evidence": [
+        "Namespace kybernaut-lab and deployment summary named demo-web.",
+        "Synthetic Pod container-failure evidence says the container is waiting with reason ImagePullBackOff.",
+        "Fixture severity is high.",
+        "Telemetry status is unavailable with no actionable candidates."
+      ],
+      "reasonable_hypotheses_for_review": [
+        "The status is consistent with the container image not being pulled successfully."
+      ],
+      "unsupported_conclusions": [
+        "A deployment update caused the pull failure.",
+        "A healthy image was restored or verified, or a repeat occurred.",
+        "A registry outage, invalid credentials, or a particular image-tag error is established."
+      ],
+      "rca_ground_truth": false
+    },
+    {
+      "scenario_id": "deployment-failure-3",
+      "scenario_category_metadata": "deployment_failure",
+      "expected_outcome_metadata": "classified_as_expected_category",
+      "variant_metadata": "run with 2 demo-web replicas configured",
+      "directly_supplied_synthetic_evidence": [
+        "Namespace kybernaut-lab and deployment summary named demo-web.",
+        "Synthetic Pod container-failure evidence says the container is waiting with reason ImagePullBackOff.",
+        "Fixture severity is high.",
+        "Telemetry status is unavailable with no actionable candidates."
+      ],
+      "reasonable_hypotheses_for_review": [
+        "The status is consistent with the container image not being pulled successfully."
+      ],
+      "unsupported_conclusions": [
+        "A deployment update caused the pull failure.",
+        "Two replicas were observed or configured.",
+        "A registry outage, invalid credentials, or a particular image-tag error is established."
+      ],
+      "rca_ground_truth": false
+    },
+    {
+      "scenario_id": "deployment-failure-4",
+      "scenario_category_metadata": "deployment_failure",
+      "expected_outcome_metadata": "classified_as_expected_category",
+      "variant_metadata": "run during a separately confirmed low-traffic window",
+      "directly_supplied_synthetic_evidence": [
+        "Namespace kybernaut-lab and deployment summary named demo-web.",
+        "Synthetic Pod container-failure evidence says the container is waiting with reason ImagePullBackOff.",
+        "Fixture severity is high.",
+        "Telemetry status is unavailable with no actionable candidates."
+      ],
+      "reasonable_hypotheses_for_review": [
+        "The status is consistent with the container image not being pulled successfully."
+      ],
+      "unsupported_conclusions": [
+        "A deployment update caused the pull failure.",
+        "A low-traffic window was independently confirmed.",
+        "A registry outage, invalid credentials, or a particular image-tag error is established."
+      ],
+      "rca_ground_truth": false
+    }
+  ],
+  "healthy_controls": {
+    "semantics": "The five matrix controls are synthetic placeholders, not observed healthy windows. They are not submitted as positive RCA cases and must not be scored as observed model negatives.",
+    "controls": [
+      {
+        "control_id": "healthy-control-1",
+        "expected_category_metadata": "unknown",
+        "condition_metadata": "demo-web and target services healthy; no simulator workload active",
+        "duration_minutes_metadata": 15,
+        "evidence_status": "synthetic_placeholder_not_observed",
+        "submitted_as_positive_rca_case": false
+      },
+      {
+        "control_id": "healthy-control-2",
+        "expected_category_metadata": "unknown",
+        "condition_metadata": "healthy services after CPU scenario cleanup",
+        "duration_minutes_metadata": 15,
+        "evidence_status": "synthetic_placeholder_not_observed",
+        "submitted_as_positive_rca_case": false
+      },
+      {
+        "control_id": "healthy-control-3",
+        "expected_category_metadata": "unknown",
+        "condition_metadata": "healthy services after memory scenario cleanup",
+        "duration_minutes_metadata": 15,
+        "evidence_status": "synthetic_placeholder_not_observed",
+        "submitted_as_positive_rca_case": false
+      },
+      {
+        "control_id": "healthy-control-4",
+        "expected_category_metadata": "unknown",
+        "condition_metadata": "healthy services after disk scenario cleanup",
+        "duration_minutes_metadata": 15,
+        "evidence_status": "synthetic_placeholder_not_observed",
+        "submitted_as_positive_rca_case": false
+      },
+      {
+        "control_id": "healthy-control-5",
+        "expected_category_metadata": "unknown",
+        "condition_metadata": "healthy services after deployment image restoration",
+        "duration_minutes_metadata": 15,
+        "evidence_status": "synthetic_placeholder_not_observed",
+        "submitted_as_positive_rca_case": false
+      }
+    ]
+  }
+}

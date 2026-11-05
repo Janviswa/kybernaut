@@ -1,0 +1,192 @@
+<!doctype html>
+<html lang="en" data-api-base="/">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#101a2a">
+    <title>Kybernaut | Operations Console</title>
+    <link rel="stylesheet" href="/console/console.css">
+    <script src="/console/console.js" defer></script>
+  </head>
+  <body>
+    <div class="app-shell">
+      <aside class="sidebar" aria-label="Console navigation">
+        <a class="brand" href="/console/" aria-label="Kybernaut Operations Console">
+          <span class="brand-mark" aria-hidden="true">K</span>
+          <span><strong>KYBERNAUT</strong><small>OPERATIONS CONSOLE</small></span>
+        </a>
+        <nav>
+          <a href="#overview" class="nav-link active">Overview</a>
+          <a href="#incidents" class="nav-link">Incidents</a>
+          <a href="#demo-results" class="nav-link">Synthetic demos</a>
+          <a href="#approvals" class="nav-link">Approvals</a>
+          <a href="#cost" class="nav-link">Cost optimization</a>
+        </nav>
+        <div class="sidebar-note">
+          <span class="dot dot-teal"></span>
+          <div><strong>Read-only console</strong><small>No actions are executed here</small></div>
+        </div>
+        <div class="sidebar-footer">LOCAL DEMONSTRATION<br><span>Evidence before action.</span></div>
+      </aside>
+
+      <main class="main-content">
+        <header class="topbar">
+          <div class="breadcrumb">OPERATIONS <span>/</span> OVERVIEW</div>
+          <div class="topbar-status">
+            <span id="api-status" class="status-pill status-pending"><i></i> API checking</span>
+            <span class="environment-badge">LOCAL</span>
+          </div>
+        </header>
+
+        <section id="overview" class="page-heading">
+          <div>
+            <p class="eyebrow">RELIABILITY • GOVERNANCE • EFFICIENCY</p>
+            <h1>Operations overview</h1>
+            <p class="lede">A traceable view of persisted incidents, guarded response decisions, and cost analysis.</p>
+          </div>
+          <button id="refresh-button" class="button button-secondary" type="button" disabled>
+            <span aria-hidden="true">↻</span> Refresh data
+          </button>
+        </section>
+
+        <section class="auth-panel" aria-labelledby="auth-title">
+          <div class="auth-copy">
+            <div class="auth-icon" aria-hidden="true">⌑</div>
+            <div>
+              <h2 id="auth-title">Operator session</h2>
+              <p>Use a short-lived read-permission token. It stays in page memory only.</p>
+            </div>
+          </div>
+          <form id="auth-form" class="auth-form">
+            <label class="visually-hidden" for="operator-token">Operator bearer token</label>
+            <input id="operator-token" type="password" autocomplete="off" spellcheck="false"
+                   placeholder="Paste operator JWT" aria-describedby="auth-message">
+            <button id="connect-button" class="button button-primary" type="submit">Connect</button>
+            <button id="disconnect-button" class="button button-quiet" type="button" hidden>Disconnect</button>
+          </form>
+          <p id="auth-message" class="auth-message" role="status">Connect to load authorized operational records.</p>
+        </section>
+
+        <section class="metric-grid" aria-label="System summary">
+          <article class="metric-card">
+            <div class="metric-label">API SERVICE <span class="metric-icon icon-blue">◈</span></div>
+            <div id="service-value" class="metric-value">Checking</div>
+            <div id="service-detail" class="metric-detail">Health endpoint status</div>
+          </article>
+          <article class="metric-card">
+            <div class="metric-label">PERSISTED INCIDENTS <span class="metric-icon icon-amber">⌁</span></div>
+            <div id="incident-count" class="metric-value">—</div>
+            <div class="metric-detail">History records • not a live scrape</div>
+          </article>
+          <article class="metric-card">
+            <div class="metric-label">PENDING APPROVALS <span class="metric-icon icon-violet">◎</span></div>
+            <div id="approval-count" class="metric-value">—</div>
+            <div class="metric-detail">Read-only • decisions remain in API</div>
+          </article>
+          <article class="metric-card">
+            <div class="metric-label">WEEKLY REPORT <span class="metric-icon icon-teal">▤</span></div>
+            <div id="cost-value" class="metric-value">—</div>
+            <div id="cost-detail" class="metric-detail">No delivery status loaded</div>
+          </article>
+        </section>
+
+        <section class="content-grid">
+          <article id="incidents" class="panel incident-panel">
+            <div class="panel-heading">
+              <div><p class="eyebrow">RESPONSE HISTORY</p><h2>Recent incidents</h2></div>
+              <span class="live-label"><span class="dot dot-gray"></span> Persisted</span>
+            </div>
+            <p class="panel-intro">This list comes from incident history storage; the console does not query Prometheus or Kubernetes.</p>
+            <div id="incidents-state" class="state-box">Connect with a read-permission token to load incident history.</div>
+            <div id="incident-list" class="record-list"></div>
+          </article>
+
+          <article class="panel audit-panel">
+            <div class="panel-heading">
+              <div><p class="eyebrow">GOVERNANCE TRAIL</p><h2>Recent audit events</h2></div>
+              <span class="panel-count" id="audit-count">—</span>
+            </div>
+            <div id="audit-state" class="state-box">Audit events are available after connecting.</div>
+            <div id="audit-list" class="record-list compact-list"></div>
+          </article>
+        </section>
+
+        <section id="demo-results" class="panel demo-panel">
+          <div class="panel-heading">
+            <div><p class="eyebrow">ISOLATED LOCAL RECORDS</p><h2>Synthetic demo results</h2></div>
+            <span class="tag demo-tag">SYNTHETIC · READ-ONLY</span>
+          </div>
+          <p class="panel-intro">Demo incidents, approval records, and audit events are loaded from isolated demo databases and are not mixed with normal application records. Inspection cannot approve or execute actions.</p>
+          <div class="demo-results-grid">
+            <div>
+              <div id="demo-state" class="state-box">Connect to read isolated synthetic demo results.</div>
+              <div id="demo-list" class="record-list"></div>
+            </div>
+            <div>
+              <div id="demo-detail-state" class="state-box">Select a demo to inspect its synthetic incident, approval, and audit trail.</div>
+              <div id="demo-detail" class="demo-detail"></div>
+            </div>
+          </div>
+        </section>
+
+        <section class="content-grid detail-grid">
+          <article class="panel details-panel">
+            <div class="panel-heading">
+              <div><p class="eyebrow">EVIDENCE & DECISION TRACE</p><h2 id="detail-title">Incident details</h2></div>
+              <span id="detail-status" class="status-pill status-pending">Select an incident</span>
+            </div>
+            <p id="detail-classification" class="panel-intro">Classification and diagnosis appear only when present in persisted incident/audit evidence.</p>
+            <div id="timeline-state" class="state-box">Select a persisted incident to inspect its audit timeline and recorded workflow evidence.</div>
+            <div id="timeline-list" class="timeline"></div>
+          </article>
+          <article id="approvals" class="panel approvals-panel">
+            <div class="panel-heading">
+              <div><p class="eyebrow">HUMAN CONTROL</p><h2>Approval queue</h2></div>
+              <span id="approval-panel-count" class="panel-count">—</span>
+            </div>
+            <p class="panel-intro">Actions remain subject to authenticated API checks, distinct-operator approval, and approval-token validation.</p>
+            <div id="approvals-state" class="state-box">Connect to read approval requests.</div>
+            <div id="approval-list" class="record-list"></div>
+          </article>
+        </section>
+
+        <section id="cost" class="panel cost-panel">
+          <div class="panel-heading">
+            <div><p class="eyebrow">READ-ONLY ANALYSIS</p><h2>Weekly cost optimization</h2></div>
+            <span id="pricing-badge" class="environment-badge muted-badge">Awaiting report</span>
+          </div>
+          <div id="cost-state" class="state-box">Connect to check for a generated weekly report.</div>
+          <div id="cost-report" hidden>
+            <div class="report-meta">
+              <div><span>REPORTING PERIOD</span><strong id="report-period">—</strong></div>
+              <div><span>DATA PROVENANCE</span><strong id="report-provenance">—</strong></div>
+              <div><span>DELIVERY</span><strong id="report-delivery">—</strong></div>
+              <div><span>REALIZED SAVINGS</span><strong id="report-realized">—</strong></div>
+            </div>
+            <div id="report-summary" class="report-summary"></div>
+            <div class="table-wrap">
+              <table>
+                <thead><tr><th>Resource</th><th>Status</th><th>CPU avg / peak</th><th>Memory avg / peak</th><th>Evidence</th><th>Potential savings</th></tr></thead>
+                <tbody id="recommendation-rows"></tbody>
+              </table>
+            </div>
+            <p id="cost-disclaimer" class="disclaimer">Recommendations are not infrastructure changes. Potential savings use catalog assumptions; realized savings are reported separately.</p>
+          </div>
+          <div class="resize-status">
+            <div class="panel-heading">
+              <div><p class="eyebrow">LAB CHANGE GOVERNANCE</p><h3>Request resize status</h3></div>
+            </div>
+            <p class="panel-intro">This view is read-only. Proposed changes require separate owner approval and an explicit authenticated execution request.</p>
+            <div id="resize-state" class="state-box">Connect to read resize requests.</div>
+            <div id="resize-list" class="record-list compact-list"></div>
+          </div>
+        </section>
+
+        <footer class="page-footer">
+          <span>KYBERNAUT OPERATIONS CONSOLE</span>
+          <span>Telemetry integrations are not queried by this read-only UI.</span>
+        </footer>
+      </main>
+    </div>
+  </body>
+</html>

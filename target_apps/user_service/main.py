@@ -3,6 +3,16 @@ from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
 from uuid import uuid4
 from prometheus_fastapi_instrumentator import Instrumentator
+try:
+    from common.local_failure_simulation import (
+        install_local_failure_simulation, scenarios_for_service,
+    )
+except ModuleNotFoundError as exc:
+    if exc.name != "common":
+        raise
+    from target_apps.common.local_failure_simulation import (
+        install_local_failure_simulation, scenarios_for_service,
+    )
 
 app = FastAPI(title="Kybernaut Target - User Service")
 
@@ -28,6 +38,12 @@ Instrumentator(
         1.0,
     ),
 ).expose(app, endpoint="/metrics")
+
+install_local_failure_simulation(
+    app,
+    service="user-service",
+    scenarios=scenarios_for_service("user-service"),
+)
 
 users = {}
 

@@ -1,0 +1,4 @@
+# Cron fragment for a weekly, read-only report run.
+# Replace all /path/to/... values before adding this line with `crontab -e`.
+CRON_TZ=UTC
+0 9 * * 1 cd /path/to/kybernaut/scripts && /path/to/kybernaut/.venv/bin/python weekly_cost_report.py --observations /path/to/weekly-observations.json --last-completed-week --timezone UTC --out /path/to/weekly-cost-reports >> /path/to/weekly-cost-report.log 2>&1

@@ -80,6 +80,20 @@ def test_invalid_observation_is_rejected(policy_and_center):
     with pytest.raises(ValueError, match="NaN or infinite"):
         policy.evaluate([observation.tolist()])
 
+
+def test_policy_rejects_boolean_baseline_and_observation_values():
+    baseline = [[0.5, 0.1, 50_000_000, 0.01] for _ in range(20)]
+    baseline[0][0] = True
+    policy = DirectionAwareAnomalyPolicy()
+
+    with pytest.raises(ValueError, match="not boolean"):
+        policy.fit(baseline)
+
+    policy.fit([[0.5, 0.1, 50_000_000, 0.01] for _ in range(20)])
+    with pytest.raises(ValueError, match="not boolean"):
+        policy.evaluate([[0.5, True, 50_000_000, 0.01]])
+
+
 def test_small_latency_increase_is_not_operationally_actionable():
     baseline = [
         [0.5, 0.0024, 49_000_000, 0.0045]
@@ -184,3 +198,43 @@ def test_latency_exactly_at_operational_threshold_is_not_flagged():
 
     assert result["operational_findings"] == []
     assert "p95_latency_seconds" in result["actionable_candidates"]
+
+
+@pytest.mark.parametrize(
+    ("latency", "finding_expected"),
+    [
+        (np.nextafter(1.0, 0.0), False),
+        (1.0, False),
+        (np.nextafter(1.0, np.inf), True),
+    ],
+)
+def test_operational_latency_threshold_adjacent_values(
+    latency, finding_expected
+):
+    baseline = [[0.5, 0.1, 50_000_000, 0.01] for _ in range(30)]
+    policy = DirectionAwareAnomalyPolicy(threshold=5.0)
+    policy.fit(baseline)
+
+    result = policy.evaluate([[0.5, latency, 50_000_000, 0.01]])[0]
+
+    assert bool(result["operational_findings"]) is finding_expected
+
+
+def test_statistical_threshold_is_strictly_greater_than_cutoff():
+    baseline = [[0.5, 0.1, 50_000_000, 0.01] for _ in range(30)]
+    policy = DirectionAwareAnomalyPolicy(threshold=5.0)
+    policy.fit(baseline)
+    policy._median = np.ones(len(FEATURE_NAMES))
+    policy._scale = np.ones(len(FEATURE_NAMES))
+
+    at_threshold = policy.evaluate([[6.0, 1.0, 1.0, 1.0]])[0]
+    above_threshold = policy.evaluate(
+        [[np.nextafter(6.0, np.inf), 1.0, 1.0, 1.0]]
+    )[0]
+
+    assert at_threshold["features"]["request_rate"]["classification"] == (
+        "normal"
+    )
+    assert above_threshold["features"]["request_rate"]["classification"] == (
+        "informational"
+    )

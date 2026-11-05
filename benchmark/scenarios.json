@@ -1,0 +1,184 @@
+{
+  "version": 1,
+  "cases": [
+    {
+      "scenario_id": "cpu-spike-1",
+      "scenario": "cpu-spike",
+      "expected_category": "cpu_spike",
+      "variant": "baseline 300m burn",
+      "expected_outcome": "classified_as_expected_category"
+    },
+    {
+      "scenario_id": "cpu-spike-2",
+      "scenario": "cpu-spike",
+      "expected_category": "cpu_spike",
+      "variant": "repeat after cleanup and 10 min idle",
+      "expected_outcome": "classified_as_expected_category"
+    },
+    {
+      "scenario_id": "cpu-spike-3",
+      "scenario": "cpu-spike",
+      "expected_category": "cpu_spike",
+      "variant": "run with 2 demo-web replicas healthy",
+      "expected_outcome": "classified_as_expected_category"
+    },
+    {
+      "scenario_id": "cpu-spike-4",
+      "scenario": "cpu-spike",
+      "expected_category": "cpu_spike",
+      "variant": "run during a separately confirmed low-traffic window",
+      "expected_outcome": "classified_as_expected_category"
+    },
+    {
+      "scenario_id": "memory-leak-1",
+      "scenario": "memory-leak",
+      "expected_category": "memory_leak",
+      "variant": "baseline 1MiB/s growth to the configured 96Mi limit",
+      "expected_outcome": "classified_as_expected_category"
+    },
+    {
+      "scenario_id": "memory-leak-2",
+      "scenario": "memory-leak",
+      "expected_category": "memory_leak",
+      "variant": "repeat after simulator cleanup",
+      "expected_outcome": "classified_as_expected_category"
+    },
+    {
+      "scenario_id": "memory-leak-3",
+      "scenario": "memory-leak",
+      "expected_category": "memory_leak",
+      "variant": "run with 2 demo-web replicas healthy",
+      "expected_outcome": "classified_as_expected_category"
+    },
+    {
+      "scenario_id": "memory-leak-4",
+      "scenario": "memory-leak",
+      "expected_category": "memory_leak",
+      "variant": "repeat after a failed attempt is cleaned up",
+      "expected_outcome": "classified_as_expected_category"
+    },
+    {
+      "scenario_id": "pod-crash-1",
+      "scenario": "pod-crash",
+      "expected_category": "pod_crash",
+      "variant": "signal PID 1 in the first Ready demo-web Pod returned by the API",
+      "expected_outcome": "classified_as_expected_category"
+    },
+    {
+      "scenario_id": "pod-crash-2",
+      "scenario": "pod-crash",
+      "expected_category": "pod_crash",
+      "variant": "repeat after recovery; simulator again selects the first Ready Pod",
+      "expected_outcome": "classified_as_expected_category"
+    },
+    {
+      "scenario_id": "pod-crash-3",
+      "scenario": "pod-crash",
+      "expected_category": "pod_crash",
+      "variant": "run during a separately confirmed low-traffic window",
+      "expected_outcome": "classified_as_expected_category"
+    },
+    {
+      "scenario_id": "pod-crash-4",
+      "scenario": "pod-crash",
+      "expected_category": "pod_crash",
+      "variant": "independent repeat after recovery",
+      "expected_outcome": "classified_as_expected_category"
+    },
+    {
+      "scenario_id": "disk-full-1",
+      "scenario": "disk-full",
+      "expected_category": "disk_full",
+      "variant": "baseline 5MiB every 2s until the configured 40Mi emptyDir limit",
+      "expected_outcome": "classified_as_expected_category"
+    },
+    {
+      "scenario_id": "disk-full-2",
+      "scenario": "disk-full",
+      "expected_category": "disk_full",
+      "variant": "repeat after simulator cleanup",
+      "expected_outcome": "classified_as_expected_category"
+    },
+    {
+      "scenario_id": "disk-full-3",
+      "scenario": "disk-full",
+      "expected_category": "disk_full",
+      "variant": "run with 2 demo-web replicas healthy",
+      "expected_outcome": "classified_as_expected_category"
+    },
+    {
+      "scenario_id": "disk-full-4",
+      "scenario": "disk-full",
+      "expected_category": "disk_full",
+      "variant": "run during a separately confirmed low-traffic window",
+      "expected_outcome": "classified_as_expected_category"
+    },
+    {
+      "scenario_id": "deployment-failure-1",
+      "scenario": "deployment-failure",
+      "expected_category": "deployment_failure",
+      "variant": "set the configured demo-web container to the intentionally missing image tag",
+      "expected_outcome": "classified_as_expected_category"
+    },
+    {
+      "scenario_id": "deployment-failure-2",
+      "scenario": "deployment-failure",
+      "expected_category": "deployment_failure",
+      "variant": "repeat after the healthy image has been restored and verified",
+      "expected_outcome": "classified_as_expected_category"
+    },
+    {
+      "scenario_id": "deployment-failure-3",
+      "scenario": "deployment-failure",
+      "expected_category": "deployment_failure",
+      "variant": "run with 2 demo-web replicas configured",
+      "expected_outcome": "classified_as_expected_category"
+    },
+    {
+      "scenario_id": "deployment-failure-4",
+      "scenario": "deployment-failure",
+      "expected_category": "deployment_failure",
+      "variant": "run during a separately confirmed low-traffic window",
+      "expected_outcome": "classified_as_expected_category"
+    }
+  ],
+  "controls_recommended": 5,
+  "controls": [
+    {
+      "control_id": "healthy-control-1",
+      "condition": "demo-web and target services healthy; no simulator workload active",
+      "duration_minutes": 15,
+      "expected_alert": false,
+      "expected_category": "unknown"
+    },
+    {
+      "control_id": "healthy-control-2",
+      "condition": "healthy services after CPU scenario cleanup",
+      "duration_minutes": 15,
+      "expected_alert": false,
+      "expected_category": "unknown"
+    },
+    {
+      "control_id": "healthy-control-3",
+      "condition": "healthy services after memory scenario cleanup",
+      "duration_minutes": 15,
+      "expected_alert": false,
+      "expected_category": "unknown"
+    },
+    {
+      "control_id": "healthy-control-4",
+      "condition": "healthy services after disk scenario cleanup",
+      "duration_minutes": 15,
+      "expected_alert": false,
+      "expected_category": "unknown"
+    },
+    {
+      "control_id": "healthy-control-5",
+      "condition": "healthy services after deployment image restoration",
+      "duration_minutes": 15,
+      "expected_alert": false,
+      "expected_category": "unknown"
+    }
+  ],
+  "note": "Each scenario execution is recorded independently as inject or exercise -> collect evidence -> classify -> run response workflow -> record approval decision -> dry-run or approved action -> verify outcome as applicable -> cleanup. Scenario labels describe context; the simulator does not enforce traffic-load variations."
+}

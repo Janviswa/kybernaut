@@ -3,6 +3,7 @@
 from collections import Counter
 from datetime import datetime
 
+from app.services import audit_repository
 from app.services.incident_repository import list_incidents
 
 
@@ -26,7 +27,12 @@ def _parse_timestamp(value: str | None) -> datetime | None:
 
 def calculate_incident_metrics() -> dict:
     """Return incident counts, MTTR, and recurrence metrics."""
-    incidents = list_incidents()
+    incidents = list_incidents(source="operational")
+    latest_incidents = list_incidents(
+        source="operational",
+        latest_per_incident=True,
+    )
+    excluded_demo = len(list_incidents(source="demo"))
 
     status_counts = Counter(
         incident.get("status", "UNKNOWN") for incident in incidents
@@ -69,9 +75,12 @@ def calculate_incident_metrics() -> dict:
 
     return {
         "total_incidents": total,
+        "excluded_demo_incidents": excluded_demo,
         "active_incidents": sum(
-            status_counts.get(status, 0) for status in ACTIVE_STATUSES
+            incident.get("status") in ACTIVE_STATUSES
+            for incident in latest_incidents
         ),
+        "pending_approvals": audit_repository.count_approvals("PENDING"),
         "by_status": dict(status_counts),
         "by_severity": dict(severity_counts),
         "by_service": dict(service_counts),

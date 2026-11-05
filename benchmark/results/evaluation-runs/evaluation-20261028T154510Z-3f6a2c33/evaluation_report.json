@@ -1,0 +1,2500 @@
+{
+  "schema_version": 1,
+  "run": {
+    "run_id": "evaluation-20261028T154510Z-3f6a2c33",
+    "started_at_utc": "2026-10-28T15:45:10.573419+00:00",
+    "completed_at_utc": "2026-10-28T15:45:15.624269+00:00",
+    "evaluation_mode": "offline_synthetic",
+    "live_execution_verified": false
+  },
+  "environment": {
+    "operating_system": "Linux-7.0.0-38-generic-x86_64-with-glibc2.43",
+    "python_version": "3.14.4",
+    "numpy_version": "2.4.6",
+    "scikit_learn_version": "1.9.1",
+    "git_revision": "b056a57b1bd4a3f1183978caee343fcf97c5aa02",
+    "worktree": {
+      "state": "dirty",
+      "status_sha256": "b89a6036542be1b33d15b8ceba0653fe7beada39222a29138f44074f2ac4fa95"
+    },
+    "baseline_file_sha256": "777724eb6aae20da2104fef327dd691ab31a542be06f0c45fc5f66d8cfcac1a1"
+  },
+  "datasets": {
+    "anomaly": {
+      "identifier": "three_way_synthetic_anomaly_comparison",
+      "baseline_sha256": "777724eb6aae20da2104fef327dd691ab31a542be06f0c45fc5f66d8cfcac1a1",
+      "dataset_sha256": "713592c113fa70ab029e666549fe7e759e0aaf2595d4d2489d6e18ac6fe6f8f2",
+      "total_observations": 184,
+      "eligible_observations": 176,
+      "unavailable_observations": 8,
+      "features": [
+        "request_rate",
+        "p95_latency_seconds",
+        "memory_bytes",
+        "cpu_cores_used"
+      ],
+      "services": [
+        "order-service",
+        "payment-service",
+        "user-service",
+        "inventory-service"
+      ],
+      "label_provenance": {
+        "baseline_holdout": "assumed_normal_not_independently_reviewed",
+        "synthetic_controls": "assumed_normal_by_construction",
+        "synthetic_positives": "synthetic_positive_by_construction",
+        "independently_reviewed_labels_present": false
+      },
+      "configuration": {
+        "training_fraction": 0.7,
+        "minimum_training_rows": 20,
+        "mad_threshold": 5.0,
+        "isolation_forest_estimators": 200,
+        "isolation_forest_contamination": 0.05,
+        "methods": [
+          "isolation_forest",
+          "direction_aware_mad",
+          "hybrid"
+        ]
+      },
+      "random_seeds": {
+        "synthetic_dataset": 2801,
+        "isolation_forest": 42
+      }
+    },
+    "incident_matrix": {
+      "scenario_count": 20,
+      "control_count": 5,
+      "evaluation_mode": "synthetic deterministic fixtures",
+      "live_faults_injected": false
+    }
+  },
+  "anomaly_detection": {
+    "status": "measured_synthetic",
+    "methods": {
+      "isolation_forest": {
+        "status": "measured",
+        "sample_count": 176,
+        "confusion_matrix": {
+          "tp": 0,
+          "fp": 6,
+          "tn": 102,
+          "fn": 68
+        },
+        "precision": {
+          "value": 0.0,
+          "numerator": 0,
+          "denominator": 6,
+          "formula": "TP / (TP + FP)"
+        },
+        "recall": {
+          "value": 0.0,
+          "numerator": 0,
+          "denominator": 68,
+          "formula": "TP / (TP + FN)"
+        },
+        "f1": {
+          "value": 0.0,
+          "numerator": 0,
+          "denominator": 74,
+          "formula": "2 * TP / (2 * TP + FP + FN)"
+        },
+        "false_positive_rate": {
+          "value": 0.055556,
+          "numerator": 6,
+          "denominator": 108,
+          "formula": "FP / (FP + TN)"
+        },
+        "true_positive_rate": {
+          "value": 0.0,
+          "numerator": 0,
+          "denominator": 68,
+          "formula": "TP / (TP + FN)"
+        }
+      },
+      "direction_aware_mad": {
+        "status": "measured",
+        "sample_count": 176,
+        "confusion_matrix": {
+          "tp": 40,
+          "fp": 4,
+          "tn": 104,
+          "fn": 28
+        },
+        "precision": {
+          "value": 0.909091,
+          "numerator": 40,
+          "denominator": 44,
+          "formula": "TP / (TP + FP)"
+        },
+        "recall": {
+          "value": 0.588235,
+          "numerator": 40,
+          "denominator": 68,
+          "formula": "TP / (TP + FN)"
+        },
+        "f1": {
+          "value": 0.714286,
+          "numerator": 80,
+          "denominator": 112,
+          "formula": "2 * TP / (2 * TP + FP + FN)"
+        },
+        "false_positive_rate": {
+          "value": 0.037037,
+          "numerator": 4,
+          "denominator": 108,
+          "formula": "FP / (FP + TN)"
+        },
+        "true_positive_rate": {
+          "value": 0.588235,
+          "numerator": 40,
+          "denominator": 68,
+          "formula": "TP / (TP + FN)"
+        }
+      },
+      "hybrid": {
+        "status": "measured",
+        "sample_count": 176,
+        "confusion_matrix": {
+          "tp": 40,
+          "fp": 9,
+          "tn": 99,
+          "fn": 28
+        },
+        "precision": {
+          "value": 0.816327,
+          "numerator": 40,
+          "denominator": 49,
+          "formula": "TP / (TP + FP)"
+        },
+        "recall": {
+          "value": 0.588235,
+          "numerator": 40,
+          "denominator": 68,
+          "formula": "TP / (TP + FN)"
+        },
+        "f1": {
+          "value": 0.683761,
+          "numerator": 80,
+          "denominator": 117,
+          "formula": "2 * TP / (2 * TP + FP + FN)"
+        },
+        "false_positive_rate": {
+          "value": 0.083333,
+          "numerator": 9,
+          "denominator": 108,
+          "formula": "FP / (FP + TN)"
+        },
+        "true_positive_rate": {
+          "value": 0.588235,
+          "numerator": 40,
+          "denominator": 68,
+          "formula": "TP / (TP + FN)"
+        }
+      }
+    },
+    "per_service": {
+      "order-service": {
+        "total_observation_count": 46,
+        "eligible_observation_count": 44,
+        "unavailable_observation_count": 2,
+        "unavailable_by_reason": {
+          "invalid_observation:ValueError": 1,
+          "no_observation": 1
+        },
+        "point_anomaly": {
+          "isolation_forest": {
+            "status": "measured",
+            "true_positives": 0,
+            "false_positives": 0,
+            "true_negatives": 27,
+            "false_negatives": 17,
+            "precision": null,
+            "recall": 0.0,
+            "f1": null,
+            "false_positive_rate": 0.0,
+            "eligible_observation_count": 44
+          },
+          "direction_aware_mad": {
+            "status": "measured",
+            "true_positives": 10,
+            "false_positives": 1,
+            "true_negatives": 26,
+            "false_negatives": 7,
+            "precision": 0.909091,
+            "recall": 0.588235,
+            "f1": 0.714286,
+            "false_positive_rate": 0.037037,
+            "eligible_observation_count": 44
+          },
+          "hybrid": {
+            "status": "measured",
+            "true_positives": 10,
+            "false_positives": 1,
+            "true_negatives": 26,
+            "false_negatives": 7,
+            "precision": 0.909091,
+            "recall": 0.588235,
+            "f1": 0.714286,
+            "false_positive_rate": 0.037037,
+            "eligible_observation_count": 44
+          }
+        },
+        "episode_detection_delay": {
+          "isolation_forest": {
+            "status": "measured",
+            "unit": "seconds",
+            "onset_rule": "first timestamped point labeled anomalous",
+            "detection_rule": "first predicted anomaly at or after the labeled onset",
+            "episode_count": 1,
+            "detected_episode_count": 0,
+            "missed_episode_count": 1,
+            "mean_detected_delay_seconds": null,
+            "episodes": [
+              {
+                "episode_id": "gradual-drift-order-service-cpu",
+                "onset_at": "2026-10-21T05:29:35.111270+00:00",
+                "first_detected_at": null,
+                "delay_seconds": null,
+                "detected": false
+              }
+            ]
+          },
+          "direction_aware_mad": {
+            "status": "measured",
+            "unit": "seconds",
+            "onset_rule": "first timestamped point labeled anomalous",
+            "detection_rule": "first predicted anomaly at or after the labeled onset",
+            "episode_count": 1,
+            "detected_episode_count": 1,
+            "missed_episode_count": 0,
+            "mean_detected_delay_seconds": 180.0,
+            "episodes": [
+              {
+                "episode_id": "gradual-drift-order-service-cpu",
+                "onset_at": "2026-10-21T05:29:35.111270+00:00",
+                "first_detected_at": "2026-10-21T05:32:35.111270+00:00",
+                "delay_seconds": 180.0,
+                "detected": true
+              }
+            ]
+          },
+          "hybrid": {
+            "status": "measured",
+            "unit": "seconds",
+            "onset_rule": "first timestamped point labeled anomalous",
+            "detection_rule": "first predicted anomaly at or after the labeled onset",
+            "episode_count": 1,
+            "detected_episode_count": 1,
+            "missed_episode_count": 0,
+            "mean_detected_delay_seconds": 180.0,
+            "episodes": [
+              {
+                "episode_id": "gradual-drift-order-service-cpu",
+                "onset_at": "2026-10-21T05:29:35.111270+00:00",
+                "first_detected_at": "2026-10-21T05:32:35.111270+00:00",
+                "delay_seconds": 180.0,
+                "detected": true
+              }
+            ]
+          }
+        },
+        "mad_actionable_candidate": {
+          "status": "measured",
+          "true_positives": 8,
+          "false_positives": 1,
+          "true_negatives": 26,
+          "false_negatives": 9,
+          "precision": 0.888889,
+          "recall": 0.470588,
+          "f1": 0.615385,
+          "false_positive_rate": 0.037037,
+          "eligible_observation_count": 44
+        }
+      },
+      "payment-service": {
+        "total_observation_count": 46,
+        "eligible_observation_count": 44,
+        "unavailable_observation_count": 2,
+        "unavailable_by_reason": {
+          "invalid_observation:ValueError": 1,
+          "no_observation": 1
+        },
+        "point_anomaly": {
+          "isolation_forest": {
+            "status": "measured",
+            "true_positives": 0,
+            "false_positives": 2,
+            "true_negatives": 25,
+            "false_negatives": 17,
+            "precision": 0.0,
+            "recall": 0.0,
+            "f1": 0.0,
+            "false_positive_rate": 0.074074,
+            "eligible_observation_count": 44
+          },
+          "direction_aware_mad": {
+            "status": "measured",
+            "true_positives": 10,
+            "false_positives": 0,
+            "true_negatives": 27,
+            "false_negatives": 7,
+            "precision": 1.0,
+            "recall": 0.588235,
+            "f1": 0.740741,
+            "false_positive_rate": 0.0,
+            "eligible_observation_count": 44
+          },
+          "hybrid": {
+            "status": "measured",
+            "true_positives": 10,
+            "false_positives": 2,
+            "true_negatives": 25,
+            "false_negatives": 7,
+            "precision": 0.833333,
+            "recall": 0.588235,
+            "f1": 0.689655,
+            "false_positive_rate": 0.074074,
+            "eligible_observation_count": 44
+          }
+        },
+        "episode_detection_delay": {
+          "isolation_forest": {
+            "status": "measured",
+            "unit": "seconds",
+            "onset_rule": "first timestamped point labeled anomalous",
+            "detection_rule": "first predicted anomaly at or after the labeled onset",
+            "episode_count": 1,
+            "detected_episode_count": 0,
+            "missed_episode_count": 1,
+            "mean_detected_delay_seconds": null,
+            "episodes": [
+              {
+                "episode_id": "gradual-drift-payment-service-cpu",
+                "onset_at": "2026-10-21T05:29:35.111270+00:00",
+                "first_detected_at": null,
+                "delay_seconds": null,
+                "detected": false
+              }
+            ]
+          },
+          "direction_aware_mad": {
+            "status": "measured",
+            "unit": "seconds",
+            "onset_rule": "first timestamped point labeled anomalous",
+            "detection_rule": "first predicted anomaly at or after the labeled onset",
+            "episode_count": 1,
+            "detected_episode_count": 1,
+            "missed_episode_count": 0,
+            "mean_detected_delay_seconds": 180.0,
+            "episodes": [
+              {
+                "episode_id": "gradual-drift-payment-service-cpu",
+                "onset_at": "2026-10-21T05:29:35.111270+00:00",
+                "first_detected_at": "2026-10-21T05:32:35.111270+00:00",
+                "delay_seconds": 180.0,
+                "detected": true
+              }
+            ]
+          },
+          "hybrid": {
+            "status": "measured",
+            "unit": "seconds",
+            "onset_rule": "first timestamped point labeled anomalous",
+            "detection_rule": "first predicted anomaly at or after the labeled onset",
+            "episode_count": 1,
+            "detected_episode_count": 1,
+            "missed_episode_count": 0,
+            "mean_detected_delay_seconds": 180.0,
+            "episodes": [
+              {
+                "episode_id": "gradual-drift-payment-service-cpu",
+                "onset_at": "2026-10-21T05:29:35.111270+00:00",
+                "first_detected_at": "2026-10-21T05:32:35.111270+00:00",
+                "delay_seconds": 180.0,
+                "detected": true
+              }
+            ]
+          }
+        },
+        "mad_actionable_candidate": {
+          "status": "measured",
+          "true_positives": 8,
+          "false_positives": 0,
+          "true_negatives": 27,
+          "false_negatives": 9,
+          "precision": 1.0,
+          "recall": 0.470588,
+          "f1": 0.64,
+          "false_positive_rate": 0.0,
+          "eligible_observation_count": 44
+        }
+      },
+      "user-service": {
+        "total_observation_count": 46,
+        "eligible_observation_count": 44,
+        "unavailable_observation_count": 2,
+        "unavailable_by_reason": {
+          "invalid_observation:ValueError": 1,
+          "no_observation": 1
+        },
+        "point_anomaly": {
+          "isolation_forest": {
+            "status": "measured",
+            "true_positives": 0,
+            "false_positives": 1,
+            "true_negatives": 26,
+            "false_negatives": 17,
+            "precision": 0.0,
+            "recall": 0.0,
+            "f1": 0.0,
+            "false_positive_rate": 0.037037,
+            "eligible_observation_count": 44
+          },
+          "direction_aware_mad": {
+            "status": "measured",
+            "true_positives": 10,
+            "false_positives": 2,
+            "true_negatives": 25,
+            "false_negatives": 7,
+            "precision": 0.833333,
+            "recall": 0.588235,
+            "f1": 0.689655,
+            "false_positive_rate": 0.074074,
+            "eligible_observation_count": 44
+          },
+          "hybrid": {
+            "status": "measured",
+            "true_positives": 10,
+            "false_positives": 3,
+            "true_negatives": 24,
+            "false_negatives": 7,
+            "precision": 0.769231,
+            "recall": 0.588235,
+            "f1": 0.666667,
+            "false_positive_rate": 0.111111,
+            "eligible_observation_count": 44
+          }
+        },
+        "episode_detection_delay": {
+          "isolation_forest": {
+            "status": "measured",
+            "unit": "seconds",
+            "onset_rule": "first timestamped point labeled anomalous",
+            "detection_rule": "first predicted anomaly at or after the labeled onset",
+            "episode_count": 1,
+            "detected_episode_count": 0,
+            "missed_episode_count": 1,
+            "mean_detected_delay_seconds": null,
+            "episodes": [
+              {
+                "episode_id": "gradual-drift-user-service-cpu",
+                "onset_at": "2026-10-21T05:29:35.111270+00:00",
+                "first_detected_at": null,
+                "delay_seconds": null,
+                "detected": false
+              }
+            ]
+          },
+          "direction_aware_mad": {
+            "status": "measured",
+            "unit": "seconds",
+            "onset_rule": "first timestamped point labeled anomalous",
+            "detection_rule": "first predicted anomaly at or after the labeled onset",
+            "episode_count": 1,
+            "detected_episode_count": 1,
+            "missed_episode_count": 0,
+            "mean_detected_delay_seconds": 180.0,
+            "episodes": [
+              {
+                "episode_id": "gradual-drift-user-service-cpu",
+                "onset_at": "2026-10-21T05:29:35.111270+00:00",
+                "first_detected_at": "2026-10-21T05:32:35.111270+00:00",
+                "delay_seconds": 180.0,
+                "detected": true
+              }
+            ]
+          },
+          "hybrid": {
+            "status": "measured",
+            "unit": "seconds",
+            "onset_rule": "first timestamped point labeled anomalous",
+            "detection_rule": "first predicted anomaly at or after the labeled onset",
+            "episode_count": 1,
+            "detected_episode_count": 1,
+            "missed_episode_count": 0,
+            "mean_detected_delay_seconds": 180.0,
+            "episodes": [
+              {
+                "episode_id": "gradual-drift-user-service-cpu",
+                "onset_at": "2026-10-21T05:29:35.111270+00:00",
+                "first_detected_at": "2026-10-21T05:32:35.111270+00:00",
+                "delay_seconds": 180.0,
+                "detected": true
+              }
+            ]
+          }
+        },
+        "mad_actionable_candidate": {
+          "status": "measured",
+          "true_positives": 8,
+          "false_positives": 1,
+          "true_negatives": 26,
+          "false_negatives": 9,
+          "precision": 0.888889,
+          "recall": 0.470588,
+          "f1": 0.615385,
+          "false_positive_rate": 0.037037,
+          "eligible_observation_count": 44
+        }
+      },
+      "inventory-service": {
+        "total_observation_count": 46,
+        "eligible_observation_count": 44,
+        "unavailable_observation_count": 2,
+        "unavailable_by_reason": {
+          "invalid_observation:ValueError": 1,
+          "no_observation": 1
+        },
+        "point_anomaly": {
+          "isolation_forest": {
+            "status": "measured",
+            "true_positives": 0,
+            "false_positives": 3,
+            "true_negatives": 24,
+            "false_negatives": 17,
+            "precision": 0.0,
+            "recall": 0.0,
+            "f1": 0.0,
+            "false_positive_rate": 0.111111,
+            "eligible_observation_count": 44
+          },
+          "direction_aware_mad": {
+            "status": "measured",
+            "true_positives": 10,
+            "false_positives": 1,
+            "true_negatives": 26,
+            "false_negatives": 7,
+            "precision": 0.909091,
+            "recall": 0.588235,
+            "f1": 0.714286,
+            "false_positive_rate": 0.037037,
+            "eligible_observation_count": 44
+          },
+          "hybrid": {
+            "status": "measured",
+            "true_positives": 10,
+            "false_positives": 3,
+            "true_negatives": 24,
+            "false_negatives": 7,
+            "precision": 0.769231,
+            "recall": 0.588235,
+            "f1": 0.666667,
+            "false_positive_rate": 0.111111,
+            "eligible_observation_count": 44
+          }
+        },
+        "episode_detection_delay": {
+          "isolation_forest": {
+            "status": "measured",
+            "unit": "seconds",
+            "onset_rule": "first timestamped point labeled anomalous",
+            "detection_rule": "first predicted anomaly at or after the labeled onset",
+            "episode_count": 1,
+            "detected_episode_count": 0,
+            "missed_episode_count": 1,
+            "mean_detected_delay_seconds": null,
+            "episodes": [
+              {
+                "episode_id": "gradual-drift-inventory-service-cpu",
+                "onset_at": "2026-10-21T05:29:35.111270+00:00",
+                "first_detected_at": null,
+                "delay_seconds": null,
+                "detected": false
+              }
+            ]
+          },
+          "direction_aware_mad": {
+            "status": "measured",
+            "unit": "seconds",
+            "onset_rule": "first timestamped point labeled anomalous",
+            "detection_rule": "first predicted anomaly at or after the labeled onset",
+            "episode_count": 1,
+            "detected_episode_count": 1,
+            "missed_episode_count": 0,
+            "mean_detected_delay_seconds": 180.0,
+            "episodes": [
+              {
+                "episode_id": "gradual-drift-inventory-service-cpu",
+                "onset_at": "2026-10-21T05:29:35.111270+00:00",
+                "first_detected_at": "2026-10-21T05:32:35.111270+00:00",
+                "delay_seconds": 180.0,
+                "detected": true
+              }
+            ]
+          },
+          "hybrid": {
+            "status": "measured",
+            "unit": "seconds",
+            "onset_rule": "first timestamped point labeled anomalous",
+            "detection_rule": "first predicted anomaly at or after the labeled onset",
+            "episode_count": 1,
+            "detected_episode_count": 1,
+            "missed_episode_count": 0,
+            "mean_detected_delay_seconds": 180.0,
+            "episodes": [
+              {
+                "episode_id": "gradual-drift-inventory-service-cpu",
+                "onset_at": "2026-10-21T05:29:35.111270+00:00",
+                "first_detected_at": "2026-10-21T05:32:35.111270+00:00",
+                "delay_seconds": 180.0,
+                "detected": true
+              }
+            ]
+          }
+        },
+        "mad_actionable_candidate": {
+          "status": "measured",
+          "true_positives": 8,
+          "false_positives": 0,
+          "true_negatives": 27,
+          "false_negatives": 9,
+          "precision": 1.0,
+          "recall": 0.470588,
+          "f1": 0.64,
+          "false_positive_rate": 0.0,
+          "eligible_observation_count": 44
+        }
+      }
+    },
+    "per_feature_attribution_counts": {
+      "actionable:cpu_cores_used": 25,
+      "actionable:memory_bytes": 4,
+      "actionable:p95_latency_seconds": 5,
+      "informational:cpu_cores_used": 4,
+      "informational:p95_latency_seconds": 6
+    },
+    "per_feature_classification_metrics": {
+      "status": "not_measured",
+      "numerator": null,
+      "denominator": null,
+      "formula": "feature-level TP / feature-level labeled samples",
+      "reason": "The dataset has anomaly-level labels, not independent feature-level ground-truth labels."
+    },
+    "static_threshold_comparison": {
+      "status": "not_measured",
+      "numerator": null,
+      "denominator": null,
+      "formula": "TP / (TP + FP), Recall, F1, and FPR at prespecified static thresholds",
+      "reason": "No static-threshold baseline with documented thresholds selected before observing this evaluation was configured. Choosing one after inspecting these outcomes would be post-hoc tuning."
+    },
+    "false_positive_rate_definition": "FP / (FP + TN) over evaluated points labeled normal.",
+    "limitations": [
+      "Positive labels are synthetic by construction.",
+      "Chronological baseline holdout is assumed normal and is not independently reviewed.",
+      "The four services share generated scenario families; they are not independent incident populations.",
+      "Isolation Forest and hybrid are comparison methods, not the application runtime detector."
+    ]
+  },
+  "operational_incident_workflow": {
+    "status": "partial_synthetic_contract_evaluation",
+    "synthetic_classifier": {
+      "correct": 20,
+      "denominator": 20,
+      "accuracy": 1.0,
+      "failed_scenario_ids": []
+    },
+    "synthetic_diagnosis_availability": {
+      "evaluation_scope": "synthetic fixtures only",
+      "status_counts": {
+        "available": 18,
+        "missing_evidence": 1,
+        "unavailable": 1
+      },
+      "available_count": 18,
+      "denominator": 20,
+      "availability_rate": 0.9
+    },
+    "synthetic_policy_contract": {
+      "evaluation_scope": "pure deterministic policy function",
+      "matched": 16,
+      "denominator": 16,
+      "match_rate": 1.0,
+      "decision_counts": {
+        "allow": 1,
+        "deny": 1,
+        "not_applicable": 4,
+        "require_approval": 14
+      },
+      "failed_scenario_ids": [],
+      "runtime_safety_status": "not_measured"
+    },
+    "synthetic_policy_decision_counts": {
+      "allow": 1,
+      "deny": 1,
+      "not_applicable": 4,
+      "require_approval": 14
+    },
+    "synthetic_scenario_results": [
+      {
+        "scenario_id": "cpu-spike-1",
+        "expected_category": "cpu_spike",
+        "predicted_category": "cpu_spike",
+        "detection_result": "not_measured",
+        "diagnosis_status": "available",
+        "policy_evaluation": {
+          "status": "not_evaluated",
+          "expected_decision": "not_applicable",
+          "actual_decision": "not_applicable",
+          "matches_expected": true,
+          "reason": "Classifier did not provide an actionable target.",
+          "rules": []
+        },
+        "remediation_outcome": "not_executed",
+        "failure_reason": null
+      },
+      {
+        "scenario_id": "cpu-spike-2",
+        "expected_category": "cpu_spike",
+        "predicted_category": "cpu_spike",
+        "detection_result": "not_measured",
+        "diagnosis_status": "available",
+        "policy_evaluation": {
+          "status": "not_evaluated",
+          "expected_decision": "not_applicable",
+          "actual_decision": "not_applicable",
+          "matches_expected": true,
+          "reason": "Classifier did not provide an actionable target.",
+          "rules": []
+        },
+        "remediation_outcome": "not_executed",
+        "failure_reason": null
+      },
+      {
+        "scenario_id": "cpu-spike-3",
+        "expected_category": "cpu_spike",
+        "predicted_category": "cpu_spike",
+        "detection_result": "not_measured",
+        "diagnosis_status": "available",
+        "policy_evaluation": {
+          "status": "not_evaluated",
+          "expected_decision": "not_applicable",
+          "actual_decision": "not_applicable",
+          "matches_expected": true,
+          "reason": "Classifier did not provide an actionable target.",
+          "rules": []
+        },
+        "remediation_outcome": "not_executed",
+        "failure_reason": null
+      },
+      {
+        "scenario_id": "cpu-spike-4",
+        "expected_category": "cpu_spike",
+        "predicted_category": "cpu_spike",
+        "detection_result": "not_measured",
+        "diagnosis_status": "unavailable",
+        "policy_evaluation": {
+          "status": "not_evaluated",
+          "expected_decision": "not_applicable",
+          "actual_decision": "not_applicable",
+          "matches_expected": true,
+          "reason": "Classifier did not provide an actionable target.",
+          "rules": []
+        },
+        "remediation_outcome": "not_executed",
+        "failure_reason": null
+      },
+      {
+        "scenario_id": "memory-leak-1",
+        "expected_category": "memory_leak",
+        "predicted_category": "memory_leak",
+        "detection_result": "not_measured",
+        "diagnosis_status": "available",
+        "policy_evaluation": {
+          "status": "evaluated",
+          "expected_decision": "require_approval",
+          "actual_decision": "require_approval",
+          "matches_expected": true,
+          "profile": "default",
+          "rules": [
+            {
+              "id": "action_allowlisted",
+              "passed": true,
+              "detail": "action=restart_pod"
+            },
+            {
+              "id": "namespace_allowlisted",
+              "passed": true,
+              "detail": "namespace=kybernaut-lab"
+            },
+            {
+              "id": "deployment_allowlisted",
+              "passed": true,
+              "detail": "deployment=demo-web"
+            },
+            {
+              "id": "pod_belongs_to_deployment",
+              "passed": true,
+              "detail": "pod=demo-web-memoryleak1 deployment=demo-web"
+            },
+            {
+              "id": "confidence_threshold",
+              "passed": true,
+              "detail": "confidence=0.70 minimum=0.60"
+            },
+            {
+              "id": "rate_limit",
+              "passed": true,
+              "detail": "recent_actions=0 limit=3 per 3600s"
+            },
+            {
+              "id": "blast_radius_restart",
+              "passed": true,
+              "detail": "available=2 desired=2 required>=2"
+            },
+            {
+              "id": "approval_required",
+              "passed": true,
+              "detail": "human approval required"
+            }
+          ],
+          "reasons": []
+        },
+        "remediation_outcome": "not_executed",
+        "failure_reason": null
+      },
+      {
+        "scenario_id": "memory-leak-2",
+        "expected_category": "memory_leak",
+        "predicted_category": "memory_leak",
+        "detection_result": "not_measured",
+        "diagnosis_status": "available",
+        "policy_evaluation": {
+          "status": "evaluated",
+          "expected_decision": "deny",
+          "actual_decision": "deny",
+          "matches_expected": true,
+          "profile": "default",
+          "rules": [
+            {
+              "id": "action_allowlisted",
+              "passed": true,
+              "detail": "action=restart_pod"
+            },
+            {
+              "id": "namespace_allowlisted",
+              "passed": true,
+              "detail": "namespace=kybernaut-lab"
+            },
+            {
+              "id": "deployment_allowlisted",
+              "passed": true,
+              "detail": "deployment=demo-web"
+            },
+            {
+              "id": "pod_belongs_to_deployment",
+              "passed": true,
+              "detail": "pod=demo-web-memoryleak2 deployment=demo-web"
+            },
+            {
+              "id": "confidence_threshold",
+              "passed": true,
+              "detail": "confidence=0.70 minimum=0.60"
+            },
+            {
+              "id": "rate_limit",
+              "passed": true,
+              "detail": "recent_actions=0 limit=3 per 3600s"
+            },
+            {
+              "id": "blast_radius_restart",
+              "passed": false,
+              "detail": "deployment state unavailable (fail closed)"
+            },
+            {
+              "id": "approval_required",
+              "passed": true,
+              "detail": "human approval required"
+            }
+          ],
+          "reasons": [
+            "blast_radius_restart: deployment state unavailable (fail closed)"
+          ]
+        },
+        "remediation_outcome": "not_executed",
+        "failure_reason": null
+      },
+      {
+        "scenario_id": "memory-leak-3",
+        "expected_category": "memory_leak",
+        "predicted_category": "memory_leak",
+        "detection_result": "not_measured",
+        "diagnosis_status": "available",
+        "policy_evaluation": {
+          "status": "evaluated",
+          "expected_decision": "require_approval",
+          "actual_decision": "require_approval",
+          "matches_expected": true,
+          "profile": "default",
+          "rules": [
+            {
+              "id": "action_allowlisted",
+              "passed": true,
+              "detail": "action=restart_pod"
+            },
+            {
+              "id": "namespace_allowlisted",
+              "passed": true,
+              "detail": "namespace=kybernaut-lab"
+            },
+            {
+              "id": "deployment_allowlisted",
+              "passed": true,
+              "detail": "deployment=demo-web"
+            },
+            {
+              "id": "pod_belongs_to_deployment",
+              "passed": true,
+              "detail": "pod=demo-web-memoryleak3 deployment=demo-web"
+            },
+            {
+              "id": "confidence_threshold",
+              "passed": true,
+              "detail": "confidence=0.70 minimum=0.60"
+            },
+            {
+              "id": "rate_limit",
+              "passed": true,
+              "detail": "recent_actions=0 limit=3 per 3600s"
+            },
+            {
+              "id": "blast_radius_restart",
+              "passed": true,
+              "detail": "available=2 desired=2 required>=2"
+            },
+            {
+              "id": "approval_required",
+              "passed": true,
+              "detail": "human approval required"
+            }
+          ],
+          "reasons": []
+        },
+        "remediation_outcome": "not_executed",
+        "failure_reason": null
+      },
+      {
+        "scenario_id": "memory-leak-4",
+        "expected_category": "memory_leak",
+        "predicted_category": "memory_leak",
+        "detection_result": "not_measured",
+        "diagnosis_status": "missing_evidence",
+        "policy_evaluation": {
+          "status": "evaluated",
+          "expected_decision": "require_approval",
+          "actual_decision": "require_approval",
+          "matches_expected": true,
+          "profile": "default",
+          "rules": [
+            {
+              "id": "action_allowlisted",
+              "passed": true,
+              "detail": "action=restart_pod"
+            },
+            {
+              "id": "namespace_allowlisted",
+              "passed": true,
+              "detail": "namespace=kybernaut-lab"
+            },
+            {
+              "id": "deployment_allowlisted",
+              "passed": true,
+              "detail": "deployment=demo-web"
+            },
+            {
+              "id": "pod_belongs_to_deployment",
+              "passed": true,
+              "detail": "pod=demo-web-memoryleak4 deployment=demo-web"
+            },
+            {
+              "id": "confidence_threshold",
+              "passed": true,
+              "detail": "confidence=0.70 minimum=0.60"
+            },
+            {
+              "id": "rate_limit",
+              "passed": true,
+              "detail": "recent_actions=0 limit=3 per 3600s"
+            },
+            {
+              "id": "blast_radius_restart",
+              "passed": true,
+              "detail": "available=2 desired=2 required>=2"
+            },
+            {
+              "id": "approval_required",
+              "passed": true,
+              "detail": "human approval required"
+            }
+          ],
+          "reasons": []
+        },
+        "remediation_outcome": "not_executed",
+        "failure_reason": null
+      },
+      {
+        "scenario_id": "pod-crash-1",
+        "expected_category": "pod_crash",
+        "predicted_category": "pod_crash",
+        "detection_result": "not_measured",
+        "diagnosis_status": "available",
+        "policy_evaluation": {
+          "status": "evaluated",
+          "expected_decision": "require_approval",
+          "actual_decision": "require_approval",
+          "matches_expected": true,
+          "profile": "default",
+          "rules": [
+            {
+              "id": "action_allowlisted",
+              "passed": true,
+              "detail": "action=restart_pod"
+            },
+            {
+              "id": "namespace_allowlisted",
+              "passed": true,
+              "detail": "namespace=kybernaut-lab"
+            },
+            {
+              "id": "deployment_allowlisted",
+              "passed": true,
+              "detail": "deployment=demo-web"
+            },
+            {
+              "id": "pod_belongs_to_deployment",
+              "passed": true,
+              "detail": "pod=demo-web-podcrash1 deployment=demo-web"
+            },
+            {
+              "id": "confidence_threshold",
+              "passed": true,
+              "detail": "confidence=0.85 minimum=0.60"
+            },
+            {
+              "id": "rate_limit",
+              "passed": true,
+              "detail": "recent_actions=0 limit=3 per 3600s"
+            },
+            {
+              "id": "blast_radius_restart",
+              "passed": true,
+              "detail": "available=2 desired=2 required>=2"
+            },
+            {
+              "id": "approval_required",
+              "passed": true,
+              "detail": "human approval required"
+            }
+          ],
+          "reasons": []
+        },
+        "remediation_outcome": "not_executed",
+        "failure_reason": null
+      },
+      {
+        "scenario_id": "pod-crash-2",
+        "expected_category": "pod_crash",
+        "predicted_category": "pod_crash",
+        "detection_result": "not_measured",
+        "diagnosis_status": "available",
+        "policy_evaluation": {
+          "status": "evaluated",
+          "expected_decision": "require_approval",
+          "actual_decision": "require_approval",
+          "matches_expected": true,
+          "profile": "default",
+          "rules": [
+            {
+              "id": "action_allowlisted",
+              "passed": true,
+              "detail": "action=restart_pod"
+            },
+            {
+              "id": "namespace_allowlisted",
+              "passed": true,
+              "detail": "namespace=kybernaut-lab"
+            },
+            {
+              "id": "deployment_allowlisted",
+              "passed": true,
+              "detail": "deployment=demo-web"
+            },
+            {
+              "id": "pod_belongs_to_deployment",
+              "passed": true,
+              "detail": "pod=demo-web-podcrash2 deployment=demo-web"
+            },
+            {
+              "id": "confidence_threshold",
+              "passed": true,
+              "detail": "confidence=0.85 minimum=0.60"
+            },
+            {
+              "id": "rate_limit",
+              "passed": true,
+              "detail": "recent_actions=0 limit=3 per 3600s"
+            },
+            {
+              "id": "blast_radius_restart",
+              "passed": true,
+              "detail": "available=2 desired=2 required>=2"
+            },
+            {
+              "id": "approval_required",
+              "passed": true,
+              "detail": "human approval required"
+            }
+          ],
+          "reasons": []
+        },
+        "remediation_outcome": "not_executed",
+        "failure_reason": null
+      },
+      {
+        "scenario_id": "pod-crash-3",
+        "expected_category": "pod_crash",
+        "predicted_category": "pod_crash",
+        "detection_result": "not_measured",
+        "diagnosis_status": "available",
+        "policy_evaluation": {
+          "status": "evaluated",
+          "expected_decision": "require_approval",
+          "actual_decision": "require_approval",
+          "matches_expected": true,
+          "profile": "default",
+          "rules": [
+            {
+              "id": "action_allowlisted",
+              "passed": true,
+              "detail": "action=restart_pod"
+            },
+            {
+              "id": "namespace_allowlisted",
+              "passed": true,
+              "detail": "namespace=kybernaut-lab"
+            },
+            {
+              "id": "deployment_allowlisted",
+              "passed": true,
+              "detail": "deployment=demo-web"
+            },
+            {
+              "id": "pod_belongs_to_deployment",
+              "passed": true,
+              "detail": "pod=demo-web-podcrash3 deployment=demo-web"
+            },
+            {
+              "id": "confidence_threshold",
+              "passed": true,
+              "detail": "confidence=0.85 minimum=0.60"
+            },
+            {
+              "id": "rate_limit",
+              "passed": true,
+              "detail": "recent_actions=0 limit=3 per 3600s"
+            },
+            {
+              "id": "blast_radius_restart",
+              "passed": true,
+              "detail": "available=2 desired=2 required>=2"
+            },
+            {
+              "id": "approval_required",
+              "passed": true,
+              "detail": "human approval required"
+            }
+          ],
+          "reasons": []
+        },
+        "remediation_outcome": "not_executed",
+        "failure_reason": null
+      },
+      {
+        "scenario_id": "pod-crash-4",
+        "expected_category": "pod_crash",
+        "predicted_category": "pod_crash",
+        "detection_result": "not_measured",
+        "diagnosis_status": "available",
+        "policy_evaluation": {
+          "status": "evaluated",
+          "expected_decision": "require_approval",
+          "actual_decision": "require_approval",
+          "matches_expected": true,
+          "profile": "default",
+          "rules": [
+            {
+              "id": "action_allowlisted",
+              "passed": true,
+              "detail": "action=restart_pod"
+            },
+            {
+              "id": "namespace_allowlisted",
+              "passed": true,
+              "detail": "namespace=kybernaut-lab"
+            },
+            {
+              "id": "deployment_allowlisted",
+              "passed": true,
+              "detail": "deployment=demo-web"
+            },
+            {
+              "id": "pod_belongs_to_deployment",
+              "passed": true,
+              "detail": "pod=demo-web-podcrash4 deployment=demo-web"
+            },
+            {
+              "id": "confidence_threshold",
+              "passed": true,
+              "detail": "confidence=0.85 minimum=0.60"
+            },
+            {
+              "id": "rate_limit",
+              "passed": true,
+              "detail": "recent_actions=0 limit=3 per 3600s"
+            },
+            {
+              "id": "blast_radius_restart",
+              "passed": true,
+              "detail": "available=2 desired=2 required>=2"
+            },
+            {
+              "id": "approval_required",
+              "passed": true,
+              "detail": "human approval required"
+            }
+          ],
+          "reasons": []
+        },
+        "remediation_outcome": "not_executed",
+        "failure_reason": null
+      },
+      {
+        "scenario_id": "disk-full-1",
+        "expected_category": "disk_full",
+        "predicted_category": "disk_full",
+        "detection_result": "not_measured",
+        "diagnosis_status": "available",
+        "policy_evaluation": {
+          "status": "evaluated",
+          "expected_decision": "require_approval",
+          "actual_decision": "require_approval",
+          "matches_expected": true,
+          "profile": "default",
+          "rules": [
+            {
+              "id": "action_allowlisted",
+              "passed": true,
+              "detail": "action=restart_pod"
+            },
+            {
+              "id": "namespace_allowlisted",
+              "passed": true,
+              "detail": "namespace=kybernaut-lab"
+            },
+            {
+              "id": "deployment_allowlisted",
+              "passed": true,
+              "detail": "deployment=demo-web"
+            },
+            {
+              "id": "pod_belongs_to_deployment",
+              "passed": true,
+              "detail": "pod=demo-web-diskfull1 deployment=demo-web"
+            },
+            {
+              "id": "confidence_threshold",
+              "passed": true,
+              "detail": "confidence=0.80 minimum=0.60"
+            },
+            {
+              "id": "rate_limit",
+              "passed": true,
+              "detail": "recent_actions=0 limit=3 per 3600s"
+            },
+            {
+              "id": "blast_radius_restart",
+              "passed": true,
+              "detail": "available=2 desired=2 required>=2"
+            },
+            {
+              "id": "approval_required",
+              "passed": true,
+              "detail": "human approval required"
+            }
+          ],
+          "reasons": []
+        },
+        "remediation_outcome": "not_executed",
+        "failure_reason": null
+      },
+      {
+        "scenario_id": "disk-full-2",
+        "expected_category": "disk_full",
+        "predicted_category": "disk_full",
+        "detection_result": "not_measured",
+        "diagnosis_status": "available",
+        "policy_evaluation": {
+          "status": "evaluated",
+          "expected_decision": "require_approval",
+          "actual_decision": "require_approval",
+          "matches_expected": true,
+          "profile": "default",
+          "rules": [
+            {
+              "id": "action_allowlisted",
+              "passed": true,
+              "detail": "action=restart_pod"
+            },
+            {
+              "id": "namespace_allowlisted",
+              "passed": true,
+              "detail": "namespace=kybernaut-lab"
+            },
+            {
+              "id": "deployment_allowlisted",
+              "passed": true,
+              "detail": "deployment=demo-web"
+            },
+            {
+              "id": "pod_belongs_to_deployment",
+              "passed": true,
+              "detail": "pod=demo-web-diskfull2 deployment=demo-web"
+            },
+            {
+              "id": "confidence_threshold",
+              "passed": true,
+              "detail": "confidence=0.80 minimum=0.60"
+            },
+            {
+              "id": "rate_limit",
+              "passed": true,
+              "detail": "recent_actions=0 limit=3 per 3600s"
+            },
+            {
+              "id": "blast_radius_restart",
+              "passed": true,
+              "detail": "available=2 desired=2 required>=2"
+            },
+            {
+              "id": "approval_required",
+              "passed": true,
+              "detail": "human approval required"
+            }
+          ],
+          "reasons": []
+        },
+        "remediation_outcome": "not_executed",
+        "failure_reason": null
+      },
+      {
+        "scenario_id": "disk-full-3",
+        "expected_category": "disk_full",
+        "predicted_category": "disk_full",
+        "detection_result": "not_measured",
+        "diagnosis_status": "available",
+        "policy_evaluation": {
+          "status": "evaluated",
+          "expected_decision": "require_approval",
+          "actual_decision": "require_approval",
+          "matches_expected": true,
+          "profile": "default",
+          "rules": [
+            {
+              "id": "action_allowlisted",
+              "passed": true,
+              "detail": "action=restart_pod"
+            },
+            {
+              "id": "namespace_allowlisted",
+              "passed": true,
+              "detail": "namespace=kybernaut-lab"
+            },
+            {
+              "id": "deployment_allowlisted",
+              "passed": true,
+              "detail": "deployment=demo-web"
+            },
+            {
+              "id": "pod_belongs_to_deployment",
+              "passed": true,
+              "detail": "pod=demo-web-diskfull3 deployment=demo-web"
+            },
+            {
+              "id": "confidence_threshold",
+              "passed": true,
+              "detail": "confidence=0.80 minimum=0.60"
+            },
+            {
+              "id": "rate_limit",
+              "passed": true,
+              "detail": "recent_actions=0 limit=3 per 3600s"
+            },
+            {
+              "id": "blast_radius_restart",
+              "passed": true,
+              "detail": "available=2 desired=2 required>=2"
+            },
+            {
+              "id": "approval_required",
+              "passed": true,
+              "detail": "human approval required"
+            }
+          ],
+          "reasons": []
+        },
+        "remediation_outcome": "not_executed",
+        "failure_reason": null
+      },
+      {
+        "scenario_id": "disk-full-4",
+        "expected_category": "disk_full",
+        "predicted_category": "disk_full",
+        "detection_result": "not_measured",
+        "diagnosis_status": "available",
+        "policy_evaluation": {
+          "status": "evaluated",
+          "expected_decision": "require_approval",
+          "actual_decision": "require_approval",
+          "matches_expected": true,
+          "profile": "default",
+          "rules": [
+            {
+              "id": "action_allowlisted",
+              "passed": true,
+              "detail": "action=restart_pod"
+            },
+            {
+              "id": "namespace_allowlisted",
+              "passed": true,
+              "detail": "namespace=kybernaut-lab"
+            },
+            {
+              "id": "deployment_allowlisted",
+              "passed": true,
+              "detail": "deployment=demo-web"
+            },
+            {
+              "id": "pod_belongs_to_deployment",
+              "passed": true,
+              "detail": "pod=demo-web-diskfull4 deployment=demo-web"
+            },
+            {
+              "id": "confidence_threshold",
+              "passed": true,
+              "detail": "confidence=0.80 minimum=0.60"
+            },
+            {
+              "id": "rate_limit",
+              "passed": true,
+              "detail": "recent_actions=0 limit=3 per 3600s"
+            },
+            {
+              "id": "blast_radius_restart",
+              "passed": true,
+              "detail": "available=2 desired=2 required>=2"
+            },
+            {
+              "id": "approval_required",
+              "passed": true,
+              "detail": "human approval required"
+            }
+          ],
+          "reasons": []
+        },
+        "remediation_outcome": "not_executed",
+        "failure_reason": null
+      },
+      {
+        "scenario_id": "deployment-failure-1",
+        "expected_category": "deployment_failure",
+        "predicted_category": "deployment_failure",
+        "detection_result": "not_measured",
+        "diagnosis_status": "available",
+        "policy_evaluation": {
+          "status": "evaluated",
+          "expected_decision": "allow",
+          "actual_decision": "allow",
+          "matches_expected": true,
+          "profile": "synthetic_auto_eligibility_probe",
+          "rules": [
+            {
+              "id": "action_allowlisted",
+              "passed": true,
+              "detail": "action=restart_pod"
+            },
+            {
+              "id": "namespace_allowlisted",
+              "passed": true,
+              "detail": "namespace=kybernaut-lab"
+            },
+            {
+              "id": "deployment_allowlisted",
+              "passed": true,
+              "detail": "deployment=demo-web"
+            },
+            {
+              "id": "pod_belongs_to_deployment",
+              "passed": true,
+              "detail": "pod=demo-web-deploymentfailure1 deployment=demo-web"
+            },
+            {
+              "id": "confidence_threshold",
+              "passed": true,
+              "detail": "confidence=0.90 minimum=0.60"
+            },
+            {
+              "id": "rate_limit",
+              "passed": true,
+              "detail": "recent_actions=0 limit=3 per 3600s"
+            },
+            {
+              "id": "blast_radius_restart",
+              "passed": true,
+              "detail": "available=2 desired=2 required>=2"
+            },
+            {
+              "id": "approval_required",
+              "passed": false,
+              "detail": "eligible for automatic execution"
+            }
+          ],
+          "reasons": []
+        },
+        "remediation_outcome": "not_executed",
+        "failure_reason": null
+      },
+      {
+        "scenario_id": "deployment-failure-2",
+        "expected_category": "deployment_failure",
+        "predicted_category": "deployment_failure",
+        "detection_result": "not_measured",
+        "diagnosis_status": "available",
+        "policy_evaluation": {
+          "status": "evaluated",
+          "expected_decision": "require_approval",
+          "actual_decision": "require_approval",
+          "matches_expected": true,
+          "profile": "default",
+          "rules": [
+            {
+              "id": "action_allowlisted",
+              "passed": true,
+              "detail": "action=restart_pod"
+            },
+            {
+              "id": "namespace_allowlisted",
+              "passed": true,
+              "detail": "namespace=kybernaut-lab"
+            },
+            {
+              "id": "deployment_allowlisted",
+              "passed": true,
+              "detail": "deployment=demo-web"
+            },
+            {
+              "id": "pod_belongs_to_deployment",
+              "passed": true,
+              "detail": "pod=demo-web-deploymentfailure2 deployment=demo-web"
+            },
+            {
+              "id": "confidence_threshold",
+              "passed": true,
+              "detail": "confidence=0.90 minimum=0.60"
+            },
+            {
+              "id": "rate_limit",
+              "passed": true,
+              "detail": "recent_actions=0 limit=3 per 3600s"
+            },
+            {
+              "id": "blast_radius_restart",
+              "passed": true,
+              "detail": "available=2 desired=2 required>=2"
+            },
+            {
+              "id": "approval_required",
+              "passed": true,
+              "detail": "human approval required"
+            }
+          ],
+          "reasons": []
+        },
+        "remediation_outcome": "not_executed",
+        "failure_reason": null
+      },
+      {
+        "scenario_id": "deployment-failure-3",
+        "expected_category": "deployment_failure",
+        "predicted_category": "deployment_failure",
+        "detection_result": "not_measured",
+        "diagnosis_status": "available",
+        "policy_evaluation": {
+          "status": "evaluated",
+          "expected_decision": "require_approval",
+          "actual_decision": "require_approval",
+          "matches_expected": true,
+          "profile": "default",
+          "rules": [
+            {
+              "id": "action_allowlisted",
+              "passed": true,
+              "detail": "action=restart_pod"
+            },
+            {
+              "id": "namespace_allowlisted",
+              "passed": true,
+              "detail": "namespace=kybernaut-lab"
+            },
+            {
+              "id": "deployment_allowlisted",
+              "passed": true,
+              "detail": "deployment=demo-web"
+            },
+            {
+              "id": "pod_belongs_to_deployment",
+              "passed": true,
+              "detail": "pod=demo-web-deploymentfailure3 deployment=demo-web"
+            },
+            {
+              "id": "confidence_threshold",
+              "passed": true,
+              "detail": "confidence=0.90 minimum=0.60"
+            },
+            {
+              "id": "rate_limit",
+              "passed": true,
+              "detail": "recent_actions=0 limit=3 per 3600s"
+            },
+            {
+              "id": "blast_radius_restart",
+              "passed": true,
+              "detail": "available=2 desired=2 required>=2"
+            },
+            {
+              "id": "approval_required",
+              "passed": true,
+              "detail": "human approval required"
+            }
+          ],
+          "reasons": []
+        },
+        "remediation_outcome": "not_executed",
+        "failure_reason": null
+      },
+      {
+        "scenario_id": "deployment-failure-4",
+        "expected_category": "deployment_failure",
+        "predicted_category": "deployment_failure",
+        "detection_result": "not_measured",
+        "diagnosis_status": "available",
+        "policy_evaluation": {
+          "status": "evaluated",
+          "expected_decision": "require_approval",
+          "actual_decision": "require_approval",
+          "matches_expected": true,
+          "profile": "default",
+          "rules": [
+            {
+              "id": "action_allowlisted",
+              "passed": true,
+              "detail": "action=restart_pod"
+            },
+            {
+              "id": "namespace_allowlisted",
+              "passed": true,
+              "detail": "namespace=kybernaut-lab"
+            },
+            {
+              "id": "deployment_allowlisted",
+              "passed": true,
+              "detail": "deployment=demo-web"
+            },
+            {
+              "id": "pod_belongs_to_deployment",
+              "passed": true,
+              "detail": "pod=demo-web-deploymentfailure4 deployment=demo-web"
+            },
+            {
+              "id": "confidence_threshold",
+              "passed": true,
+              "detail": "confidence=0.90 minimum=0.60"
+            },
+            {
+              "id": "rate_limit",
+              "passed": true,
+              "detail": "recent_actions=0 limit=3 per 3600s"
+            },
+            {
+              "id": "blast_radius_restart",
+              "passed": true,
+              "detail": "available=2 desired=2 required>=2"
+            },
+            {
+              "id": "approval_required",
+              "passed": true,
+              "detail": "human approval required"
+            }
+          ],
+          "reasons": []
+        },
+        "remediation_outcome": "not_executed",
+        "failure_reason": null
+      }
+    ],
+    "synthetic_actions_executed": 0,
+    "metrics": {
+      "live_detection_mttd": {
+        "status": "not_measured",
+        "mean_seconds": null,
+        "median_seconds": null,
+        "p95_seconds": null,
+        "minimum_seconds": null,
+        "maximum_seconds": null,
+        "sample_count": 0,
+        "numerator": null,
+        "denominator": null,
+        "formula": "mean(first persisted incident monotonic time - successful injection monotonic time)",
+        "reason": "No controlled lab fault was injected or observed in this run."
+      },
+      "live_incident_persistence": {
+        "status": "not_measured",
+        "success_rate": null,
+        "sample_count": 0,
+        "numerator": null,
+        "denominator": null,
+        "formula": "incidents persisted with a valid ID / successfully injected faults",
+        "reason": "The deterministic fixture benchmark does not run the live persistence path."
+      },
+      "live_end_to_end_investigation": {
+        "status": "not_measured",
+        "success_rate": null,
+        "sample_count": 0,
+        "numerator": null,
+        "denominator": null,
+        "formula": "incidents completing required investigation stages / eligible detected incidents",
+        "reason": "No live incidents were created, persisted, or investigated."
+      },
+      "approved_remediation_verification": {
+        "status": "not_measured",
+        "success_rate": null,
+        "sample_count": 0,
+        "numerator": null,
+        "denominator": null,
+        "formula": "verified recoveries / authorized remediation executions",
+        "reason": "No remediation was authorized or executed."
+      }
+    },
+    "synthetic_metrics": {
+      "run_metadata": {
+        "status": "enveloped",
+        "run_id": "evaluation-20261028T154510Z-3f6a2c33-synthetic",
+        "evaluation_mode": "synthetic",
+        "scenario_matrix_sha256": "1f6b4b0a6cfca7b053b899cc816fd7dd32be7e3f6c0e2514045490e2adb12e3c",
+        "matrix_digest_matched": true,
+        "started_at": "2026-10-28T15:45:10.573419+00:00",
+        "completed_at": "2026-10-28T15:45:10.573419+00:00",
+        "evaluation_mode_is_declared_only": true,
+        "execution_independently_verified": false
+      },
+      "cases": 20,
+      "controls": 5,
+      "detection": {
+        "true_positives": null,
+        "false_negatives": null,
+        "false_positives": null,
+        "successful_injections": null,
+        "failed_injections": null,
+        "precision": null,
+        "recall": null,
+        "f1": null,
+        "status": "not_measured",
+        "sample_count": 0,
+        "excluded_count": 20,
+        "caveat": null
+      },
+      "mttd_seconds": null,
+      "mttr_seconds": null,
+      "timing": {
+        "mttd": {
+          "mean": null,
+          "median": null,
+          "p95": null,
+          "minimum": null,
+          "maximum": null,
+          "numerator": 0,
+          "denominator": 0,
+          "sample_count": 0,
+          "missing_count": 20,
+          "excluded_count": 0
+        },
+        "mttd_by_scenario": {
+          "cpu-spike-1": {
+            "mean": null,
+            "median": null,
+            "p95": null,
+            "minimum": null,
+            "maximum": null,
+            "numerator": 0,
+            "denominator": 0,
+            "sample_count": 0,
+            "missing_count": 1,
+            "excluded_count": 0,
+            "injection_status": "not_applicable",
+            "detection_result": "not_measured"
+          },
+          "cpu-spike-2": {
+            "mean": null,
+            "median": null,
+            "p95": null,
+            "minimum": null,
+            "maximum": null,
+            "numerator": 0,
+            "denominator": 0,
+            "sample_count": 0,
+            "missing_count": 1,
+            "excluded_count": 0,
+            "injection_status": "not_applicable",
+            "detection_result": "not_measured"
+          },
+          "cpu-spike-3": {
+            "mean": null,
+            "median": null,
+            "p95": null,
+            "minimum": null,
+            "maximum": null,
+            "numerator": 0,
+            "denominator": 0,
+            "sample_count": 0,
+            "missing_count": 1,
+            "excluded_count": 0,
+            "injection_status": "not_applicable",
+            "detection_result": "not_measured"
+          },
+          "cpu-spike-4": {
+            "mean": null,
+            "median": null,
+            "p95": null,
+            "minimum": null,
+            "maximum": null,
+            "numerator": 0,
+            "denominator": 0,
+            "sample_count": 0,
+            "missing_count": 1,
+            "excluded_count": 0,
+            "injection_status": "not_applicable",
+            "detection_result": "not_measured"
+          },
+          "memory-leak-1": {
+            "mean": null,
+            "median": null,
+            "p95": null,
+            "minimum": null,
+            "maximum": null,
+            "numerator": 0,
+            "denominator": 0,
+            "sample_count": 0,
+            "missing_count": 1,
+            "excluded_count": 0,
+            "injection_status": "not_applicable",
+            "detection_result": "not_measured"
+          },
+          "memory-leak-2": {
+            "mean": null,
+            "median": null,
+            "p95": null,
+            "minimum": null,
+            "maximum": null,
+            "numerator": 0,
+            "denominator": 0,
+            "sample_count": 0,
+            "missing_count": 1,
+            "excluded_count": 0,
+            "injection_status": "not_applicable",
+            "detection_result": "not_measured"
+          },
+          "memory-leak-3": {
+            "mean": null,
+            "median": null,
+            "p95": null,
+            "minimum": null,
+            "maximum": null,
+            "numerator": 0,
+            "denominator": 0,
+            "sample_count": 0,
+            "missing_count": 1,
+            "excluded_count": 0,
+            "injection_status": "not_applicable",
+            "detection_result": "not_measured"
+          },
+          "memory-leak-4": {
+            "mean": null,
+            "median": null,
+            "p95": null,
+            "minimum": null,
+            "maximum": null,
+            "numerator": 0,
+            "denominator": 0,
+            "sample_count": 0,
+            "missing_count": 1,
+            "excluded_count": 0,
+            "injection_status": "not_applicable",
+            "detection_result": "not_measured"
+          },
+          "pod-crash-1": {
+            "mean": null,
+            "median": null,
+            "p95": null,
+            "minimum": null,
+            "maximum": null,
+            "numerator": 0,
+            "denominator": 0,
+            "sample_count": 0,
+            "missing_count": 1,
+            "excluded_count": 0,
+            "injection_status": "not_applicable",
+            "detection_result": "not_measured"
+          },
+          "pod-crash-2": {
+            "mean": null,
+            "median": null,
+            "p95": null,
+            "minimum": null,
+            "maximum": null,
+            "numerator": 0,
+            "denominator": 0,
+            "sample_count": 0,
+            "missing_count": 1,
+            "excluded_count": 0,
+            "injection_status": "not_applicable",
+            "detection_result": "not_measured"
+          },
+          "pod-crash-3": {
+            "mean": null,
+            "median": null,
+            "p95": null,
+            "minimum": null,
+            "maximum": null,
+            "numerator": 0,
+            "denominator": 0,
+            "sample_count": 0,
+            "missing_count": 1,
+            "excluded_count": 0,
+            "injection_status": "not_applicable",
+            "detection_result": "not_measured"
+          },
+          "pod-crash-4": {
+            "mean": null,
+            "median": null,
+            "p95": null,
+            "minimum": null,
+            "maximum": null,
+            "numerator": 0,
+            "denominator": 0,
+            "sample_count": 0,
+            "missing_count": 1,
+            "excluded_count": 0,
+            "injection_status": "not_applicable",
+            "detection_result": "not_measured"
+          },
+          "disk-full-1": {
+            "mean": null,
+            "median": null,
+            "p95": null,
+            "minimum": null,
+            "maximum": null,
+            "numerator": 0,
+            "denominator": 0,
+            "sample_count": 0,
+            "missing_count": 1,
+            "excluded_count": 0,
+            "injection_status": "not_applicable",
+            "detection_result": "not_measured"
+          },
+          "disk-full-2": {
+            "mean": null,
+            "median": null,
+            "p95": null,
+            "minimum": null,
+            "maximum": null,
+            "numerator": 0,
+            "denominator": 0,
+            "sample_count": 0,
+            "missing_count": 1,
+            "excluded_count": 0,
+            "injection_status": "not_applicable",
+            "detection_result": "not_measured"
+          },
+          "disk-full-3": {
+            "mean": null,
+            "median": null,
+            "p95": null,
+            "minimum": null,
+            "maximum": null,
+            "numerator": 0,
+            "denominator": 0,
+            "sample_count": 0,
+            "missing_count": 1,
+            "excluded_count": 0,
+            "injection_status": "not_applicable",
+            "detection_result": "not_measured"
+          },
+          "disk-full-4": {
+            "mean": null,
+            "median": null,
+            "p95": null,
+            "minimum": null,
+            "maximum": null,
+            "numerator": 0,
+            "denominator": 0,
+            "sample_count": 0,
+            "missing_count": 1,
+            "excluded_count": 0,
+            "injection_status": "not_applicable",
+            "detection_result": "not_measured"
+          },
+          "deployment-failure-1": {
+            "mean": null,
+            "median": null,
+            "p95": null,
+            "minimum": null,
+            "maximum": null,
+            "numerator": 0,
+            "denominator": 0,
+            "sample_count": 0,
+            "missing_count": 1,
+            "excluded_count": 0,
+            "injection_status": "not_applicable",
+            "detection_result": "not_measured"
+          },
+          "deployment-failure-2": {
+            "mean": null,
+            "median": null,
+            "p95": null,
+            "minimum": null,
+            "maximum": null,
+            "numerator": 0,
+            "denominator": 0,
+            "sample_count": 0,
+            "missing_count": 1,
+            "excluded_count": 0,
+            "injection_status": "not_applicable",
+            "detection_result": "not_measured"
+          },
+          "deployment-failure-3": {
+            "mean": null,
+            "median": null,
+            "p95": null,
+            "minimum": null,
+            "maximum": null,
+            "numerator": 0,
+            "denominator": 0,
+            "sample_count": 0,
+            "missing_count": 1,
+            "excluded_count": 0,
+            "injection_status": "not_applicable",
+            "detection_result": "not_measured"
+          },
+          "deployment-failure-4": {
+            "mean": null,
+            "median": null,
+            "p95": null,
+            "minimum": null,
+            "maximum": null,
+            "numerator": 0,
+            "denominator": 0,
+            "sample_count": 0,
+            "missing_count": 1,
+            "excluded_count": 0,
+            "injection_status": "not_applicable",
+            "detection_result": "not_measured"
+          }
+        },
+        "mttd_duration_source": "UTC_timestamp_delta",
+        "percentile_method": "linear_interpolation_at_(n-1)*p",
+        "mttd_missed_scenarios": [],
+        "mttd_failed_injections": [],
+        "verified_mttr": {
+          "mean": null,
+          "median": null,
+          "p95": null,
+          "minimum": null,
+          "maximum": null,
+          "numerator": 0,
+          "denominator": 0,
+          "sample_count": 0,
+          "missing_count": 0,
+          "excluded_count": 20
+        }
+      },
+      "classification": {
+        "accuracy": 1.0,
+        "macro_f1": 1.0,
+        "per_class_f1": {
+          "cpu_spike": 1.0,
+          "memory_leak": 1.0,
+          "pod_crash": 1.0,
+          "disk_full": 1.0,
+          "deployment_failure": 1.0
+        },
+        "unlabelled_cases": 0
+      },
+      "classification_metrics": {
+        "sample_count": 25,
+        "correct_count": 25,
+        "incorrect_count": 0,
+        "unclassified_count": 0,
+        "accuracy_numerator": 25,
+        "accuracy_denominator": 25,
+        "accuracy": 1.0,
+        "confusion_matrix": {
+          "cpu_spike": {
+            "cpu_spike": 4,
+            "memory_leak": 0,
+            "pod_crash": 0,
+            "disk_full": 0,
+            "deployment_failure": 0,
+            "unknown": 0,
+            "unclassified": 0
+          },
+          "memory_leak": {
+            "cpu_spike": 0,
+            "memory_leak": 4,
+            "pod_crash": 0,
+            "disk_full": 0,
+            "deployment_failure": 0,
+            "unknown": 0,
+            "unclassified": 0
+          },
+          "pod_crash": {
+            "cpu_spike": 0,
+            "memory_leak": 0,
+            "pod_crash": 4,
+            "disk_full": 0,
+            "deployment_failure": 0,
+            "unknown": 0,
+            "unclassified": 0
+          },
+          "disk_full": {
+            "cpu_spike": 0,
+            "memory_leak": 0,
+            "pod_crash": 0,
+            "disk_full": 4,
+            "deployment_failure": 0,
+            "unknown": 0,
+            "unclassified": 0
+          },
+          "deployment_failure": {
+            "cpu_spike": 0,
+            "memory_leak": 0,
+            "pod_crash": 0,
+            "disk_full": 0,
+            "deployment_failure": 4,
+            "unknown": 0,
+            "unclassified": 0
+          },
+          "unknown": {
+            "cpu_spike": 0,
+            "memory_leak": 0,
+            "pod_crash": 0,
+            "disk_full": 0,
+            "deployment_failure": 0,
+            "unknown": 5,
+            "unclassified": 0
+          }
+        },
+        "per_category": {
+          "cpu_spike": {
+            "support": 4,
+            "predicted_count": 4,
+            "true_positives": 4,
+            "false_positives": 0,
+            "false_negatives": 0,
+            "precision_denominator": 4,
+            "recall_denominator": 4,
+            "f1_numerator": 8,
+            "f1_denominator": 8,
+            "precision": 1.0,
+            "recall": 1.0,
+            "f1": 1.0
+          },
+          "memory_leak": {
+            "support": 4,
+            "predicted_count": 4,
+            "true_positives": 4,
+            "false_positives": 0,
+            "false_negatives": 0,
+            "precision_denominator": 4,
+            "recall_denominator": 4,
+            "f1_numerator": 8,
+            "f1_denominator": 8,
+            "precision": 1.0,
+            "recall": 1.0,
+            "f1": 1.0
+          },
+          "pod_crash": {
+            "support": 4,
+            "predicted_count": 4,
+            "true_positives": 4,
+            "false_positives": 0,
+            "false_negatives": 0,
+            "precision_denominator": 4,
+            "recall_denominator": 4,
+            "f1_numerator": 8,
+            "f1_denominator": 8,
+            "precision": 1.0,
+            "recall": 1.0,
+            "f1": 1.0
+          },
+          "disk_full": {
+            "support": 4,
+            "predicted_count": 4,
+            "true_positives": 4,
+            "false_positives": 0,
+            "false_negatives": 0,
+            "precision_denominator": 4,
+            "recall_denominator": 4,
+            "f1_numerator": 8,
+            "f1_denominator": 8,
+            "precision": 1.0,
+            "recall": 1.0,
+            "f1": 1.0
+          },
+          "deployment_failure": {
+            "support": 4,
+            "predicted_count": 4,
+            "true_positives": 4,
+            "false_positives": 0,
+            "false_negatives": 0,
+            "precision_denominator": 4,
+            "recall_denominator": 4,
+            "f1_numerator": 8,
+            "f1_denominator": 8,
+            "precision": 1.0,
+            "recall": 1.0,
+            "f1": 1.0
+          },
+          "unknown": {
+            "support": 5,
+            "predicted_count": 5,
+            "true_positives": 5,
+            "false_positives": 0,
+            "false_negatives": 0,
+            "precision_denominator": 5,
+            "recall_denominator": 5,
+            "f1_numerator": 10,
+            "f1_denominator": 10,
+            "precision": 1.0,
+            "recall": 1.0,
+            "f1": 1.0
+          }
+        },
+        "macro_f1_including_unknown": 1.0,
+        "macro_f1_denominator": 6,
+        "missed_detection_count": 0,
+        "classification_is_independent_of_detection": true
+      },
+      "target_correctness": {
+        "status": "not_measured",
+        "numerator": 0,
+        "denominator": 0,
+        "sample_count": 0,
+        "excluded_count": 20,
+        "exclusions_by_reason": {
+          "canonical_expected_target_not_defined": 20
+        },
+        "accuracy": null
+      },
+      "evidence_provenance": {
+        "record_count": 25,
+        "records_with_valid_provenance": 20,
+        "records_without_valid_provenance": 5,
+        "records_missing_provenance_field": 5,
+        "records_with_malformed_provenance_field": 0,
+        "valid_entry_count": 60,
+        "incomplete_entry_count": 0,
+        "invalid_entry_count": 0,
+        "legacy_entry_count": 0,
+        "source_sample_timestamp_count": 0,
+        "query_evaluation_timestamp_count": 0,
+        "observation_time_count": 60,
+        "evidence_reference_count": 60,
+        "reported_source_status_counts": {
+          "available": 42,
+          "unavailable": 18,
+          "stale": 0,
+          "invalid": 0
+        },
+        "freshness_assessed_entry_count": 0,
+        "freshness_unassessed_entry_count": 60,
+        "freshness_unassessed_record_count": 25,
+        "freshness_limitation": "A parseable source timestamp and declared provenance do not establish freshness. No freshness threshold or underlying scrape-age evidence is defined by this result schema."
+      },
+      "policy_approval_safety": {
+        "status": "not_measured",
+        "coverage_status": "schema_validated",
+        "sample_count": 16,
+        "excluded_count": 4,
+        "policy_decision_counts": {
+          "require_approval": 14,
+          "deny": 1,
+          "allow": 1
+        },
+        "approval_outcome_counts": {
+          "pending": 14,
+          "not_required": 2
+        },
+        "execution_status_counts": {
+          "not_executed": 16
+        },
+        "verification_result_counts": {
+          "not_run": 16
+        },
+        "records_with_audit_event_refs": 0,
+        "records_without_audit_event_refs": 16,
+        "safety_claim": null,
+        "limitation": "This reports schema-consistent, caller-recorded states only; it does not independently prove policy enforcement, approval ordering, execution, verification, or audit persistence."
+      },
+      "rca": {
+        "json_validity": null,
+        "json_validity_counts": {
+          "rate": null,
+          "numerator": 0,
+          "denominator": 0,
+          "sample_count": 0,
+          "missing_count": 20,
+          "excluded_count": 0
+        }
+      },
+      "remediation_success": null,
+      "remediation_success_counts": {
+        "rate": null,
+        "numerator": 0,
+        "denominator": 0,
+        "sample_count": 0,
+        "missing_count": 0,
+        "excluded_count": 20
+      },
+      "verification_success": null,
+      "verification_success_counts": {
+        "rate": null,
+        "numerator": 0,
+        "denominator": 0,
+        "sample_count": 0,
+        "missing_count": 0,
+        "excluded_count": 20
+      },
+      "llm": {
+        "mean_latency_ms": null,
+        "mean_tokens": null,
+        "latency_counts": {
+          "mean": null,
+          "median": null,
+          "p95": null,
+          "minimum": null,
+          "maximum": null,
+          "numerator": 0,
+          "denominator": 0,
+          "sample_count": 0,
+          "missing_count": 20,
+          "excluded_count": 0
+        },
+        "token_counts": {
+          "mean": null,
+          "median": null,
+          "p95": null,
+          "minimum": null,
+          "maximum": null,
+          "numerator": 0,
+          "denominator": 0,
+          "sample_count": 0,
+          "missing_count": 20,
+          "excluded_count": 0
+        }
+      }
+    },
+    "caveat": "Synthetic classifier and policy fixture outcomes are not operational detection, persistence, or end-to-end workflow rates."
+  },
+  "remediation_safety": {
+    "status": "not_measured",
+    "total_safety_cases": null,
+    "defined_scenario_count": 12,
+    "scenarios_executed_by_report_runner": 0,
+    "unsafe_requests_blocked": null,
+    "unsafe_requests_incorrectly_allowed": null,
+    "false_blocks_of_valid_authorized_requests": null,
+    "safety_rejection_rate": null,
+    "unauthorized_action_escape_count": null,
+    "formula": "blocked unsafe requests / executed unsafe test cases",
+    "numerator": null,
+    "denominator": null,
+    "live_or_test_remediation_operations_executed": 0,
+    "reason": "This offline benchmark does not execute the remediation API safety case suite. Unit-test coverage must not be interpreted as an empirical safety rate. No live or test remediation operation was executed by this runner.",
+    "related_test_modules": [
+      "tests/test_api_security.py",
+      "tests/test_operations_api.py",
+      "tests/test_policy_engine.py",
+      "tests/test_incident_response_graph.py",
+      "tests/test_remediation_service.py",
+      "tests/test_verification.py"
+    ],
+    "covered_safety_gates": [
+      "missing or invalid operator JWT",
+      "insufficient operator permissions",
+      "missing or invalid remediation approval token",
+      "missing or pending human approval",
+      "stale evidence",
+      "mismatched incident/resource identity",
+      "out-of-scope Kubernetes namespace",
+      "unsupported remediation action",
+      "resolved or nonexistent incident",
+      "duplicate approval or execution request",
+      "failed preconditions",
+      "failed post-remediation verification"
+    ]
+  },
+  "rca_quality": {
+    "status": "NOT_MEASURED",
+    "sample_count": 0,
+    "json_validity_rate": null,
+    "evidence_grounding_rate": null,
+    "citation_resolution_rate": null,
+    "insufficient_evidence_accuracy": null,
+    "retry_count": null,
+    "latency_mean_ms": null,
+    "latency_p95_ms": null,
+    "token_count_per_call": null,
+    "numerator": null,
+    "denominator": null,
+    "formula": "rubric-scored supported RCA outputs / adjudicated labeled RCA outputs",
+    "reason": "No LLM provider was called; the RCA reference labels are explicitly unverified."
+  },
+  "api_latency": {
+    "status": "not_measured",
+    "request_count": 0,
+    "concurrency": 0,
+    "failure_count": 0,
+    "p50_ms": null,
+    "p95_ms": null,
+    "p99_ms": null,
+    "numerator": null,
+    "denominator": null,
+    "formula": "latency percentiles over successful read-only API requests",
+    "reason": "No API server was exercised and no repeatable request workload was run."
+  },
+  "metric_definitions": {
+    "anomaly_confusion": "TP/FP/TN/FN are computed only over evaluated observations with synthetic or assumed-normal labels.",
+    "false_positive_rate": "FP / (FP + TN); denominator contains evaluated observations labeled normal.",
+    "detection_latency": "Live MTTD uses monotonic timestamps paired by unique trial_id; UTC timestamps are retained for audit only.",
+    "missing_data": "Unavailable observations, unmeasured stages, and absent denominators remain explicitly unavailable; they are not treated as negatives or successes."
+  }
+}

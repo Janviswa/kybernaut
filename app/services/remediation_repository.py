@@ -87,6 +87,26 @@ def get_last_attempt_time(
     return datetime.fromisoformat(row["attempted_at"])
 
 
+def list_attempts_for_incident(
+    incident_id: str,
+    limit: int = 100,
+) -> list[dict]:
+    """Return bounded, read-only remediation attempt metadata for one incident."""
+    limit = max(1, min(int(limit), 1000))
+    with get_connection() as connection:
+        rows = connection.execute(
+            """
+            SELECT audit_id, service, attempted_at, status
+            FROM remediation_attempts
+            WHERE incident_id = ?
+            ORDER BY attempted_at DESC, id DESC
+            LIMIT ?
+            """,
+            (incident_id, limit),
+        ).fetchall()
+    return [dict(row) for row in rows]
+
+
 def get_guardrail_status(service: str, incident_id: str) -> dict:
     """Check cooldown and retry limits without reserving an attempt."""
     now = utc_now()
@@ -138,6 +158,23 @@ def reserve_attempt(
         # Acquire the SQLite write lock before reading the attempt history.
         connection.execute("BEGIN IMMEDIATE")
 
+        unresolved = connection.execute(
+            """
+            SELECT status, attempted_at
+            FROM remediation_attempts
+            WHERE service = ?
+              AND incident_id = ?
+              AND status IN (
+                  'attempted',
+                  'execution_pending',
+                  'execution_unknown',
+                  'blocked_audit_failure'
+              )
+            ORDER BY attempted_at DESC, id DESC
+            LIMIT 1
+            """,
+            (service, incident_id),
+        ).fetchone()
         rows = connection.execute(
             """
             SELECT attempted_at
@@ -151,6 +188,33 @@ def reserve_attempt(
         ).fetchall()
 
         attempt_count = len(rows)
+
+        unresolved_status = (
+            unresolved["status"] if unresolved is not None else None
+        )
+        unresolved_age = (
+            now - datetime.fromisoformat(unresolved["attempted_at"])
+            if unresolved is not None
+            else None
+        )
+        unresolved_execution = unresolved_status in {
+            "attempted",
+            "execution_pending",
+        } and unresolved_age is not None and (
+            unresolved_age.total_seconds() >= COOLDOWN_SECONDS
+        )
+        if unresolved_status in {
+            "execution_unknown",
+            "blocked_audit_failure",
+        } or unresolved_execution:
+            return {
+                "allowed": False,
+                "reason": (
+                    "An earlier attempt has an unresolved execution outcome; "
+                    "automatic retry is blocked."
+                ),
+                "attempt_count": attempt_count,
+            }
 
         if attempt_count >= MAX_ATTEMPTS_PER_INCIDENT:
             return {
@@ -186,7 +250,7 @@ def reserve_attempt(
                 incident_id,
                 service,
                 now.isoformat(),
-                "attempted",
+                "execution_pending",
                 "Approved remediation attempt reserved.",
                 operator_id,
             ),

@@ -52,6 +52,62 @@ def test_immediate_second_reservation_is_blocked():
     assert "Cooldown active" in second["reason"]
 
 
+def test_unknown_outcome_blocks_automatic_replay():
+    first = reserve_attempt(
+        audit_id="test-unknown-attempt",
+        incident_id="test-unknown-outcome",
+        service="test-service",
+    )
+    assert first["allowed"] is True
+    assert update_attempt_result(
+        audit_id="test-unknown-attempt",
+        status="execution_unknown",
+        message="Synthetic uncertain outcome",
+    )
+
+    retry = reserve_attempt(
+        audit_id="test-unknown-retry",
+        incident_id="test-unknown-outcome",
+        service="test-service",
+    )
+
+    assert retry["allowed"] is False
+    assert "unresolved execution outcome" in retry["reason"]
+
+
+def test_unresolved_attempt_blocks_replay_after_cooldown():
+    service = "test-service"
+    incident_id = "test-unresolved-attempt"
+    old_time = (utc_now() - timedelta(hours=1)).isoformat()
+    with get_connection() as connection:
+        connection.execute(
+            """
+            INSERT INTO remediation_attempts (
+                audit_id, incident_id, service, attempted_at,
+                status, message
+            ) VALUES (?, ?, ?, ?, ?, ?)
+            """,
+            (
+                "test-unresolved-old-attempt",
+                incident_id,
+                service,
+                old_time,
+                "execution_pending",
+                "Synthetic interrupted attempt",
+            ),
+        )
+
+    retry = reserve_attempt(
+        audit_id="test-unresolved-retry",
+        incident_id=incident_id,
+        service=service,
+    )
+
+    assert retry["allowed"] is False
+    assert retry["attempt_count"] == 0
+    assert "unresolved execution outcome" in retry["reason"]
+
+
 def test_retry_limit_blocks_fourth_attempt():
     service = "test-service"
     incident_id = "test-retry-limit"
@@ -72,7 +128,7 @@ def test_retry_limit_blocks_fourth_attempt():
                     incident_id,
                     service,
                     (now - timedelta(seconds=seconds_ago)).isoformat(),
-                    "attempted",
+                    "failed",
                     "Automated test record",
                 ),
             )

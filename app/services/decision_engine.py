@@ -8,6 +8,18 @@ async def decide_action(service: str) -> dict:
     findings = diagnosis["findings"]
     finding_types = {item["type"] for item in findings}
     service_status = diagnosis["status"]
+    missing_evidence = diagnosis.get("missing_evidence")
+    evidence_incomplete = (
+        diagnosis.get("evidence_status") not in {None, "available"}
+        or (
+            isinstance(missing_evidence, list)
+            and bool(missing_evidence)
+        )
+        or (
+            missing_evidence is not None
+            and not isinstance(missing_evidence, list)
+        )
+    )
 
     if service_status == "unknown":
         decision = {
@@ -68,6 +80,32 @@ async def decide_action(service: str) -> dict:
                 "Inspect slow endpoints",
                 "Review resource usage",
                 "Investigate database or dependency delays",
+            ],
+            "automatic_execution": False,
+        }
+
+    elif (
+        evidence_incomplete
+        or "monitoring_data_unavailable" in finding_types
+    ):
+        missing_summary = (
+            ", ".join(
+                item for item in missing_evidence if isinstance(item, str)
+            )
+            if isinstance(missing_evidence, list) and missing_evidence
+            else "required metrics"
+        )
+        decision = {
+            "priority": "medium",
+            "action": "investigate_monitoring",
+            "reason": (
+                f"Monitoring evidence is incomplete for {service}: "
+                f"{missing_summary}."
+            ),
+            "proposed_steps": [
+                "Check Prometheus target and scrape health",
+                "Verify required metric series are present",
+                "Confirm fresh telemetry before treating the service as healthy",
             ],
             "automatic_execution": False,
         }

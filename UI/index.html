@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <meta name="theme-color" content="#0E8C8F" />
+  <link rel="icon" type="image/png" href="/src/assets/logo.png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <!-- Fonts load without blocking first paint, so the UI still appears when the network is slow or offline. -->
+  <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" onload="this.onload=null;this.rel='stylesheet'" />
+  <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" /></noscript>
+  <title>Kybernaut — Agentic AIOps</title>
+  <style>
+    #boot{min-height:100vh;display:grid;place-content:center;gap:10px;text-align:center;background:#06353B;color:#fff;font:600 16px system-ui,-apple-system,Segoe UI,sans-serif}
+    #boot small{font-weight:400;color:#9CCDD3;max-width:420px}
+    #boot i{width:34px;height:34px;margin:0 auto;border-radius:50%;border:3px solid #ffffff33;border-top-color:#7CD1CB;animation:bs 1s linear infinite}
+    @keyframes bs{to{transform:rotate(360deg)}}
+  </style>
+</head>
+<body>
+  <div id="root"><div id="boot"><i></i>Loading Kybernaut…<small id="boot-msg"></small></div></div>
+  <script>
+    // If the app has not mounted after a while, say why instead of leaving a silent spinner.
+    setTimeout(function () {
+      var msg = document.getElementById('boot-msg');
+      if (msg) msg.textContent = 'This is taking longer than expected. Check that the frontend dev server is running, then open the browser console (F12) for errors.';
+    }, 8000);
+    window.addEventListener('error', function (event) {
+      var msg = document.getElementById('boot-msg');
+      if (msg) msg.textContent = 'The app failed to start: ' + (event.message || 'unknown error') + '. See the browser console for details.';
+    });
+  </script>
+  <script type="module" src="/src/main.tsx"></script>
+</body>
+</html>

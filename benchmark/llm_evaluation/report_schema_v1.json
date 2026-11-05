@@ -1,0 +1,635 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://kybernaut.invalid/schemas/llm-evaluation-report-v1.json",
+  "title": "Kybernaut approved synthetic LLM evaluation report",
+  "description": "Schema only; contains no evaluation results. Matrix categories are scenario metadata, not verified RCA ground truth. Credentials, raw environment values, request headers, and provider response bodies are prohibited.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "protocol_version",
+    "run",
+    "provider",
+    "approval",
+    "tracks",
+    "cases",
+    "healthy_controls"
+  ],
+  "properties": {
+    "protocol_version": {
+      "const": "1.0"
+    },
+    "run": {
+      "$ref": "#/$defs/run"
+    },
+    "provider": {
+      "$ref": "#/$defs/provider"
+    },
+    "approval": {
+      "$ref": "#/$defs/approval"
+    },
+    "tracks": {
+      "$ref": "#/$defs/tracks"
+    },
+    "cases": {
+      "type": "array",
+      "minItems": 20,
+      "maxItems": 20,
+      "items": {
+        "$ref": "#/$defs/case"
+      }
+    },
+    "healthy_controls": {
+      "type": "array",
+      "minItems": 5,
+      "maxItems": 5,
+      "items": {
+        "$ref": "#/$defs/control"
+      }
+    },
+    "limitations": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 500
+      }
+    }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "cases": {
+            "contains": {
+              "properties": {
+                "call_status": {
+                  "enum": ["completed", "failed"]
+                }
+              },
+              "required": ["call_status"]
+            }
+          }
+        },
+        "required": ["cases"]
+      },
+      "then": {
+        "properties": {
+          "approval": {
+            "properties": {
+              "status": {
+                "const": "approved"
+              },
+              "synthetic_evidence_only": {
+                "const": true
+              }
+            }
+          },
+          "provider": {
+            "properties": {
+              "provider_id": {
+                "type": "string",
+                "minLength": 1
+              },
+              "exact_model_identifier": {
+                "type": "string",
+                "minLength": 1
+              }
+            }
+          }
+        }
+      }
+    }
+  ],
+  "$defs": {
+    "nullableString": {
+      "type": ["string", "null"]
+    },
+    "nullableNonNegativeInteger": {
+      "type": ["integer", "null"],
+      "minimum": 0
+    },
+    "nullableNonNegativeNumber": {
+      "type": ["number", "null"],
+      "minimum": 0
+    },
+    "run": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "run_id",
+        "started_at_utc",
+        "completed_at_utc",
+        "repository_revision",
+        "scenario_matrix_sha256"
+      ],
+      "properties": {
+        "run_id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 120
+        },
+        "started_at_utc": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "completed_at_utc": {
+          "type": ["string", "null"],
+          "format": "date-time"
+        },
+        "repository_revision": {
+          "type": "string",
+          "pattern": "^[0-9a-fA-F]{40,64}$"
+        },
+        "scenario_matrix_sha256": {
+          "type": "string",
+          "pattern": "^[0-9a-fA-F]{64}$"
+        }
+      }
+    },
+    "provider": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "provider_id",
+        "exact_model_identifier"
+      ],
+      "properties": {
+        "provider_id": {
+          "$ref": "#/$defs/nullableString",
+          "maxLength": 120
+        },
+        "exact_model_identifier": {
+          "$ref": "#/$defs/nullableString",
+          "maxLength": 200
+        }
+      }
+    },
+    "approval": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "status",
+        "approval_reference",
+        "owner_reference",
+        "approved_at_utc",
+        "synthetic_evidence_only"
+      ],
+      "properties": {
+        "status": {
+          "enum": ["not_requested", "pending", "approved", "denied"]
+        },
+        "approval_reference": {
+          "$ref": "#/$defs/nullableString",
+          "maxLength": 200
+        },
+        "owner_reference": {
+          "$ref": "#/$defs/nullableString",
+          "maxLength": 120
+        },
+        "approved_at_utc": {
+          "type": ["string", "null"],
+          "format": "date-time"
+        },
+        "synthetic_evidence_only": {
+          "type": "boolean"
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "status": {
+                "const": "approved"
+              }
+            },
+            "required": ["status"]
+          },
+          "then": {
+            "properties": {
+              "approval_reference": {
+                "type": "string",
+                "minLength": 1
+              },
+              "owner_reference": {
+                "type": "string",
+                "minLength": 1
+              },
+              "approved_at_utc": {
+                "type": "string",
+                "format": "date-time"
+              },
+              "synthetic_evidence_only": {
+                "const": true
+              }
+            }
+          }
+        }
+      ]
+    },
+    "trackCounts": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "evaluated_count",
+        "success_count",
+        "failure_count",
+        "not_attempted_count"
+      ],
+      "properties": {
+        "evaluated_count": {
+          "$ref": "#/$defs/nullableNonNegativeInteger"
+        },
+        "success_count": {
+          "$ref": "#/$defs/nullableNonNegativeInteger"
+        },
+        "failure_count": {
+          "$ref": "#/$defs/nullableNonNegativeInteger"
+        },
+        "not_attempted_count": {
+          "$ref": "#/$defs/nullableNonNegativeInteger"
+        }
+      }
+    },
+    "tracks": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "deterministic_classification",
+        "llm_rca",
+        "structured_output_and_fallback"
+      ],
+      "properties": {
+        "deterministic_classification": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["status", "counts", "accuracy", "macro_f1"],
+          "properties": {
+            "status": {
+              "enum": ["not_run", "completed", "failed"]
+            },
+            "counts": {
+              "$ref": "#/$defs/trackCounts"
+            },
+            "accuracy": {
+              "$ref": "#/$defs/nullableNonNegativeNumber",
+              "maximum": 1
+            },
+            "macro_f1": {
+              "$ref": "#/$defs/nullableNonNegativeNumber",
+              "maximum": 1
+            }
+          }
+        },
+        "llm_rca": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "status",
+            "counts",
+            "latency_mean_ms",
+            "latency_p95_ms",
+            "token_count_total"
+          ],
+          "properties": {
+            "status": {
+              "enum": ["not_attempted", "in_progress", "completed", "partial", "failed"]
+            },
+            "counts": {
+              "$ref": "#/$defs/trackCounts"
+            },
+            "latency_mean_ms": {
+              "$ref": "#/$defs/nullableNonNegativeNumber"
+            },
+            "latency_p95_ms": {
+              "$ref": "#/$defs/nullableNonNegativeNumber"
+            },
+            "token_count_total": {
+              "$ref": "#/$defs/nullableNonNegativeInteger"
+            }
+          }
+        },
+        "structured_output_and_fallback": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "status",
+            "schema_valid_count",
+            "schema_invalid_count",
+            "fallback_count",
+            "retry_count"
+          ],
+          "properties": {
+            "status": {
+              "enum": ["not_attempted", "completed", "partial", "failed"]
+            },
+            "schema_valid_count": {
+              "$ref": "#/$defs/nullableNonNegativeInteger"
+            },
+            "schema_invalid_count": {
+              "$ref": "#/$defs/nullableNonNegativeInteger"
+            },
+            "fallback_count": {
+              "$ref": "#/$defs/nullableNonNegativeInteger"
+            },
+            "retry_count": {
+              "$ref": "#/$defs/nullableNonNegativeInteger"
+            }
+          }
+        }
+      }
+    },
+    "reviewer": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "reviewer_reference",
+        "review_status",
+        "evidence_grounding",
+        "root_cause_plausibility",
+        "action_safety"
+      ],
+      "properties": {
+        "reviewer_reference": {
+          "$ref": "#/$defs/nullableString",
+          "maxLength": 120
+        },
+        "review_status": {
+          "enum": ["not_started", "in_progress", "completed"]
+        },
+        "evidence_grounding": {
+          "type": ["integer", "null"],
+          "minimum": 0,
+          "maximum": 2
+        },
+        "root_cause_plausibility": {
+          "type": ["integer", "null"],
+          "minimum": 0,
+          "maximum": 2
+        },
+        "action_safety": {
+          "type": ["integer", "null"],
+          "minimum": 0,
+          "maximum": 2
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "review_status": {
+                "const": "completed"
+              }
+            },
+            "required": ["review_status"]
+          },
+          "then": {
+            "properties": {
+              "reviewer_reference": {
+                "type": "string",
+                "minLength": 1
+              },
+              "evidence_grounding": {
+                "type": "integer"
+              },
+              "root_cause_plausibility": {
+                "type": "integer"
+              },
+              "action_safety": {
+                "type": "integer"
+              }
+            }
+          }
+        }
+      ]
+    },
+    "case": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "scenario_id",
+        "scenario_category_metadata",
+        "rca_ground_truth_verified",
+        "call_status",
+        "schema_valid",
+        "retry_count",
+        "fallback_reason",
+        "latency_ms",
+        "token_count",
+        "reviewers",
+        "adjudication_status",
+        "adjudicated_scores",
+        "approval_requirement_pass",
+        "safety_failure"
+      ],
+      "properties": {
+        "scenario_id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 120
+        },
+        "scenario_category_metadata": {
+          "enum": [
+            "cpu_spike",
+            "memory_leak",
+            "pod_crash",
+            "disk_full",
+            "deployment_failure"
+          ]
+        },
+        "rca_ground_truth_verified": {
+          "const": false
+        },
+        "call_status": {
+          "enum": ["not_attempted", "completed", "failed", "skipped"]
+        },
+        "schema_valid": {
+          "type": ["boolean", "null"]
+        },
+        "retry_count": {
+          "$ref": "#/$defs/nullableNonNegativeInteger"
+        },
+        "fallback_reason": {
+          "$ref": "#/$defs/nullableString",
+          "maxLength": 200
+        },
+        "latency_ms": {
+          "$ref": "#/$defs/nullableNonNegativeNumber"
+        },
+        "token_count": {
+          "$ref": "#/$defs/nullableNonNegativeInteger"
+        },
+        "reviewers": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/reviewer"
+          }
+        },
+        "adjudication_status": {
+          "enum": ["not_started", "in_progress", "adjudicated", "not_applicable"]
+        },
+        "adjudicated_scores": {
+          "type": ["object", "null"],
+          "additionalProperties": false,
+          "required": [
+            "evidence_grounding",
+            "root_cause_plausibility",
+            "action_safety"
+          ],
+          "properties": {
+            "evidence_grounding": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 2
+            },
+            "root_cause_plausibility": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 2
+            },
+            "action_safety": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 2
+            }
+          }
+        },
+        "approval_requirement_pass": {
+          "type": ["boolean", "null"]
+        },
+        "safety_failure": {
+          "type": ["boolean", "null"]
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "call_status": {
+                "const": "not_attempted"
+              }
+            },
+            "required": ["call_status"]
+          },
+          "then": {
+            "properties": {
+              "schema_valid": {
+                "type": "null"
+              },
+              "retry_count": {
+                "type": "null"
+              },
+              "fallback_reason": {
+                "type": "null"
+              },
+              "latency_ms": {
+                "type": "null"
+              },
+              "token_count": {
+                "type": "null"
+              },
+              "approval_requirement_pass": {
+                "type": "null"
+              },
+              "safety_failure": {
+                "type": "null"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "adjudication_status": {
+                "const": "adjudicated"
+              }
+            },
+            "required": ["adjudication_status"]
+          },
+          "then": {
+            "properties": {
+              "adjudicated_scores": {
+                "type": "object"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "call_status": {
+                "const": "completed"
+              }
+            },
+            "required": ["call_status"]
+          },
+          "then": {
+            "properties": {
+              "schema_valid": {
+                "type": "boolean"
+              }
+            }
+          }
+        }
+      ]
+    },
+    "control": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "control_id",
+        "evidence_status",
+        "submitted_to_provider",
+        "observed_window"
+      ],
+      "properties": {
+        "control_id": {
+          "type": "string",
+          "pattern": "^healthy-control-[1-5]$"
+        },
+        "evidence_status": {
+          "enum": ["synthetic_placeholder_not_observed", "observed"]
+        },
+        "submitted_to_provider": {
+          "type": "boolean"
+        },
+        "observed_window": {
+          "type": ["object", "null"],
+          "additionalProperties": false,
+          "required": ["started_at_utc", "ended_at_utc"],
+          "properties": {
+            "started_at_utc": {
+              "type": "string",
+              "format": "date-time"
+            },
+            "ended_at_utc": {
+              "type": "string",
+              "format": "date-time"
+            }
+          }
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "evidence_status": {
+                "const": "synthetic_placeholder_not_observed"
+              }
+            },
+            "required": ["evidence_status"]
+          },
+          "then": {
+            "properties": {
+              "submitted_to_provider": {
+                "const": false
+              },
+              "observed_window": {
+                "type": "null"
+              }
+            }
+          }
+        }
+      ]
+    }
+  }
+}

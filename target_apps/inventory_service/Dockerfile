@@ -3,9 +3,11 @@ FROM python:3.12-slim
 
 WORKDIR /app
 
-RUN pip install --no-cache-dir fastapi uvicorn prometheus-fastapi-instrumentator
+COPY inventory_service/requirements.txt ./requirements.txt
+RUN pip install --no-cache-dir -r requirements.txt
 
-COPY main.py .
+COPY common ./common
+COPY inventory_service/main.py ./main.py
 
 EXPOSE 8004
 
