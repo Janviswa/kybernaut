@@ -1,0 +1,61 @@
+services:
+  payment-postgres:
+    image: postgres:17-alpine
+    environment:
+      POSTGRES_DB: kybernaut_payments
+      POSTGRES_USER: kybernaut_payment
+      POSTGRES_PASSWORD: "${PAYMENT_DB_PASSWORD:?Set PAYMENT_DB_PASSWORD in .env}"
+    volumes:
+      - payment-postgres-data:/var/lib/postgresql/data
+    ports:
+      - "127.0.0.1:${PAYMENT_DB_HOST_PORT:-5433}:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U kybernaut_payment -d kybernaut_payments"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+    restart: unless-stopped
+
+  order-service:
+    extends:
+      file: docker-compose.yml
+      service: order-service
+    depends_on: !reset []
+    logging:
+      options:
+        syslog-address: "tcp://127.0.0.1:1515"
+
+  payment-service:
+    extends:
+      file: docker-compose.yml
+      service: payment-service
+    depends_on: !reset {payment-postgres: {condition: service_healthy}}
+    logging:
+      options:
+        syslog-address: "tcp://127.0.0.1:1515"
+
+  user-service:
+    extends:
+      file: docker-compose.yml
+      service: user-service
+    depends_on: !reset []
+    logging:
+      options:
+        syslog-address: "tcp://127.0.0.1:1515"
+
+  inventory-service:
+    extends:
+      file: docker-compose.yml
+      service: inventory-service
+    depends_on: !reset []
+    logging:
+      options:
+        syslog-address: "tcp://127.0.0.1:1515"
+
+networks:
+  default:
+    external: true
+    name: kybernaut_default
+
+volumes:
+  payment-postgres-data:

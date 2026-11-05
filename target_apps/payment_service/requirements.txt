@@ -1,0 +1,4 @@
+fastapi
+uvicorn[standard]
+prometheus-fastapi-instrumentator
+psycopg[binary]>=3.2,<4

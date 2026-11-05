@@ -3,9 +3,12 @@ FROM python:3.12-slim
 
 WORKDIR /app
 
-RUN pip install --no-cache-dir fastapi uvicorn prometheus-fastapi-instrumentator
+COPY payment_service/requirements.txt ./requirements.txt
+RUN pip install --no-cache-dir -r requirements.txt
 
-COPY main.py .
+COPY common ./common
+COPY payment_service/main.py ./main.py
+COPY payment_service/payment_store.py ./payment_store.py
 
 EXPOSE 8002
 
