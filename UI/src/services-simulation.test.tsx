@@ -109,15 +109,14 @@ describe('Service Health incident status', () => {
     vi.unstubAllGlobals();
   });
 
-  it('shows degraded service status and incident evidence without simulation labels', async () => {
+  it('shows Prometheus diagnosis separately from unresolved incident evidence', async () => {
     const { container } = render(<MemoryRouter><Services /></MemoryRouter>);
 
     await screen.findByText('Order requests are delayed by two seconds.');
     const statuses = Array.from(container.querySelectorAll('.badge')).map(
       badge => badge.textContent,
     );
-    expect(statuses.filter(status => status === 'degraded')).toHaveLength(3);
-    expect(statuses).toContain('down');
+    expect(statuses).toEqual(['up', 'up', 'up', 'up']);
     expect(screen.getByText('Order requests are delayed by two seconds.')).toBeTruthy();
     expect(screen.getByText('Payment requests return HTTP 503.')).toBeTruthy();
     expect(screen.getByText('User requests return HTTP 503.')).toBeTruthy();

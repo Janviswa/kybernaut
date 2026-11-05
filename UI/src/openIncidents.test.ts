@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { openIncidentsOf } from './openIncidents';
+import { diagnosedServiceStatus, openIncidentsOf } from './openIncidents';
 
 const row = (id: string, status: string, extra: Record<string, unknown> = {}) =>
   ({ incident_id: id, status, service: 'order-service', ...extra });
@@ -15,6 +15,16 @@ describe('openIncidentsOf', () => {
       row('f', 'OPEN', { service: 'kubernetes-lab' }),
     ]);
     expect(list.map(item => item.incident_id)).toEqual(['a', 'c', 'd']);
+  });
+
+  describe('diagnosedServiceStatus', () => {
+    it('uses the live diagnosis and does not infer availability from incidents', () => {
+      expect(diagnosedServiceStatus('up')).toBe('up');
+      expect(diagnosedServiceStatus('degraded')).toBe('degraded');
+      expect(diagnosedServiceStatus('down')).toBe('down');
+      expect(diagnosedServiceStatus(undefined)).toBe('unknown');
+      expect(diagnosedServiceStatus('healthy')).toBe('unknown');
+    });
   });
 
   it('handles missing data', () => {

@@ -3,7 +3,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { Page, DataTable, Badge, Empty, ResourceMessage, Kpi } from '../ui';
 import { refresh, useStore } from '../store';
 import { SERVICES, fmt } from '../data';
-import { effectiveServiceStatus } from '../openIncidents';
+import { diagnosedServiceStatus } from '../openIncidents';
 import { getLiveTelemetry } from '../api';
 import { Bars } from '../charts';
 import { AnimatedTimeline, BackButton, Scrollbox } from '../components';
@@ -69,13 +69,13 @@ export function Services() {
         item.service === record.service && activeIncident(item) && localSimulation(item));
       const scenario = simulation ? String(simulation.incident_type) : '';
       void scenario;
-      const effectiveStatus = effectiveServiceStatus(record.service, record.data?.status, incidents);
+      const currentStatus = diagnosedServiceStatus(record.data?.status);
       const evidence = rec(record.data?.evidence);
       const features = rec(telemetry.services[record.service]);
       return {
         ...record,
         simulation,
-        effectiveStatus,
+        currentStatus,
         p95: num(evidence.p95_latency_seconds) ?? num(features.p95_latency_seconds),
         e5xx: num(evidence.http_5xx_rate_per_second),
         cpu: num(features.cpu_cores_used), mem: mb(num(features.memory_bytes)), rps: num(features.request_rate),
@@ -83,7 +83,7 @@ export function Services() {
       };
     }).filter(row =>
       row.service.toLowerCase().includes(query.toLowerCase()) &&
-      (health === 'all' || (row.status === 'ready' && row.effectiveStatus === health)));
+      (health === 'all' || (row.status === 'ready' && row.currentStatus === health)));
   const chart = rows.map(row => ({
     name: row.service.replace('-service', ''),
     p95_ms: row.p95 === null ? null : Number((row.p95 * 1000).toFixed(2)),
@@ -111,7 +111,7 @@ export function Services() {
         {telemetry.status === 'error' && <p className="err" role="alert">{telemetry.error} Latency, CPU and memory columns may show “Unavailable”.</p>}
         <DataTable rows={rows} onRow={(row: any) => nav(`/services/${row.service}`)} empty="No matching service diagnosis results." cols={[
           { k: 'service', h: 'Service' },
-          { k: 'status', h: 'Availability', r: (row: any) => <Badge v={row.status !== 'ready' ? 'blocked' : row.effectiveStatus === 'up' ? 'healthy' : row.effectiveStatus === 'down' ? 'critical' : 'blocked'}>{row.status !== 'ready' ? 'unavailable' : row.effectiveStatus}</Badge> },
+          { k: 'status', h: 'Availability', r: (row: any) => <Badge v={row.status !== 'ready' ? 'blocked' : row.currentStatus === 'up' ? 'healthy' : row.currentStatus === 'down' ? 'critical' : 'blocked'}>{row.status !== 'ready' ? 'unavailable' : row.currentStatus}</Badge> },
           { k: 'p95', h: 'p95 latency', r: (row: any) => show(row.p95, 4, ' s') },
           { k: 'e5xx', h: 'HTTP 5xx rate', r: (row: any) => show(row.e5xx, 4, ' /s') },
           { k: 'cpu', h: 'CPU cores', r: (row: any) => show(row.cpu, 3) },
@@ -151,9 +151,7 @@ export function ServiceDetail() {
   const simulation = incidents.find(item =>
     activeIncident(item) && localSimulation(item));
   const simulatedDown = simulation?.incident_type === 'service_unavailable';
-  const status = simulation
-    ? effectiveServiceStatus(serviceId, undefined, incidents)
-    : String(diagnosis.status || 'unknown');
+  const status = diagnosedServiceStatus(diagnosis.status);
   const tone = status.startsWith('up') ? 'healthy' : status.startsWith('down') ? 'critical' : 'blocked';
   const p95 = num(evidence.p95_latency_seconds) ?? num(features.p95_latency_seconds);
   const compare = (state.services.data || []).filter(item => item.status === 'ready').map(item => ({

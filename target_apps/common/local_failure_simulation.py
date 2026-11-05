@@ -15,7 +15,6 @@ from pydantic import BaseModel, Field
 
 MAX_FAILURE_SECONDS = 600
 SIMULATION_PATH = "/__kybernaut/simulation"
-MONITORING_PATHS = {"/metrics", SIMULATION_PATH}
 SCENARIO_DESCRIPTIONS = {
     "high_latency": "{service} requests are delayed by two seconds.",
     "http_5xx": "{service} business requests return HTTP 503.",
@@ -67,7 +66,7 @@ def install_local_failure_simulation(
 
     @app.middleware("http")
     async def apply_local_failure(request, call_next):
-        if request.url.path in MONITORING_PATHS:
+        if request.url.path == SIMULATION_PATH:
             return await call_next(request)
 
         scenario = current_scenario()
@@ -77,9 +76,6 @@ def install_local_failure_simulation(
         if scenario == "high_latency":
             if request.url.path != "/health":
                 await asyncio.sleep(2.0)
-            return await call_next(request)
-
-        if scenario in {"http_5xx", "request_failure"} and request.url.path == "/health":
             return await call_next(request)
 
         if scenario == "service_unavailable" or scenario == "http_5xx":

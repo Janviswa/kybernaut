@@ -35,17 +35,11 @@ export function openIncidentsOf(records: Rec[] | null | undefined): Rec[] {
     .sort((a, b) => severityRank(a) - severityRank(b));
 }
 
-/**
- * Effective service state: the backend diagnosis, overridden by open incidents so that
- * a service with an active outage is never reported as up.
- */
-export function effectiveServiceStatus(
-  service: string, diagnosed: unknown, records: Rec[] | null | undefined,
+/** Service availability follows the current Prometheus-backed diagnosis only. */
+export function diagnosedServiceStatus(
+  diagnosed: unknown,
 ): 'up' | 'degraded' | 'down' | 'unknown' {
-  const open = openIncidentsOf(records).filter(item => item.service === service);
-  if (open.some(item => String(item.incident_type ?? item.type ?? '') === 'service_unavailable'
-    || String(item.severity ?? '').toLowerCase() === 'critical')) return 'down';
-  if (String(diagnosed) === 'down') return 'down';
-  if (open.length > 0 || String(diagnosed) === 'degraded') return 'degraded';
-  return String(diagnosed) === 'up' ? 'up' : 'unknown';
+  return diagnosed === 'up' || diagnosed === 'degraded' || diagnosed === 'down'
+    ? diagnosed
+    : 'unknown';
 }

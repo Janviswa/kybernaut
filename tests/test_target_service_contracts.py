@@ -235,9 +235,9 @@ def test_inventory_contract_preserves_stock_on_invalid_reservations():
     ("service", "scenario", "expected_status", "health_status"),
     [
         ("order-service", "high_latency", 200, 200),
-        ("payment-service", "http_5xx", 503, 200),
+        ("payment-service", "http_5xx", 503, 503),
         ("user-service", "service_unavailable", 503, 503),
-        ("inventory-service", "request_failure", 500, 200),
+        ("inventory-service", "request_failure", 500, 500),
     ],
 )
 def test_local_failure_simulation_is_token_gated_and_clearable(
@@ -260,6 +260,10 @@ def test_local_failure_simulation_is_token_gated_and_clearable(
     def business():
         return {"status": "ok"}
 
+    @app.get("/metrics")
+    def metrics():
+        return "metrics"
+
     client = TestClient(app)
     control = "/__kybernaut/simulation"
     payload = {
@@ -280,6 +284,7 @@ def test_local_failure_simulation_is_token_gated_and_clearable(
     assert started.json()["active"] is True
     assert client.get("/business").status_code == expected_status
     assert client.get("/health").status_code == health_status
+    assert client.get("/metrics").status_code == expected_status
 
     cleared = client.post(
         control,
@@ -289,6 +294,8 @@ def test_local_failure_simulation_is_token_gated_and_clearable(
     assert cleared.status_code == 200
     assert cleared.json()["active"] is False
     assert client.get("/business").status_code == 200
+    assert client.get("/health").status_code == 200
+    assert client.get("/metrics").status_code == 200
 
 
 def test_every_target_service_accepts_every_rotating_failure_type(monkeypatch):

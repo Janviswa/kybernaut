@@ -4,7 +4,7 @@ import { Page, Kpi, Badge, DataTable, ResourceMessage } from '../ui';
 import { refresh, useStore } from '../store';
 import { fmt, formatDuration, SERVICES } from '../data';
 import { Bars, Donut, SEVERITY_COLORS, TrendArea } from '../charts';
-import { effectiveServiceStatus, openIncidentsOf } from '../openIncidents';
+import { diagnosedServiceStatus, openIncidentsOf } from '../openIncidents';
 
 
 const DAY = 86_400_000;
@@ -21,7 +21,7 @@ export default function Overview() {
   const approvals = state.approvals.data || [];
   const active = openIncidentsOf(allIncidents);
   const effective = (item: (typeof services)[number]) =>
-    item.status === 'ready' ? effectiveServiceStatus(item.service, item.data?.status, allIncidents) : 'unknown';
+    item.status === 'ready' ? diagnosedServiceStatus(item.data?.status) : 'unknown';
   const counts = (status: string) => services.filter(item => effective(item) === status).length;
   const kpi = (resource: { status: string }, value: ReactNode) =>
     resource.status === 'ready' ? value : resource.status === 'loading' ? 'Loading…' : 'Unavailable';
