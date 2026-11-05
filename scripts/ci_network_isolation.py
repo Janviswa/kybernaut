@@ -23,7 +23,7 @@ from typing import Any, Callable, Iterable, Mapping
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
 REQUIREMENTS_SHA256 = (
-    "29fab34c58b0f3130bd216f26bcf1bc5d662eac91474bdf592f68509b2e403a3"
+    "461823143e2e58fb9f487347e59178205de9bba3513ce6fc65a52971fe04bff9"
 )
 SUPPORTED_BASE_IMAGES = {
     "3.11": "python@sha256:b7a9e5f6a93d6d4a31f129bbd4bdee69efccb6ded0fb230d78aafaf37af98377",
@@ -121,7 +121,7 @@ APPROVED_INPUT_SHA256 = {
         "c01d2f9e803f023a077caee14979267d45b9f10424802124887b9dec09e62aed"
     ),
     "requirements.txt": (
-        "29fab34c58b0f3130bd216f26bcf1bc5d662eac91474bdf592f68509b2e403a3"
+        "461823143e2e58fb9f487347e59178205de9bba3513ce6fc65a52971fe04bff9"
     ),
 }
 DOTENV_EXAMPLE_NAME = "GRAFANA_ADMIN_PASSWORD"

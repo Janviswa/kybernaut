@@ -19,7 +19,7 @@ PYTHON_BASE_IMAGES = {
     "3.12.15": "python@sha256:a6e34c598f2467ed0e9a8d349809fcd8b5c603269512df273a0bb1784edc11b1",
 }
 REQUIREMENTS_SHA256 = (
-    "29fab34c58b0f3130bd216f26bcf1bc5d662eac91474bdf592f68509b2e403a3"
+    "461823143e2e58fb9f487347e59178205de9bba3513ce6fc65a52971fe04bff9"
 )
 REVISION_PATTERN = re.compile(r"(?:[0-9a-f]{40}|[0-9a-f]{64})\Z")
 IMAGE_ID_PATTERN = re.compile(r"sha256:[0-9a-f]{64}\Z")

@@ -114,7 +114,7 @@ def _evidence_fixture(tmp_path):
             "snapshot_worktree": "clean",
             "lock_status": "verified",
             "requirements_sha256": (
-                "29fab34c58b0f3130bd216f26bcf1bc5d662eac91474bdf592f68509b2e403a3"
+                "461823143e2e58fb9f487347e59178205de9bba3513ce6fc65a52971fe04bff9"
             ),
         },
         "source_snapshot": {
@@ -124,10 +124,10 @@ def _evidence_fixture(tmp_path):
                 "path": "requirements.txt",
                 "git_blob_oid": "f" * 40,
                 "source_sha256": (
-                    "29fab34c58b0f3130bd216f26bcf1bc5d662eac91474bdf592f68509b2e403a3"
+                    "461823143e2e58fb9f487347e59178205de9bba3513ce6fc65a52971fe04bff9"
                 ),
                 "snapshot_sha256": (
-                    "29fab34c58b0f3130bd216f26bcf1bc5d662eac91474bdf592f68509b2e403a3"
+                    "461823143e2e58fb9f487347e59178205de9bba3513ce6fc65a52971fe04bff9"
                 ),
             }],
             "manifest_sha256": "",
@@ -157,7 +157,7 @@ def _evidence_fixture(tmp_path):
             ),
             "platform": "linux/amd64",
             "requirements_sha256": (
-                "29fab34c58b0f3130bd216f26bcf1bc5d662eac91474bdf592f68509b2e403a3"
+                "461823143e2e58fb9f487347e59178205de9bba3513ce6fc65a52971fe04bff9"
             ),
             "test_image_id": IMAGE_ID,
         },
