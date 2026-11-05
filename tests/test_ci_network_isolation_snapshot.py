@@ -131,6 +131,22 @@ def test_required_source_and_real_suite_inputs_are_included(tmp_path):
     assert manifest
 
 
+def test_ci_allowlists_include_modules_required_for_test_collection():
+    required_scripts = {
+        "scripts/evaluate_mad_holdout.py",
+        "scripts/evaluate_per_service_mad.py",
+        "scripts/migrate_payment_history.py",
+        "scripts/run_reproducible_evaluation.py",
+    }
+    required_sources = {
+        "target_apps/common/local_failure_simulation.py",
+        "target_apps/payment_service/payment_store.py",
+    }
+
+    assert required_scripts <= set(isolation.APPROVED_SCRIPT_FILES)
+    assert required_sources <= set(isolation.APPROVED_SOURCE_FILES)
+
+
 def test_unusual_dummy_secret_filename_is_not_selected(tmp_path):
     root = _synthetic_repository(tmp_path)
     (root / "unexpected-credential-payload.weird").write_text(
